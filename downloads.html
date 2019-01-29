@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <title>Intel Open Image Denoise Download</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+  </head>
+
+  <body>
+    <div id="header">
+      <div id="header-github">
+        <a id="forkme-banner" href="https://github.com/OpenImageDenoise/oidn">View on GitHub</a>
+      </div>
+      <div id="header-title">
+        Intel<sup>®</sup> Open Image Denoise
+              <div id="header-subtitle">
+        High-Performance Denoising Library for Ray Tracing
+      </div>
+      </div>
+
+      <div id="header-navbar">
+        <ul>
+          <li><a href="index.html">Overview</a></li>
+	  <li><a href="news.html">News</a></li>
+	  <li><a href="documentation.html">Documentation</a></li>
+	  <li><a href="gallery.html">Gallery</a></li>
+	  <li id="selected"><a href="downloads.html">Downloads</a></li>
+	  <li><a href="https://github.com/OpenImageDenoise/oidn/issues">Bugs/Issues</a></li>
+	  <li><a href="related_projects.html">Related Projects</a></li>
+	</ul>
+      </div>
+      <div id="header-spacing"></div>
+    </div>
+
+    <div id="content-wrap">
+      <div id="content">
+
+<h1 id="download-precompiled-open-image-denoise-binary-packages">Download Precompiled Open Image Denoise Binary Packages</h1>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Your CPU must support at least SSE4.2 to run Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
+<h2 id="packages">Packages</h2>
+<p>For Linux we provide Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x86_64.linux.tar.gz">oidn-0.8.0.x86_64.linux.tar.gz</a></p>
+<p>For macOS we provide Open Image Denoise as a TGZ file:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x86_64.macos.tar.gz">oidn-0.8.0.x86_64.macos.tar.gz</a></p>
+<p>For Windows we provide Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x64.vc14.windows.zip">oidn-0.8.0.x64.vc14.windows.zip</a></p>
+<p>The source code of the latest Open Image Denoise version can be downloaded here:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.src.zip">oidn-0.8.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.src.tar.gz">oidn-0.8.0.src.tar.gz</a></p>
+<p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Open Image Denoise releases</a>.</p>
+<h1 id="building-open-image-denoise-from-source">Building Open Image Denoise from Source</h1>
+<p>The latest Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
+<h2 id="prerequisites-1">Prerequisites</h2>
+<p>Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. In addition, before you can build Open Image Denoise you need the following prerequisites:</p>
+<ul>
+<li><p>You can clone the latest Open Image Denoise sources via:</p>
+<pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre></li>
+<li>To build Open Image Denoise you need <a href="http://www.cmake.org">CMake</a> 3.0 or later, a C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later), and Python 2.7 or later.</li>
+<li><p>Additionally you require a copy of <a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later.</p></li>
+</ul>
+<p>Depending on your Linux distribution you can install these dependencies using <code>yum</code> or <code>apt-get</code>. Some of these packages might already be installed or might have slightly different names.</p>
+<p>Type the following to install the dependencies using <code>yum</code>:</p>
+<pre><code>sudo yum install cmake
+sudo yum install tbb-devel</code></pre>
+<p>Type the following to install the dependencies using <code>apt-get</code>:</p>
+<pre><code>sudo apt-get install cmake-curses-gui
+sudo apt-get install libtbb-dev</code></pre>
+<p>Under macOS these dependencies can be installed using <a href="http://www.macports.org/">MacPorts</a>:</p>
+<pre><code>sudo port install cmake tbb</code></pre>
+<p>Under Windows please directly use the appropriate installers or packages for <a href="https://cmake.org/download/">CMake</a>, <a href="https://www.python.org/downloads/">Python</a>, and <a href="https://github.com/01org/tbb/releases">TBB</a>.</p>
+<h2 id="compiling-open-image-denoise-on-linuxmacos">Compiling Open Image Denoise on Linux/macOS</h2>
+<p>Assuming the above prerequisites are all fulfilled, building Open Image Denoise through CMake is easy:</p>
+<ul>
+<li><p>Create a build directory, and go into it</p>
+<pre><code>mkdir oidn/build
+cd oidn/build</code></pre>
+<p>(We do recommend having separate build directories for different configurations such as release, debug, etc.).</p></li>
+<li><p>The compiler CMake will use by default will be whatever the <code>CC</code> and <code>CXX</code> environment variables point to. Should you want to specify a different compiler, run cmake manually while specifying the desired compiler. The default compiler on most Linux machines is <code>gcc</code>, but it can be pointed to <code>clang</code> instead by executing the following:</p>
+<pre><code>cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..</code></pre>
+<p>CMake will now use Clang instead of GCC. If you are OK with using the default compiler on your system, then simply skip this step. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>ccmake</code> run.</p></li>
+<li><p>Open the CMake configuration dialog</p>
+<pre><code>ccmake ..</code></pre></li>
+<li><p>Make sure to properly set the build mode and enable the components you need, etc.; then type ’c’onfigure and ’g’enerate. When back on the command prompt, build it using</p>
+<pre><code>make</code></pre></li>
+<li><p>You should now have <code>libOpenImageDenoise.so</code> as well as a set of example applications.</p></li>
+</ul>
+<h2 id="compiling-open-image-denoise-on-windows">Compiling Open Image Denoise on Windows</h2>
+<p>On Windows using the CMake GUI (<code>cmake-gui.exe</code>) is the most convenient way to configure Open Image Denoise and to create the Visual Studio solution files:</p>
+<ul>
+<li><p>Browse to the Open Image Denoise sources and specify a build directory (if it does not exist yet CMake will create it).</p></li>
+<li><p>Click “Configure” and select as generator the Visual Studio version you have (Open Image Denoise needs Visual Studio 14 2015 or newer), for Win64 (32-bit builds are not supported), e.g., “Visual Studio 15 2017 Win64”.</p></li>
+<li><p>If the configuration fails because some dependencies could not be found then follow the instructions given in the error message, e.g., set the variable <code>TBB_ROOT</code> to the folder where TBB was installed.</p></li>
+<li><p>Optionally change the default build options, and then click “Generate” to create the solution and project files in the build directory.</p></li>
+<li><p>Open the generated <code>OpenImageDenoise.sln</code> in Visual Studio, select the build configuration and compile the project.</p></li>
+</ul>
+<p>Alternatively, Open Image Denoise can also be built without any GUI, entirely on the console. In the Visual Studio command prompt type:</p>
+<pre><code>cd path\to\oidn
+mkdir build
+cd build
+cmake -G &quot;Visual Studio 15 2017 Win64&quot; [-D VARIABLE=value] ..
+cmake --build . --config Release</code></pre>
+<p>Use <code>-D</code> to set variables for CMake, e.g., the path to TBB with “<code>-D TBB_ROOT=\path\to\tbb</code>”.</p>
+
+      </div>
+    </div>
+
+      <div id="footer">
+        © 2018–2019 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        <a href="https://www.intel.com/privacy">Privacy</a>
+      </div>
+  </body>
+</html>

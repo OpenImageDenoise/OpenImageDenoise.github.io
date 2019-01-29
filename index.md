@@ -1,3 +1,0 @@
-## OpenImageDenoise
-
-Coming soon!

@@ -1,0 +1,492 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <title>Intel Open Image Denoise Documentation</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+    <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.sourceCode { overflow-x: initial; }
+    </style>
+  </head>
+
+  <body>
+    <div id="header">
+      <div id="header-github">
+        <a id="forkme-banner" href="https://github.com/OpenImageDenoise/oidn">View on GitHub</a>
+      </div>
+      <div id="header-title">
+        Intel<sup>®</sup> Open Image Denoise
+              <div id="header-subtitle">
+        High-Performance Denoising Library for Ray Tracing
+      </div>
+      </div>
+
+      <div id="header-navbar">
+        <ul>
+          <li><a href="index.html">Overview</a></li>
+	  <li><a href="news.html">News</a></li>
+	  <li id="selected"><a href="documentation.html">Documentation</a></li>
+	  <li><a href="gallery.html">Gallery</a></li>
+	  <li><a href="downloads.html">Downloads</a></li>
+	  <li><a href="https://github.com/OpenImageDenoise/oidn/issues">Bugs/Issues</a></li>
+	  <li><a href="related_projects.html">Related Projects</a></li>
+	</ul>
+      </div>
+      <div id="header-spacing"></div>
+    </div>
+
+    <div id="content-wrap">
+      <div id="content">
+
+<h1 id="documentation">Documentation</h1>
+<p>The following <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Open Image Denoise Documentation">API documentation</a> of Open Image Denoise can also be found as a <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Open Image Denoise Documentation">pdf document</a>.</p>
+<h1 id="open-image-denoise-api">Open Image Denoise API</h1>
+<p>Open Image Denoise provides a C99 API (also compatible with C++) and a C++11 wrapper API as well. For simplicity, this document mostly refers to the C99 version of the API.</p>
+<p>The API is designed in an object-oriented manner, e.g. it contains device objects (<code>OIDNDevice</code> type), buffer objects (<code>OIDNBuffer</code> type), and filter objects (<code>OIDNFilter</code> type). All objects are reference-counted, and handles can be released by calling the appropriate release function (e.g. <code>oidnReleaseDevice</code>) or retained by incrementing the reference count (e.g. <code>oidnRetainDevice</code>).</p>
+<p>An important aspect of objects is that setting their parameters do not have an immediate effect (with a few exceptions). Instead, objects with updated parameters are in an unusable state until the parameters get explicitly committed to a given object. The commit semantic allows for batching up multiple small changes, and specifies exactly when changes to objects will occur.</p>
+<p>All API calls are thread-safe, but operations that use the same device will be serialized, so the amount of API calls from different threads should be minimized.</p>
+<p>To have a quick overview of the C99 and C++11 APIs, see the following simple example code snippets.</p>
+<h3 id="c99-api-example">C99 API Example</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb1-1" title="1"><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.h&gt;</span></a>
+<a class="sourceLine" id="cb1-2" title="2">...</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="co">// Create an Open Image Denoise device</span></a>
+<a class="sourceLine" id="cb1-4" title="4">OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_DEFAULT);</a>
+<a class="sourceLine" id="cb1-5" title="5">oidnCommitDevice(device);</a>
+<a class="sourceLine" id="cb1-6" title="6"></a>
+<a class="sourceLine" id="cb1-7" title="7"><span class="co">// Create a denoising filter</span></a>
+<a class="sourceLine" id="cb1-8" title="8">OIDNFilter filter = oidnNewFilter(device, <span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></a>
+<a class="sourceLine" id="cb1-9" title="9">oidnSetSharedFilterImage(filter, <span class="st">&quot;color&quot;</span>,  colorPtr, </a>
+<a class="sourceLine" id="cb1-10" title="10">                         OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb1-11" title="11">oidnSetSharedFilterImage(filter, <span class="st">&quot;albedo&quot;</span>, albedoPtr,</a>
+<a class="sourceLine" id="cb1-12" title="12">                         OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// optional</span></a>
+<a class="sourceLine" id="cb1-13" title="13">oidnSetSharedFilterImage(filter, <span class="st">&quot;normal&quot;</span>, normalPtr,</a>
+<a class="sourceLine" id="cb1-14" title="14">                         OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// optional</span></a>
+<a class="sourceLine" id="cb1-15" title="15">oidnSetSharedFilterImage(filter, <span class="st">&quot;output&quot;</span>, outputPtr,</a>
+<a class="sourceLine" id="cb1-16" title="16">                         OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>);</a>
+<a class="sourceLine" id="cb1-17" title="17">oidnSetFilter1b(filter, <span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// image is HDR</span></a>
+<a class="sourceLine" id="cb1-18" title="18">oidnCommitFilter(filter);</a>
+<a class="sourceLine" id="cb1-19" title="19"></a>
+<a class="sourceLine" id="cb1-20" title="20"><span class="co">// Filter the image</span></a>
+<a class="sourceLine" id="cb1-21" title="21">oidnExecuteFilter(filter);</a>
+<a class="sourceLine" id="cb1-22" title="22"></a>
+<a class="sourceLine" id="cb1-23" title="23"><span class="co">// Check for errors</span></a>
+<a class="sourceLine" id="cb1-24" title="24"><span class="at">const</span> <span class="dt">char</span>* errorMessage;</a>
+<a class="sourceLine" id="cb1-25" title="25"><span class="cf">if</span> (oidnGetDeviceError(device, &amp;errorMessage) != OIDN_ERROR_NONE)</a>
+<a class="sourceLine" id="cb1-26" title="26">  printf(<span class="st">&quot;Error: </span><span class="sc">%s\n</span><span class="st">&quot;</span>, errorMessage);</a>
+<a class="sourceLine" id="cb1-27" title="27"></a>
+<a class="sourceLine" id="cb1-28" title="28"><span class="co">// Cleanup</span></a>
+<a class="sourceLine" id="cb1-29" title="29">oidnReleaseFilter(filter);</a>
+<a class="sourceLine" id="cb1-30" title="30">oidnReleaseDevice(device);</a></code></pre></div>
+<h3 id="c11-api-example">C++11 API Example</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb2-1" title="1"><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.hpp&gt;</span></a>
+<a class="sourceLine" id="cb2-2" title="2">...</a>
+<a class="sourceLine" id="cb2-3" title="3"><span class="co">// Create an Open Image Denoise device</span></a>
+<a class="sourceLine" id="cb2-4" title="4">oidn::DeviceRef device = oidn::newDevice();</a>
+<a class="sourceLine" id="cb2-5" title="5">device.commit();</a>
+<a class="sourceLine" id="cb2-6" title="6"></a>
+<a class="sourceLine" id="cb2-7" title="7"><span class="co">// Create a denoising filter</span></a>
+<a class="sourceLine" id="cb2-8" title="8">oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></a>
+<a class="sourceLine" id="cb2-9" title="9">filter.setImage(<span class="st">&quot;color&quot;</span>,  colorPtr,  oidn::Format::Float3, width, height);</a>
+<a class="sourceLine" id="cb2-10" title="10">filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoPtr, oidn::Format::Float3, width, height); <span class="co">// optional</span></a>
+<a class="sourceLine" id="cb2-11" title="11">filter.setImage(<span class="st">&quot;normal&quot;</span>, normalPtr, oidn::Format::Float3, width, height); <span class="co">// optional</span></a>
+<a class="sourceLine" id="cb2-12" title="12">filter.setImage(<span class="st">&quot;output&quot;</span>, outputPtr, oidn::Format::Float3, width, height);</a>
+<a class="sourceLine" id="cb2-13" title="13">filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// image is HDR</span></a>
+<a class="sourceLine" id="cb2-14" title="14">filter.commit();</a>
+<a class="sourceLine" id="cb2-15" title="15"></a>
+<a class="sourceLine" id="cb2-16" title="16"><span class="co">// Filter the image</span></a>
+<a class="sourceLine" id="cb2-17" title="17">filter.execute();</a>
+<a class="sourceLine" id="cb2-18" title="18"></a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="co">// Check for errors</span></a>
+<a class="sourceLine" id="cb2-20" title="20"><span class="at">const</span> <span class="dt">char</span>* errorMessage;</a>
+<a class="sourceLine" id="cb2-21" title="21"><span class="cf">if</span> (device.getError(errorMessage) != oidn::Error::None)</a>
+<a class="sourceLine" id="cb2-22" title="22">  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: &quot;</span> &lt;&lt; errorMessage &lt;&lt; <span class="bu">std::</span>endl;</a></code></pre></div>
+<h2 id="device">Device</h2>
+<p>Open Image Denoise supports a device concept, which allows different components of the application to use the Open Image Denoise API without interfering with each other. An application first needs to create a device with</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb3-1" title="1">OIDNDevice oidnNewDevice(OIDNDeviceType type);</a></code></pre></div>
+<p>where the <code>type</code> enumeration maps to a specific device implementation, which can be one of the following:</p>
+<table>
+<caption>Supported device types, i.e., valid constants of type <code>OIDNDeviceType</code>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OIDN_DEVICE_TYPE_DEFAULT</td>
+<td style="text-align: left;">select the approximately fastest device</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_DEVICE_TYPE_CPU</td>
+<td style="text-align: left;">CPU device (requires SSE4.2 support)</td>
+</tr>
+</tbody>
+</table>
+<p>Once a device is created, you can call</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb4-1" title="1"><span class="dt">void</span> oidnSetDevice1b(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="dt">void</span> oidnSetDevice1i(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="dt">bool</span> oidnGetDevice1b(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</a>
+<a class="sourceLine" id="cb4-4" title="4"><span class="dt">int</span>  oidnGetDevice1i(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</a></code></pre></div>
+<p>to set and get parameter values on the device. Note that some parameters are constants, thus trying to set them is an error. See the tables below for the parameters supported by devices.</p>
+<table>
+<caption>Parameters supported by all devices.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">const int</td>
+<td style="text-align: left;">version</td>
+<td style="text-align: left;">combined version number (major.minor.patch) with two decimal digits per component</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">const int</td>
+<td style="text-align: left;">versionMajor</td>
+<td style="text-align: left;">major version number</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">const int</td>
+<td style="text-align: left;">versionMinor</td>
+<td style="text-align: left;">minor version number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">const int</td>
+<td style="text-align: left;">versionPatch</td>
+<td style="text-align: left;">patch version number</td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Additional parameters supported only by CPU devices.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: right;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">int</td>
+<td style="text-align: left;">numThreads</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">maximum number of threads which Open Image Denoise should use; 0 will set it automatically to get the best performance</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;">setAffinity</td>
+<td style="text-align: right;">true</td>
+<td style="text-align: left;">bind software threads to hardware threads if set to true (improves performance); false disables binding</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the CPU device heavily relies on setting the thread affinities to achieve optimal performance, so it is highly recommended to leave this option enabled. However, this may interfere with the application if that also sets the thread affinities, potentially causing performance degradation. In such cases, the recommended solution is to either disable setting the affinities in the application or in Open Image Denoise, or to always set/reset the affinities before/after each parallel region in the application (e.g., if using TBB, with <code>tbb::task_arena</code> and <code>tbb::task_scheduler_observer</code>).</p>
+<p>Once parameters are set on the created device, the device must be committed with</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb5-1" title="1"><span class="dt">void</span> oidnCommitDevice(OIDNDevice device);</a></code></pre></div>
+<p>This device can then be used to construct further objects, such as buffers and filters. Note that a device can be committed only once during its lifetime. Before the application exits, it should release all devices by invoking</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb6-1" title="1"><span class="dt">void</span> oidnReleaseDevice(OIDNDevice device);</a></code></pre></div>
+<p>Note that Open Image Denoise uses reference counting for all object types, so this function decreases the reference count of the device, and if the count reaches 0 the device will automatically get deleted. It is also possible to increase the reference count by calling</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb7-1" title="1"><span class="dt">void</span> oidnRetainDevice(OIDNDevice device);</a></code></pre></div>
+<p>An application typically creates only a single device. If required differently, it should only use a small number of devices at any given time.</p>
+<h3 id="error-handling">Error Handling</h3>
+<p>Each user thread has its own error code per device. If an error occurs when calling an API function, this error code is set to the occurred error if it stores no previous error. The currently stored error can be queried by the application via</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb8-1" title="1">OIDNError oidnGetDeviceError(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>** outMessage);</a></code></pre></div>
+<p>where <code>outMessage</code> can be a pointer to a C string which will be set to a more descriptive error message, or it can be <code>NULL</code>. This function also clears the error code, which assures that the returned error code is always the first error occurred since the last invocation of <code>oidnGetDeviceError</code> on the current thread. Note that the optionally returned error message string is valid only until the next invocation of the function.</p>
+<p>Alternatively, the application can also register a callback function of type</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb9-1" title="1"><span class="kw">typedef</span> <span class="dt">void</span> (*OIDNErrorFunction)(<span class="dt">void</span>* userPtr, OIDNError code, <span class="at">const</span> <span class="dt">char</span>* message);</a></code></pre></div>
+<p>via</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb10-1" title="1"><span class="dt">void</span> oidnSetDeviceErrorFunction(OIDNDevice device, OIDNErrorFunction func, <span class="dt">void</span>* userPtr);</a></code></pre></div>
+<p>to get notified when errors occur. Only a single callback function can be registered per device, and further invocations overwrite the previously set callback function, which do <em>not</em> require also calling the <code>oidnCommitDevice</code> function. Passing <code>NULL</code> as function pointer disables the registered callback function. When the registered callback function is invoked, it gets passed the user-defined payload (<code>userPtr</code> argument as specified at registration time), the error code (<code>code</code> argument) of the occurred error, as well as a string (<code>message</code> argument) that further describes the error. The error code is always set even if an error callback function is registered. It is recommended to always set a error callback function, to detect all errors.</p>
+<p>When the device construction fails, <code>oidnNewDevice</code> returns <code>NULL</code> as device. To detect the error code of a such failed device construction, pass <code>NULL</code> as device to the <code>oidnGetDeviceError</code> function. For all other invocations of <code>oidnGetDeviceError</code>, a proper device handle must be specified.</p>
+<p>The following errors are currently used by Open Image Denoise:</p>
+<table style="width:98%;">
+<caption>Possible error codes, i.e., valid constants of type <code>OIDNError</code>.</caption>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ERROR_NONE</td>
+<td style="text-align: left;">no error occurred</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_ERROR_UNKNOWN</td>
+<td style="text-align: left;">an unknown error occurred</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ERROR_INVALID_ARGUMENT</td>
+<td style="text-align: left;">an invalid argument was specified</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_ERROR_INVALID_OPERATION</td>
+<td style="text-align: left;">the operation is not allowed</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ERROR_OUT_OF_MEMORY</td>
+<td style="text-align: left;">not enough memory to execute the operation</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_ERROR_UNSUPPORTED_HARDWARE</td>
+<td style="text-align: left;">the hardware (e.g., CPU) is not supported</td>
+</tr>
+</tbody>
+</table>
+<h2 id="buffer">Buffer</h2>
+<p>Large data like images can be passed to Open Image Denoise either via pointers to memory allocated and managed by the user (this is the recommended, often easier and more efficient approach, if supported by the device) or by creating buffer objects (supported by all devices). To create a new data buffer with memory allocated and owned by the device, holding <code>byteSize</code> number of bytes, use</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb11-1" title="1">OIDNBuffer oidnNewBuffer(OIDNDevice device, <span class="dt">size_t</span> byteSize);</a></code></pre></div>
+<p>The created buffer is bound to the specified device (<code>device</code> argument). The specified number of bytes are allocated at buffer construction time and deallocated when the buffer is destroyed.</p>
+<p>It is also possible to create a “shared” data buffer with memory allocated and managed by the user with</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb12-1" title="1">OIDNBuffer oidnNewSharedBuffer(OIDNDevice device, <span class="dt">void</span>* ptr, <span class="dt">size_t</span> byteSize);</a></code></pre></div>
+<p>where <code>ptr</code> points to the user-managed memory and <code>byteSize</code> is its size in bytes. At buffer construction time no buffer data is allocated, but the buffer data provided by the user is used. The buffer data must remain valid for as long as the buffer may be used, and the user is responsible to free the buffer data when no longer required.</p>
+<p>Similar to device objects, buffer objects are also reference-counted and can be retained and released by calling the following functions:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb13-1" title="1"><span class="dt">void</span> oidnRetainBuffer(OIDNBuffer buffer);</a>
+<a class="sourceLine" id="cb13-2" title="2"><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</a></code></pre></div>
+<p>Accessing the data stored in a buffer object is possible by mapping it into the address space of the application using</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb14-1" title="1"><span class="dt">void</span>* oidnMapBuffer(OIDNBuffer buffer, OIDNAccess access, <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize)</a></code></pre></div>
+<p>where <code>access</code> is the desired access mode of the mapped memory, <code>byteOffset</code> is the offset to the beginning of the mapped memory region in bytes, and <code>byteSize</code> is the number of bytes to map. The function returns a pointer to the mapped buffer data. If the specified <code>byteSize</code> is <code>0</code>, the maximum available amount of memory will be mapped. The <code>access</code> argument must be one of the access modes in the following table:</p>
+<table>
+<caption>Access modes for memory regions mapped with <code>oidnMapBuffer</code>, i.e., valid constants of type <code>OIDNAccess</code>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ACCESS_READ</td>
+<td style="text-align: left;">read-only access</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_ACCESS_WRITE</td>
+<td style="text-align: left;">write-only access</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ACCESS_READ_WRITE</td>
+<td style="text-align: left;">read and write access</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_ACCESS_WRITE_DISCARD</td>
+<td style="text-align: left;">write-only access but the previous contents will be discarded</td>
+</tr>
+</tbody>
+</table>
+<p>After accessing the mapped data in the buffer, the memory region must be unmapped with</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb15-1" title="1"><span class="dt">void</span> oidnUnmapBuffer(OIDNBuffer buffer, <span class="dt">void</span>* mappedPtr);</a></code></pre></div>
+<p>where <code>mappedPtr</code> must be a pointer returned by a call to <code>oidnMapBuffer</code> for the specified buffer. Any change to the mapped data is guaranteed to take effect only after unmapping the memory region.</p>
+<h3 id="data-format">Data Format</h3>
+<p>Buffers store opaque data and thus have no information about the type and format of the data. Other objects, e.g. filters, typically require specifying the format of the data stored in buffers or shared via pointers. This can be done using the <code>OIDNFormat</code> enumeration type:</p>
+<table>
+<caption>Supported data formats, i.e., valid constants of type <code>OIDNFormat</code>.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OIDN_FORMAT_UNDEFINED</td>
+<td style="text-align: left;">undefined format</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">OIDN_FORMAT_FLOAT</td>
+<td style="text-align: left;">32-bit single-precision floating point scalar</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">OIDN_FORMAT_FLOAT[234]</td>
+<td style="text-align: left;">… and [234]-element vector</td>
+</tr>
+</tbody>
+</table>
+<h2 id="filter">Filter</h2>
+<p>Filters are the main objects in Open Image Denoise that are responsible for the actual denoising. The library ships with a collection of filters which are optimized for different types of images and use cases. To create a filter object, call</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb16-1" title="1">OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</a></code></pre></div>
+<p>where <code>type</code> is the name of the filter type to create. The supported filter types are documented later in this section. Once created, filter objects can be retained and released with</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb17-1" title="1"><span class="dt">void</span> oidnRetainFilter(OIDNFilter filter);</a>
+<a class="sourceLine" id="cb17-2" title="2"><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</a></code></pre></div>
+<p>After creating a filter, it needs to be set up by specifying the input and output image buffers, and potentially setting other parameter values as well.</p>
+<p>To bind image buffers to the filter, you can use one of the following functions:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb18-1" title="1"><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</a>
+<a class="sourceLine" id="cb18-2" title="2">                        OIDNBuffer buffer, OIDNFormat format,</a>
+<a class="sourceLine" id="cb18-3" title="3">                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</a>
+<a class="sourceLine" id="cb18-4" title="4">                        <span class="dt">size_t</span> byteOffset,</a>
+<a class="sourceLine" id="cb18-5" title="5">                        <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</a>
+<a class="sourceLine" id="cb18-6" title="6"></a>
+<a class="sourceLine" id="cb18-7" title="7"><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</a>
+<a class="sourceLine" id="cb18-8" title="8">                              <span class="dt">void</span>* ptr, OIDNFormat format,</a>
+<a class="sourceLine" id="cb18-9" title="9">                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</a>
+<a class="sourceLine" id="cb18-10" title="10">                              <span class="dt">size_t</span> byteOffset,</a>
+<a class="sourceLine" id="cb18-11" title="11">                              <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</a></code></pre></div>
+<p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to shared user-managed data (<code>ptr</code> argument) with the <code>oidnSetSharedFilterImage</code> function.</p>
+<p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>bytePixelStride</code> argument) and the row stride (<code>byteRowStride</code> argument), in number of bytes. Note that the row stride must be an integer multiple of the pixel stride.</p>
+<p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>bytePixelStride</code> and/or <code>byteRowStride</code> to <code>0</code> to let the library compute the actual strides automatically, as a convenience.</p>
+<p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb19-1" title="1"><span class="dt">void</span> oidnSetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</a>
+<a class="sourceLine" id="cb19-2" title="2"><span class="dt">void</span> oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</a>
+<a class="sourceLine" id="cb19-3" title="3"><span class="dt">bool</span> oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</a>
+<a class="sourceLine" id="cb19-4" title="4"><span class="dt">int</span>  oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</a></code></pre></div>
+<p>After setting all necessary parameters for the filter, the changes must be commmitted by calling</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb20-1" title="1"><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</a></code></pre></div>
+<p>The parameters can be updated after committing the filter, but it must be re-committed for the changes to take effect.</p>
+<p>Finally, an image can be filtered by executing the filter with</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb21-1" title="1"><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</a></code></pre></div>
+<p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
+<p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
+<h3 id="rt">RT</h3>
+<p>The <code>RT</code> (<strong>r</strong>ay <strong>t</strong>racing) filter is a generic ray tracing denoising filter which is suitable for denoising images rendered with Monte Carlo ray tracing methods like path tracing. The <code>RT</code> filter is based on a deep learning based denoising algorithm, and it aims to provide a good balance between denoising performance and quality.</p>
+<p>It accepts either a low dynamic range (LDR) or high dynamic range (HDR) color image as input. Optionally, it also accepts auxiliary feature images, e.g. albedo and normal, which improve the denoising quality, preserving more details in the image.</p>
+<p>The filter can be created by passing <code>"RT"</code> to the <code>oidnNewFilter</code> function as the filter type. The filter supports the following parameters:</p>
+<table style="width:97%;">
+<caption>Parameters supported by the <code>RT</code> filter.</caption>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 11%" />
+<col style="width: 14%" />
+<col style="width: 12%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Format</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: right;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Image</td>
+<td style="text-align: left;">float3</td>
+<td style="text-align: left;">color</td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">input color image (LDR or HDR)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Image</td>
+<td style="text-align: left;">float3</td>
+<td style="text-align: left;">albedo</td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">input image containing the albedo value of the first hit per pixel; <em>optional</em></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Image</td>
+<td style="text-align: left;">float3</td>
+<td style="text-align: left;">normal</td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">input image containing the normal (world-space or view-space, arbitrary length) of the first hit per pixel; <em>optional</em>, requires setting the albedo image too</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Image</td>
+<td style="text-align: left;">float3</td>
+<td style="text-align: left;">output</td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">output image; can be one of the input images</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">hdr</td>
+<td style="text-align: right;">false</td>
+<td style="text-align: left;">whether the color is HDR</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bool</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">srgb</td>
+<td style="text-align: right;">false</td>
+<td style="text-align: left;">whether the color is encoded with the sRGB (2.2 gamma) curve (LDR only) or is linear; the output will be encoded with the same curve</td>
+</tr>
+</tbody>
+</table>
+<p>All specified images must have the same dimensions.</p>
+<h1 id="examples">Examples</h1>
+<h2 id="denoise">Denoise</h2>
+<p>A minimal working example demonstrating how to use Open Image Denoise can be found at <code>examples/denoise.cpp</code>, which uses the C++11 convenience wrappers of the C99 API.</p>
+<p>This example is a simple command-line application that denoises the provided image, which can optionally have auxiliary feature images as well (e.g. albedo and normal). The images must be stored in the <a href="http://www.pauldebevec.com/Research/HDR/PFM/">Portable FloatMap</a> (PFM) format.</p>
+<p>Running <code>./denoise</code> without any arguments will bring up a list of command line options.</p>
+
+      </div>
+    </div>
+
+      <div id="footer">
+        © 2018–2019 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        <a href="https://www.intel.com/privacy">Privacy</a>
+      </div>
+  </body>
+</html>
