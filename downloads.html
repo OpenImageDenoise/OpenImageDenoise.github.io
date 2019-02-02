@@ -37,16 +37,16 @@
 
 <h1 id="download-precompiled-open-image-denoise-binary-packages">Download Precompiled Open Image Denoise Binary Packages</h1>
 <h2 id="prerequisites">Prerequisites</h2>
-<p>Your CPU must support at least SSE4.2 to run Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
+<p>Your CPU must support at least SSE4.1 to run Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <h2 id="packages">Packages</h2>
 <p>For Linux we provide Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x86_64.linux.tar.gz">oidn-0.8.0.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.1/oidn-0.8.1.x86_64.linux.tar.gz">oidn-0.8.1.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x86_64.macos.tar.gz">oidn-0.8.0.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.1/oidn-0.8.1.x86_64.macos.tar.gz">oidn-0.8.1.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.x64.vc14.windows.zip">oidn-0.8.0.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.1/oidn-0.8.1.x64.vc14.windows.zip">oidn-0.8.1.x64.vc14.windows.zip</a></p>
 <p>The source code of the latest Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.src.zip">oidn-0.8.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.0/oidn-0.8.0.src.tar.gz">oidn-0.8.0.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.1/oidn-0.8.1.src.zip">oidn-0.8.1.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v0.8.1/oidn-0.8.1.src.tar.gz">oidn-0.8.1.src.tar.gz</a></p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Open Image Denoise releases</a>.</p>
 <h1 id="building-open-image-denoise-from-source">Building Open Image Denoise from Source</h1>
 <p>The latest Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
@@ -55,7 +55,7 @@
 <ul>
 <li><p>You can clone the latest Open Image Denoise sources via:</p>
 <pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre></li>
-<li>To build Open Image Denoise you need <a href="http://www.cmake.org">CMake</a> 3.0 or later, a C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later), and Python 2.7 or later.</li>
+<li>To build Open Image Denoise you need <a href="http://www.cmake.org">CMake</a> 3.1 or later, a C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later), and Python 2.7 or later.</li>
 <li><p>Additionally you require a copy of <a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later.</p></li>
 </ul>
 <p>Depending on your Linux distribution you can install these dependencies using <code>yum</code> or <code>apt-get</code>. Some of these packages might already be installed or might have slightly different names.</p>
