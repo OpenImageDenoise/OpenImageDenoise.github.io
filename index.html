@@ -66,6 +66,13 @@ High-Performance Denoising Library for Ray Tracing
 <p>For recent news, updates, and announcements, please see our complete <a href="https://openimagedenoise.github.io/news.html">news/updates</a> page.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v0.8.2">Changes in v0.8.2:</h3>
+<ul>
+<li>Fixed wrong HDR output when the input contains infinities/NaNs</li>
+<li>Fixed wrong output when multiple filters were executed concurrently on separate devices with AVX-512 support. Currently the filter executions are serialized as a temporary workaround, and a full fix will be included in a future release.</li>
+<li>Added OIDN_STATIC_LIB CMake option for building as a static library (requires CMake 3.13.0 or later)</li>
+<li>Fixed CMake error when adding the library with add_subdirectory() to a project</li>
+</ul>
 <h3 id="changes-in-v0.8.1">Changes in v0.8.1:</h3>
 <ul>
 <li>Fixed wrong path to TBB in the generated CMake configs</li>
