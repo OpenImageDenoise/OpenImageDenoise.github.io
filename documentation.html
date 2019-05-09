@@ -303,6 +303,10 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;">OIDN_ERROR_UNSUPPORTED_HARDWARE</td>
 <td style="text-align: left;">the hardware (e.g., CPU) is not supported</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">OIDN_ERROR_CANCELLED</td>
+<td style="text-align: left;">the operation was cancelled by the user</td>
+</tr>
 </tbody>
 </table>
 <h2 id="buffer">Buffer</h2>
@@ -400,11 +404,18 @@ div.sourceCode { overflow-x: initial; }
 <a class="sourceLine" id="cb19-2" title="2"><span class="dt">void</span> oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</a>
 <a class="sourceLine" id="cb19-3" title="3"><span class="dt">bool</span> oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</a>
 <a class="sourceLine" id="cb19-4" title="4"><span class="dt">int</span>  oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</a></code></pre></div>
+<p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</a>
+<a class="sourceLine" id="cb20-2" title="2"></a>
+<a class="sourceLine" id="cb20-3" title="3"><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</a>
+<a class="sourceLine" id="cb20-4" title="4">                                          OIDNProgressMonitorFunction func,</a>
+<a class="sourceLine" id="cb20-5" title="5">                                          <span class="dt">void</span>* userPtr);</a></code></pre></div>
+<p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will cancel the filter operation with the <code>OIDN_ERROR_CANCELLED</code> error code.</p>
 <p>After setting all necessary parameters for the filter, the changes must be commmitted by calling</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb20-1" title="1"><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb21-1" title="1"><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</a></code></pre></div>
 <p>The parameters can be updated after committing the filter, but it must be re-committed for the changes to take effect.</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb21-1" title="1"><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><a class="sourceLine" id="cb22-1" title="1"><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</a></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
 <h3 id="rt">RT</h3>

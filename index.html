@@ -66,6 +66,14 @@ High-Performance Denoising Library for Ray Tracing
 <p>For recent news, updates, and announcements, please see our complete <a href="https://openimagedenoise.github.io/news.html">news/updates</a> page.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v0.9.0">Changes in v0.9.0:</h3>
+<ul>
+<li>Reduced memory consumption by about 38%</li>
+<li>Added support for progress monitor callback functions</li>
+<li>Enabled fully concurrent execution when using multiple devices</li>
+<li>Clamp LDR input and output colors to 1</li>
+<li>Fixed issue where some memory allocation errors were not reported</li>
+</ul>
 <h3 id="changes-in-v0.8.2">Changes in v0.8.2:</h3>
 <ul>
 <li>Fixed wrong HDR output when the input contains infinities/NaNs</li>
