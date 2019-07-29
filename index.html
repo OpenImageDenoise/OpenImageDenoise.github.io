@@ -66,6 +66,19 @@ High-Performance Denoising Library for Ray Tracing
 <p>For recent news, updates, and announcements, please see our complete <a href="https://openimagedenoise.github.io/news.html">news/updates</a> page.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v1.0.0">Changes in v1.0.0:</h3>
+<ul>
+<li>Improved denoising quality
+<ul>
+<li>More details preserved</li>
+<li>Less artifacts (e.g. noisy spots, color bleeding with albedo/normal)</li>
+</ul></li>
+<li>Added <code>maxMemoryMB</code> filter parameter for limiting the maximum memory consumption regardless of the image resolution, potentially at the cost of lower denoising speed. This is internally implemented by denoising the image in tiles</li>
+<li>Significantly reduced memory consumption (but slightly lower performance) for high resolutions (&gt; 2K) by default: limited to about 6 GB</li>
+<li>Added <code>alignment</code> and <code>overlap</code> filter parameters that can be queried for manual tiled denoising</li>
+<li>Added <code>verbose</code> device parameter for setting the verbosity of the console output, and disabled all console output by default</li>
+<li>Fixed crash for zero-sized images</li>
+</ul>
 <h3 id="changes-in-v0.9.0">Changes in v0.9.0:</h3>
 <ul>
 <li>Reduced memory consumption by about 38%</li>
