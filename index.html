@@ -58,14 +58,27 @@ High-Performance Denoising Library for Ray Tracing
 <h1 id="intel-open-image-denoise-overview">Intel Open Image Denoise Overview</h1>
 <p>Intel Open Image Denoise is an open source library of high-performance, high-quality denoising filters for images rendered with ray tracing. Intel Open Image Denoise is part of the <a href="https://software.intel.com/en-us/rendering-framework">Intel® oneAPI Rendering Toolkit</a> and is released under the permissive <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>.</p>
 <p>The purpose of Intel Open Image Denoise is to provide an open, high-quality, efficient, and easy-to-use denoising library that allows one to significantly reduce rendering times in ray tracing based rendering applications. It filters out the Monte Carlo noise inherent to stochastic ray tracing methods like path tracing, reducing the amount of necessary samples per pixel by even multiple orders of magnitude (depending on the desired closeness to the ground truth). A simple but flexible C/C++ API ensures that the library can be easily integrated into most existing or new rendering solutions.</p>
-<p>At the heart of the Intel Open Image Denoise library is an efficient deep learning based denoising filter, which was trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
+<p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
+<p>Although the library ships with a set of pre-trained filter models, it is not mandatory to use these. To optimize a filter for a specific renderer, sample count, content type, scene, etc., it is possible to train the model using the included training toolkit and user-provided image datasets.</p>
 <p>Intel Open Image Denoise supports Intel® 64 architecture based CPUs and compatible architectures, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
-<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/intel/mkl-dnn">Intel® Math Kernel Library for Deep Neural Networks (MKL-DNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 is required to run Intel Open Image Denoise.</p>
+<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/intel/mkl-dnn">Intel® Deep Neural Network Library (DNNL)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 is required to run Intel Open Image Denoise.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>For recent news, updates, and announcements, please see our complete <a href="https://openimagedenoise.github.io/news.html">news/updates</a> page.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v1.2.0">Changes in v1.2.0:</h3>
+<ul>
+<li>Added neural network training code</li>
+<li>Added support for specifying user-trained models at runtime</li>
+<li>Slightly improved denoising quality (e.g. less ringing artifacts, less blurriness in some cases)</li>
+<li>Improved denoising speed by about 7-38% (mostly depending on the compiler)</li>
+<li>Added <code>OIDN_STATIC_RUNTIME</code> CMake option (for Windows only)</li>
+<li>Added support for OpenImageIO to the example apps (disabled by default)</li>
+<li>Added check for minimum supported TBB version</li>
+<li>Find debug versions of TBB</li>
+<li>Added testing</li>
+</ul>
 <h3 id="changes-in-v1.1.0">Changes in v1.1.0:</h3>
 <ul>
 <li>Added <code>RTLightmap</code> filter optimized for lightmaps</li>
@@ -96,7 +109,7 @@ High-Performance Denoising Library for Ray Tracing
 <ul>
 <li>Fixed wrong HDR output when the input contains infinities/NaNs</li>
 <li>Fixed wrong output when multiple filters were executed concurrently on separate devices with AVX-512 support. Currently the filter executions are serialized as a temporary workaround, and a full fix will be included in a future release.</li>
-<li>Added OIDN_STATIC_LIB CMake option for building as a static library (requires CMake 3.13.0 or later)</li>
+<li>Added <code>OIDN_STATIC_LIB</code> CMake option for building as a static library (requires CMake 3.13.0 or later)</li>
 <li>Fixed CMake error when adding the library with add_subdirectory() to a project</li>
 </ul>
 <h3 id="changes-in-v0.8.1">Changes in v0.8.1:</h3>
@@ -117,7 +130,7 @@ High-Performance Denoising Library for Ray Tracing
     </div>
 
       <div id="footer">
-        © 2018–2019 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2020 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>

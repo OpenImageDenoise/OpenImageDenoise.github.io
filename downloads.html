@@ -40,23 +40,26 @@
 <p>Your CPU must support at least SSE4.1 to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <h2 id="packages">Packages</h2>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.1.0/oidn-1.1.0.x86_64.linux.tar.gz">oidn-1.1.0.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.0/oidn-1.2.0.x86_64.linux.tar.gz">oidn-1.2.0.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Intel Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.1.0/oidn-1.1.0.x86_64.macos.tar.gz">oidn-1.1.0.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.0/oidn-1.2.0.x86_64.macos.tar.gz">oidn-1.2.0.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.1.0/oidn-1.1.0.x64.vc14.windows.zip">oidn-1.1.0.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.0/oidn-1.2.0.x64.vc14.windows.zip">oidn-1.2.0.x64.vc14.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.1.0/oidn-1.1.0.src.zip">oidn-1.1.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.1.0/oidn-1.1.0.src.tar.gz">oidn-1.1.0.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.0/oidn-1.2.0.src.zip">oidn-1.2.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.0/oidn-1.2.0.src.tar.gz">oidn-1.2.0.src.tar.gz</a></p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compiling-intel-open-image-denoise">Compiling Intel Open Image Denoise</h1>
 <p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
 <h2 id="prerequisites-1">Prerequisites</h2>
+<p>You can clone the latest Intel Open Image Denoise sources using Git with the <a href="https://git-lfs.github.com/">Git Large File Storage (LFS)</a> extension:</p>
+<pre><code>    git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre>
 <p>Intel Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. In addition, before you can build Intel Open Image Denoise you need the following prerequisites:</p>
 <ul>
-<li><p>You can clone the latest Intel Open Image Denoise sources via:</p>
-<pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre></li>
-<li>To build Intel Open Image Denoise you need <a href="http://www.cmake.org">CMake</a> 3.1 or later, a C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later), and Python 2.7 or later.</li>
-<li><p>Additionally you require a copy of <a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later.</p></li>
+<li><p><a href="http://www.cmake.org">CMake</a> 3.1 or later</p></li>
+<li><p>A C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later)</p></li>
+<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a>, version 1.12.0 or later. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
+<li><p>Python 2.7 or later</p></li>
+<li><p><a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later</p></li>
 </ul>
 <p>Depending on your Linux distribution you can install these dependencies using <code>yum</code> or <code>apt-get</code>. Some of these packages might already be installed or might have slightly different names.</p>
 <p>Type the following to install the dependencies using <code>yum</code>:</p>
@@ -84,6 +87,14 @@ cd oidn/build</code></pre>
 <pre><code>make</code></pre></li>
 <li><p>You should now have <code>libOpenImageDenoise.so</code> as well as a set of example applications.</p></li>
 </ul>
+<h2 id="entitlements-on-macos">Entitlements on macOS</h2>
+<p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process.<br />
+Intel Open Image Denoise uses just-in-time compilaton through the <a href="https://intel.github.io/mkl-dnn/">Intel Deep Neural Network Library</a> and requires the following entitlements:</p>
+<ul>
+<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit"><code>com.apple.security.cs.allow-jit</code></a></li>
+<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-unsigned-executable-memory"><code>com.apple.security.cs.allow-unsigned-executable-memory</code></a></li>
+<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_disable-executable-page-protection"><code>com.apple.security.cs.disable-executable-page-protection</code></a></li>
+</ul>
 <h2 id="compiling-on-windows">Compiling on Windows</h2>
 <p>On Windows using the CMake GUI (<code>cmake-gui.exe</code>) is the most convenient way to configure Intel Open Image Denoise and to create the Visual Studio solution files:</p>
 <ul>
@@ -104,15 +115,25 @@ cmake --build . --config Release</code></pre>
 <p>The default CMake configuration in the configuration dialog should be appropriate for most usages. The following list describes the options that can be configured in CMake:</p>
 <ul>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
-<li><p><code>OIDN_STATIC_LIB</code>: Builds Intel Open Image Denoise as a static library (OFF by default). CMake 3.13.0 or later is required to enable this option. When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
+<li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). CMake 3.13.0 or later is required to enable this option. When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
+<li><p><code>OIDN_STATIC_RUNTIME</code>: Use the static version of the C/C++ runtime library (available only on Windows, ON by default).</p></li>
+<li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
+<li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
 <li><p><code>TBB_ROOT</code>: The path to the TBB installation (autodetected by default).</p></li>
+<li><p><code>OPENIMAGEIO_ROOT</code>: The path to the OpenImageIO installation (autodetected by default).</p></li>
 </ul>
+<section class="footnotes" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.12.0-linux</code><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 
       </div>
     </div>
 
       <div id="footer">
-        © 2018–2019 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2020 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>
