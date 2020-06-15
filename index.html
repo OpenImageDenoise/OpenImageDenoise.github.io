@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
-    <title>Intel Open Image Denoise</title>
+    <title>Intel® Open Image Denoise</title>
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
   </head>
 
@@ -21,7 +21,6 @@
       <div id="header-navbar">
         <ul>
           <li id="selected"><a href="index.html">Overview</a></li>
-	  <li><a href="news.html">News</a></li>
 	  <li><a href="documentation.html">Documentation</a></li>
 	  <li><a href="gallery.html">Gallery</a></li>
 	  <li><a href="downloads.html">Downloads</a></li>
@@ -61,12 +60,25 @@ High-Performance Denoising Library for Ray Tracing
 <p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
 <p>Although the library ships with a set of pre-trained filter models, it is not mandatory to use these. To optimize a filter for a specific renderer, sample count, content type, scene, etc., it is possible to train the model using the included training toolkit and user-provided image datasets.</p>
 <p>Intel Open Image Denoise supports Intel® 64 architecture based CPUs and compatible architectures, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
-<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/intel/mkl-dnn">Intel® Deep Neural Network Library (DNNL)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 is required to run Intel Open Image Denoise.</p>
+<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/oneapi-src/oneDNN">Intel oneAPI Deep Neural Network Library (oneDNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 is required to run Intel Open Image Denoise.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
-<p>For recent news, updates, and announcements, please see our complete <a href="https://openimagedenoise.github.io/news.html">news/updates</a> page.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v1.2.1">Changes in v1.2.1:</h3>
+<ul>
+<li>Fixed tiling artifacts when in-place denoising (using one of the input images as the output) high-resolution (&gt; 1080p) images</li>
+<li>Fixed ghosting/color bleeding artifacts in black regions when using albedo/normal buffers</li>
+<li>Fixed error when building as a static library (<code>OIDN_STATIC_LIB</code> option)</li>
+<li>Fixed compile error for ISPC 1.13 and later</li>
+<li>Fixed minor TBB detection issues</li>
+<li>Fixed crash on pre-SSE4 CPUs when using some recent compilers (e.g. GCC 10)</li>
+<li>Link C/C++ runtime library dynamically on Windows too by default</li>
+<li>Renamed example apps (<code>oidnDenoise</code>, <code>oidnTest</code>)</li>
+<li>Added benchmark app (<code>oidnBenchmark</code>)</li>
+<li>Fixed random data augmentation seeding in training</li>
+<li>Fixed training warning with PyTorch 1.5 and later</li>
+</ul>
 <h3 id="changes-in-v1.2.0">Changes in v1.2.0:</h3>
 <ul>
 <li>Added neural network training code</li>
