@@ -115,7 +115,7 @@ cmake --build . --config Release</code></pre>
 <p>The default CMake configuration in the configuration dialog should be appropriate for most usages. The following list describes the options that can be configured in CMake:</p>
 <ul>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
-<li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
+<li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). CMake 3.13.0 or later is required to enable this option. When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
 <li><p><code>OIDN_STATIC_RUNTIME</code>: Use the static version of the C/C++ runtime library (available only on Windows, OFF by default).</p></li>
 <li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
 <li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
