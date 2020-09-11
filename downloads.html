@@ -39,13 +39,13 @@
 <p>Your CPU must support at least SSE4.1 to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <h2 id="packages">Packages</h2>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.2/oidn-1.2.2.x86_64.linux.tar.gz">oidn-1.2.2.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x86_64.linux.tar.gz">oidn-1.2.3.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Intel Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.2/oidn-1.2.2.x86_64.macos.tar.gz">oidn-1.2.2.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x86_64.macos.tar.gz">oidn-1.2.3.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.2/oidn-1.2.2.x64.vc14.windows.zip">oidn-1.2.2.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x64.vc14.windows.zip">oidn-1.2.3.x64.vc14.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.2/oidn-1.2.2.src.zip">oidn-1.2.2.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.2/oidn-1.2.2.src.tar.gz">oidn-1.2.2.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.src.zip">oidn-1.2.3.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.src.tar.gz">oidn-1.2.3.src.tar.gz</a></p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compiling-intel-open-image-denoise">Compiling Intel Open Image Denoise</h1>
 <p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
@@ -57,7 +57,7 @@
 <ul>
 <li><p><a href="http://www.cmake.org">CMake</a> 3.1 or later</p></li>
 <li><p>A C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later)</p></li>
-<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a>, version 1.12.0 or later. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
+<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a>, version 1.14.1 or later. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
 <li><p>Python 2.7 or later</p></li>
 <li><p><a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later</p></li>
 </ul>
