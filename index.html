@@ -65,6 +65,14 @@ High-Performance Denoising Library for Ray Tracing
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 id="changes-in-v1.2.4">Changes in v1.2.4:</h3>
+<ul>
+<li>Added OIDN_API_NAMESPACE CMake option that allows to put all API functions inside a user-defined namespace</li>
+<li>Fixed bug when TBB_USE_GLIBCXX_VERSION is defined</li>
+<li>Fixed compile error when using an old compiler which does not support OpenMP SIMD</li>
+<li>Added compatibility with oneTBB 2021</li>
+<li>Export only necessary symbols on Linux and macOS</li>
+</ul>
 <h3 id="changes-in-v1.2.3">Changes in v1.2.3:</h3>
 <ul>
 <li>Fixed incorrect detection of AVX-512 on macOS (sometimes causing a crash)</li>

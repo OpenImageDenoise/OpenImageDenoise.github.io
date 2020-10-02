@@ -39,13 +39,13 @@
 <p>Your CPU must support at least SSE4.1 to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <h2 id="packages">Packages</h2>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x86_64.linux.tar.gz">oidn-1.2.3.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x86_64.linux.tar.gz">oidn-1.2.4.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Intel Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x86_64.macos.tar.gz">oidn-1.2.3.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x86_64.macos.tar.gz">oidn-1.2.4.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.x64.vc14.windows.zip">oidn-1.2.3.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x64.vc14.windows.zip">oidn-1.2.4.x64.vc14.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.src.zip">oidn-1.2.3.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.3/oidn-1.2.3.src.tar.gz">oidn-1.2.3.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.src.zip">oidn-1.2.4.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.src.tar.gz">oidn-1.2.4.src.tar.gz</a></p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compiling-intel-open-image-denoise">Compiling Intel Open Image Denoise</h1>
 <p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
@@ -117,6 +117,7 @@ cmake --build . --config Release</code></pre>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
 <li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
 <li><p><code>OIDN_STATIC_RUNTIME</code>: Use the static version of the C/C++ runtime library (available only on Windows, OFF by default).</p></li>
+<li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. By default no namespace is used and plain C symbols are exported.</p></li>
 <li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
 <li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
 <li><p><code>TBB_ROOT</code>: The path to the TBB installation (autodetected by default).</p></li>
