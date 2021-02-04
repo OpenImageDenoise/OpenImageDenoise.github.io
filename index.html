@@ -54,18 +54,44 @@ High-Performance Denoising Library for Ray Tracing
 <em>Moana Island Scene rendered at 16 spp with <a href="http://www.ospray.org">Intel® OSPRay</a> and denoised with Intel® Open Image Denoise. <a href="https://www.technology.disneyanimation.com/islandscene">Publicly available</a> dataset courtesy of Walt Disney Animation Studios. Hover over the image (or tap on it) to move the slider between the original and denoised versions.</em>
 </p>
 </div>
-<h1 id="intel-open-image-denoise-overview">Intel Open Image Denoise Overview</h1>
+<h1 id="overview">Overview</h1>
 <p>Intel Open Image Denoise is an open source library of high-performance, high-quality denoising filters for images rendered with ray tracing. Intel Open Image Denoise is part of the <a href="https://software.intel.com/en-us/oneapi/render-kit">Intel® oneAPI Rendering Toolkit</a> and is released under the permissive <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>.</p>
 <p>The purpose of Intel Open Image Denoise is to provide an open, high-quality, efficient, and easy-to-use denoising library that allows one to significantly reduce rendering times in ray tracing based rendering applications. It filters out the Monte Carlo noise inherent to stochastic ray tracing methods like path tracing, reducing the amount of necessary samples per pixel by even multiple orders of magnitude (depending on the desired closeness to the ground truth). A simple but flexible C/C++ API ensures that the library can be easily integrated into most existing or new rendering solutions.</p>
 <p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
 <p>Although the library ships with a set of pre-trained filter models, it is not mandatory to use these. To optimize a filter for a specific renderer, sample count, content type, scene, etc., it is possible to train the model using the included training toolkit and user-provided image datasets.</p>
-<p>Intel Open Image Denoise supports Intel® 64 architecture based CPUs and compatible architectures, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
-<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/oneapi-src/oneDNN">Intel oneAPI Deep Neural Network Library (oneDNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 is required to run Intel Open Image Denoise.</p>
+<p>Intel Open Image Denoise supports Intel® 64 architecture compatible CPUs and Apple Silicon, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
+<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/oneapi-src/oneDNN">Intel oneAPI Deep Neural Network Library (oneDNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 or Apple Silicon is required to run Intel Open Image Denoise.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
-<h3 id="changes-in-v1.2.4">Changes in v1.2.4:</h3>
+<h3 class="unnumbered" id="changes-in-v1.3.0">Changes in v1.3.0:</h3>
+<ul>
+<li>Improved denoising quality
+<ul>
+<li>Improved sharpness of fine details / less blurriness</li>
+<li>Fewer noisy artifacts</li>
+</ul></li>
+<li>Slightly improved performance and lowered memory consumption</li>
+<li>Added directional (e.g. spherical harmonics) lightmap denoising to the <code>RTLightmap</code> filter</li>
+<li>Added <code>inputScale</code> filter parameter which generalizes the existing (and thus now deprecated) <code>hdrScale</code> parameter for non-HDR images</li>
+<li>Added native support for Apple Silicon and the BNNS library on macOS (currently requires rebuilding from source)</li>
+<li>Added <code>OIDN_NEURAL_RUNTIME</code> CMake option for setting the neural network runtime library</li>
+<li>Reduced the size of the library binary</li>
+<li>Fixed compile error on some older macOS versions</li>
+<li>Upgraded release builds to use oneTBB 2021.1.1</li>
+<li>Removed tbbmalloc dependency</li>
+<li>Appended the library version to the name of the directory containing the installed CMake files</li>
+<li>Training:
+<ul>
+<li>Faster training performance</li>
+<li>Added mixed precision training (enabled by default)</li>
+<li>Added efficient data-parallel training on multiple GPUs</li>
+<li>Enabled preprocessing datasets multiple times with possibly different options</li>
+<li>Minor bugfixes</li>
+</ul></li>
+</ul>
+<h3 class="unnumbered" id="changes-in-v1.2.4">Changes in v1.2.4:</h3>
 <ul>
 <li>Added OIDN_API_NAMESPACE CMake option that allows to put all API functions inside a user-defined namespace</li>
 <li>Fixed bug when TBB_USE_GLIBCXX_VERSION is defined</li>
@@ -73,17 +99,17 @@ High-Performance Denoising Library for Ray Tracing
 <li>Added compatibility with oneTBB 2021</li>
 <li>Export only necessary symbols on Linux and macOS</li>
 </ul>
-<h3 id="changes-in-v1.2.3">Changes in v1.2.3:</h3>
+<h3 class="unnumbered" id="changes-in-v1.2.3">Changes in v1.2.3:</h3>
 <ul>
 <li>Fixed incorrect detection of AVX-512 on macOS (sometimes causing a crash)</li>
 <li>Fixed inconsistent performance and costly initialization for AVX-512</li>
 <li>Fixed JIT’ed AVX-512 kernels not showing up correctly in VTune</li>
 </ul>
-<h3 id="changes-in-v1.2.2">Changes in v1.2.2:</h3>
+<h3 class="unnumbered" id="changes-in-v1.2.2">Changes in v1.2.2:</h3>
 <ul>
 <li>Fixed unhandled exception when canceling filter execution from the progress monitor callback function</li>
 </ul>
-<h3 id="changes-in-v1.2.1">Changes in v1.2.1:</h3>
+<h3 class="unnumbered" id="changes-in-v1.2.1">Changes in v1.2.1:</h3>
 <ul>
 <li>Fixed tiling artifacts when in-place denoising (using one of the input images as the output) high-resolution (&gt; 1080p) images</li>
 <li>Fixed ghosting/color bleeding artifacts in black regions when using albedo/normal buffers</li>
@@ -97,7 +123,7 @@ High-Performance Denoising Library for Ray Tracing
 <li>Fixed random data augmentation seeding in training</li>
 <li>Fixed training warning with PyTorch 1.5 and later</li>
 </ul>
-<h3 id="changes-in-v1.2.0">Changes in v1.2.0:</h3>
+<h3 class="unnumbered" id="changes-in-v1.2.0">Changes in v1.2.0:</h3>
 <ul>
 <li>Added neural network training code</li>
 <li>Added support for specifying user-trained models at runtime</li>
@@ -109,12 +135,12 @@ High-Performance Denoising Library for Ray Tracing
 <li>Find debug versions of TBB</li>
 <li>Added testing</li>
 </ul>
-<h3 id="changes-in-v1.1.0">Changes in v1.1.0:</h3>
+<h3 class="unnumbered" id="changes-in-v1.1.0">Changes in v1.1.0:</h3>
 <ul>
 <li>Added <code>RTLightmap</code> filter optimized for lightmaps</li>
 <li>Added <code>hdrScale</code> filter parameter for manually specifying the mapping of HDR color values to luminance levels</li>
 </ul>
-<h3 id="changes-in-v1.0.0">Changes in v1.0.0:</h3>
+<h3 class="unnumbered" id="changes-in-v1.0.0">Changes in v1.0.0:</h3>
 <ul>
 <li>Improved denoising quality
 <ul>
@@ -127,7 +153,7 @@ High-Performance Denoising Library for Ray Tracing
 <li>Added <code>verbose</code> device parameter for setting the verbosity of the console output, and disabled all console output by default</li>
 <li>Fixed crash for zero-sized images</li>
 </ul>
-<h3 id="changes-in-v0.9.0">Changes in v0.9.0:</h3>
+<h3 class="unnumbered" id="changes-in-v0.9.0">Changes in v0.9.0:</h3>
 <ul>
 <li>Reduced memory consumption by about 38%</li>
 <li>Added support for progress monitor callback functions</li>
@@ -135,14 +161,14 @@ High-Performance Denoising Library for Ray Tracing
 <li>Clamp LDR input and output colors to 1</li>
 <li>Fixed issue where some memory allocation errors were not reported</li>
 </ul>
-<h3 id="changes-in-v0.8.2">Changes in v0.8.2:</h3>
+<h3 class="unnumbered" id="changes-in-v0.8.2">Changes in v0.8.2:</h3>
 <ul>
 <li>Fixed wrong HDR output when the input contains infinities/NaNs</li>
 <li>Fixed wrong output when multiple filters were executed concurrently on separate devices with AVX-512 support. Currently the filter executions are serialized as a temporary workaround, and a full fix will be included in a future release.</li>
 <li>Added <code>OIDN_STATIC_LIB</code> CMake option for building as a static library (requires CMake 3.13.0 or later)</li>
 <li>Fixed CMake error when adding the library with add_subdirectory() to a project</li>
 </ul>
-<h3 id="changes-in-v0.8.1">Changes in v0.8.1:</h3>
+<h3 class="unnumbered" id="changes-in-v0.8.1">Changes in v0.8.1:</h3>
 <ul>
 <li>Fixed wrong path to TBB in the generated CMake configs</li>
 <li>Fixed wrong rpath in the binaries</li>
@@ -151,7 +177,7 @@ High-Performance Denoising Library for Ray Tracing
 <li>Lowered the CPU requirement to SSE4.1</li>
 <li>Minor example update</li>
 </ul>
-<h3 id="changes-in-v0.8.0">Changes in v0.8.0:</h3>
+<h3 class="unnumbered" id="changes-in-v0.8.0">Changes in v0.8.0:</h3>
 <ul>
 <li>Initial beta release</li>
 </ul>
@@ -160,7 +186,7 @@ High-Performance Denoising Library for Ray Tracing
     </div>
 
       <div id="footer">
-        © 2018–2020 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2021 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>

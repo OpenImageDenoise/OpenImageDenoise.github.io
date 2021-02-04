@@ -36,22 +36,22 @@
 
 <h1 id="download-precompiled-intel-open-image-denoise-binary-packages">Download Precompiled Intel Open Image Denoise Binary Packages</h1>
 <h2 id="prerequisites">Prerequisites</h2>
-<p>Your CPU must support at least SSE4.1 to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
+<p>You need a CPU with SSE4.1 support or Apple Silicon to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <h2 id="packages">Packages</h2>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x86_64.linux.tar.gz">oidn-1.2.4.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.3.0/oidn-1.3.0.x86_64.linux.tar.gz">oidn-1.3.0.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Intel Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x86_64.macos.tar.gz">oidn-1.2.4.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.3.0/oidn-1.3.0.x86_64.macos.tar.gz">oidn-1.3.0.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.x64.vc14.windows.zip">oidn-1.2.4.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.3.0/oidn-1.3.0.x64.vc14.windows.zip">oidn-1.3.0.x64.vc14.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.src.zip">oidn-1.2.4.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.2.4/oidn-1.2.4.src.tar.gz">oidn-1.2.4.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.3.0/oidn-1.3.0.src.zip">oidn-1.3.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.3.0/oidn-1.3.0.src.tar.gz">oidn-1.3.0.src.tar.gz</a></p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
-<h1 id="compiling-intel-open-image-denoise">Compiling Intel Open Image Denoise</h1>
+<h1 id="compilation">Compilation</h1>
 <p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
 <h2 id="prerequisites-1">Prerequisites</h2>
 <p>You can clone the latest Intel Open Image Denoise sources using Git with the <a href="https://git-lfs.github.com/">Git Large File Storage (LFS)</a> extension installed:</p>
-<pre><code>    git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre>
+<pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre>
 <p>Please note that installing the Git LFS extension is <em>required</em> to correctly clone the repository. Cloning without Git LFS will seemingly succeed but actually some of the files will be invalid and thus compilation will fail.</p>
 <p>Intel Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. In addition, before you can build Intel Open Image Denoise you need the following prerequisites:</p>
 <ul>
@@ -85,11 +85,11 @@ cd oidn/build</code></pre>
 <pre><code>ccmake ..</code></pre></li>
 <li><p>Make sure to properly set the build mode and enable the components you need, etc.; then type ’c’onfigure and ’g’enerate. When back on the command prompt, build it using</p>
 <pre><code>make</code></pre></li>
-<li><p>You should now have <code>libOpenImageDenoise.so</code> as well as a set of example applications.</p></li>
+<li><p>You should now have <code>libOpenImageDenoise.so</code> on Linux or <code>libOpenImageDenoise.dylib</code> on macOS, and a set of example applications as well.</p></li>
 </ul>
 <h2 id="entitlements-on-macos">Entitlements on macOS</h2>
 <p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process.<br />
-Intel Open Image Denoise uses just-in-time compilaton through the <a href="https://intel.github.io/mkl-dnn/">Intel Deep Neural Network Library</a> and requires the following entitlements:</p>
+Intel Open Image Denoise uses just-in-time compilaton through <a href="https://github.com/oneapi-src/oneDNN">oneDNN</a> and requires the following entitlements:</p>
 <ul>
 <li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit"><code>com.apple.security.cs.allow-jit</code></a></li>
 <li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-unsigned-executable-memory"><code>com.apple.security.cs.allow-unsigned-executable-memory</code></a></li>
@@ -117,6 +117,7 @@ cmake --build . --config Release</code></pre>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
 <li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
 <li><p><code>OIDN_STATIC_RUNTIME</code>: Use the static version of the C/C++ runtime library (available only on Windows, OFF by default).</p></li>
+<li><p><code>OIDN_NEURAL_RUNTIME</code>: Specifies which neural network runtime library to use: <code>DNNL</code> (oneDNN, default) or <code>BNNS</code> (available only on macOS).</p></li>
 <li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. By default no namespace is used and plain C symbols are exported.</p></li>
 <li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
 <li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
@@ -126,7 +127,7 @@ cmake --build . --config Release</code></pre>
 <section class="footnotes" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.12.0-linux</code><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1" role="doc-endnote"><p>For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.14.1-linux</code><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
@@ -134,7 +135,7 @@ cmake --build . --config Release</code></pre>
     </div>
 
       <div id="footer">
-        © 2018–2020 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2021 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>
