@@ -44,20 +44,20 @@ High-Performance Denoising Library for Ray Tracing
 </div>
 <div class="teaser-img">
 <div class="img-compare" style="padding-bottom: 41.875%; /* 536/1280 */" onmousemove="this.getElementsByTagName(&#39;div&#39;)[0].style.width=event.offsetX+&#39;px&#39;">
-<img src="images/moana_16spp_oidn.jpg" style="box-shadow: 0px 0px 24px rgba(0,0,0,0.4);"><span>Denoised</span>
+<img src="images/moana_8spp_oidn.jpg" style="box-shadow: 0px 0px 24px rgba(0,0,0,0.4);"><span>Denoised</span>
 <div>
-<img src="images/moana_16spp_input.jpg"><span>Original</span>
+<img src="images/moana_8spp_input.jpg"><span>Original</span>
 </div>
 </div>
 <!-- do not change formatting here! -->
 <p>
-<em>Moana Island Scene rendered at 16 spp with <a href="http://www.ospray.org">Intel® OSPRay</a> and denoised with Intel® Open Image Denoise. <a href="https://www.technology.disneyanimation.com/islandscene">Publicly available</a> dataset courtesy of Walt Disney Animation Studios. Hover over the image (or tap on it) to move the slider between the original and denoised versions.</em>
+<em>Moana Island Scene rendered at 8 samples per pixel with <a href="http://www.ospray.org">Intel® OSPRay</a> and denoised with Intel® Open Image Denoise using pre-filtered albedo and normal buffers. <a href="https://www.technology.disneyanimation.com/islandscene">Publicly available</a> dataset courtesy of Walt Disney Animation Studios. Hover over the image (or tap on it) to move the slider between the original and denoised versions.</em>
 </p>
 </div>
 <h1 id="overview">Overview</h1>
 <p>Intel Open Image Denoise is an open source library of high-performance, high-quality denoising filters for images rendered with ray tracing. Intel Open Image Denoise is part of the <a href="https://software.intel.com/en-us/oneapi/render-kit">Intel® oneAPI Rendering Toolkit</a> and is released under the permissive <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>.</p>
 <p>The purpose of Intel Open Image Denoise is to provide an open, high-quality, efficient, and easy-to-use denoising library that allows one to significantly reduce rendering times in ray tracing based rendering applications. It filters out the Monte Carlo noise inherent to stochastic ray tracing methods like path tracing, reducing the amount of necessary samples per pixel by even multiple orders of magnitude (depending on the desired closeness to the ground truth). A simple but flexible C/C++ API ensures that the library can be easily integrated into most existing or new rendering solutions.</p>
-<p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
+<p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
 <p>Although the library ships with a set of pre-trained filter models, it is not mandatory to use these. To optimize a filter for a specific renderer, sample count, content type, scene, etc., it is possible to train the model using the included training toolkit and user-provided image datasets.</p>
 <p>Intel Open Image Denoise supports Intel® 64 architecture compatible CPUs and Apple Silicon, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
 <p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/oneapi-src/oneDNN">Intel oneAPI Deep Neural Network Library (oneDNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 or Apple Silicon is required to run Intel Open Image Denoise.</p>
@@ -65,6 +65,24 @@ High-Performance Denoising Library for Ray Tracing
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v1.4.0">Changes in v1.4.0:</h3>
+<ul>
+<li>Improved fine detail preservation</li>
+<li>Added the <code>cleanAux</code> filter parameter for further improving quality when the auxiliary feature (albedo, normal) images are noise-free</li>
+<li>Added support for denoising auxiliary feature images, which can be used together with the new <code>cleanAux</code> parameter for improving quality when the auxiliary images are noisy (recommended for final frame denoising)</li>
+<li>Normals are expected to be in the [-1, 1] range (but still do not have to be normalized)</li>
+<li>Added the <code>oidnUpdateFilterData</code> function which must be called when the contents of an opaque data parameter bound to a filter (e.g. <code>weights</code>) has been changed after committing the filter</li>
+<li>Added the <code>oidnRemoveFilterImage</code> and <code>oidnRemoveFilterData</code> functions for removing previously set image and opaque data parameters of filters</li>
+<li>Reduced the overhead of <code>oidnCommitFilter</code> to zero in some cases (e.g. when changing already set image buffers/pointers or the <code>inputScale</code> parameter)</li>
+<li>Reduced filter memory consumption by about 35%</li>
+<li>Reduced total memory consumption significantly when using multiple filters that belong to the same device</li>
+<li>Reduced the default maximum memory consumption to 3000 MB</li>
+<li>Added the <code>OIDN_FILTER_RT</code> and <code>OIDN_FILTER_RTLIGHTMAP</code> CMake options for excluding the trained filter weights from the build to significantly decrease its size</li>
+<li>Fixed detection of static TBB builds on Windows</li>
+<li>Fixed compile error when using future glibc versions</li>
+<li>Added <code>oidnBenchmark</code> option for setting custom resolutions</li>
+<li>Upgraded to oneTBB 2021.2.0 in the official binaries</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v1.3.0">Changes in v1.3.0:</h3>
 <ul>
 <li>Improved denoising quality

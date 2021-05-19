@@ -101,8 +101,8 @@ div.sourceCode { overflow-x: initial; }
 
 <h1 id="documentation">Documentation</h1>
 <p>The following <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Intel Open Image Denoise Documentation">API documentation</a> of Intel Open Image Denoise can also be found as a <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Intel Open Image Denoise Documentation">pdf document</a>.</p>
-<h1 id="intel-open-image-denoise-api">Intel Open Image Denoise API</h1>
-<p>Intel Open Image Denoise provides a C99 API (also compatible with C++) and a C++11 wrapper API as well. For simplicity, this document mostly refers to the C99 version of the API.</p>
+<h1 id="open-image-denoise-api">Open Image Denoise API</h1>
+<p>Open Image Denoise provides a C99 API (also compatible with C++) and a C++11 wrapper API as well. For simplicity, this document mostly refers to the C99 version of the API.</p>
 <p>The API is designed in an object-oriented manner, e.g. it contains device objects (<code>OIDNDevice</code> type), buffer objects (<code>OIDNBuffer</code> type), and filter objects (<code>OIDNFilter</code> type). All objects are reference-counted, and handles can be released by calling the appropriate release function (e.g. <code>oidnReleaseDevice</code>) or retained by incrementing the reference count (e.g. <code>oidnRetainDevice</code>).</p>
 <p>An important aspect of objects is that setting their parameters do not have an immediate effect (with a few exceptions). Instead, objects with updated parameters are in an unusable state until the parameters get explicitly committed to a given object. The commit semantic allows for batching up multiple small changes, and specifies exactly when changes to objects will occur.</p>
 <p>All API calls are thread-safe, but operations that use the same device will be serialized, so the amount of API calls from different threads should be minimized.</p>
@@ -176,11 +176,11 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">OIDN_DEVICE_TYPE_DEFAULT</td>
+<td style="text-align: left;"><code>OIDN_DEVICE_TYPE_DEFAULT</code></td>
 <td style="text-align: left;">select the approximately fastest device</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_DEVICE_TYPE_CPU</td>
+<td style="text-align: left;"><code>OIDN_DEVICE_TYPE_CPU</code></td>
 <td style="text-align: left;">CPU device (requires SSE4.1 support or Apple Silicon)</td>
 </tr>
 </tbody>
@@ -191,11 +191,60 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb4-3"><a href="#cb4-3"></a><span class="dt">bool</span> oidnGetDevice1b(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
 <span id="cb4-4"><a href="#cb4-4"></a><span class="dt">int</span>  oidnGetDevice1i(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>to set and get parameter values on the device. Note that some parameters are constants, thus trying to set them is an error. See the tables below for the parameters supported by devices.</p>
-<table style="width:97%;">
+<table style="width:98%;">
 <caption>Parameters supported by all devices.</caption>
 <colgroup>
+<col style="width: 16%" />
+<col style="width: 20%" />
+<col style="width: 12%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: right;">Default</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>version</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">combined version number (major.minor.patch) with two decimal digits per component</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>versionMajor</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">major version number</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>versionMinor</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">minor version number</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>versionPatch</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">patch version number</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>verbose</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">0 verbosity level of the console output between 0–4; when set to 0, no output is printed, when set to a higher level more output is printed</td>
+</tr>
+</tbody>
+</table>
+<table style="width:98%;">
+<caption>Additional parameters supported only by CPU devices.</caption>
+<colgroup>
 <col style="width: 11%" />
-<col style="width: 18%" />
+<col style="width: 19%" />
 <col style="width: 12%" />
 <col style="width: 54%" />
 </colgroup>
@@ -209,63 +258,14 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;">version</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">combined version number (major.minor.patch) with two decimal digits per component</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;">versionMajor</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">major version number</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;">versionMinor</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">minor version number</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;">versionPatch</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">patch version number</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">int</td>
-<td style="text-align: left;">verbose</td>
-<td style="text-align: right;">0</td>
-<td style="text-align: left;">verbosity level of the console output between 0–4; when set to 0, no output is printed, when set to a higher level more output is printed</td>
-</tr>
-</tbody>
-</table>
-<table style="width:97%;">
-<caption>Additional parameters supported only by CPU devices.</caption>
-<colgroup>
-<col style="width: 8%" />
-<col style="width: 17%" />
-<col style="width: 12%" />
-<col style="width: 58%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Type</th>
-<th style="text-align: left;">Name</th>
-<th style="text-align: right;">Default</th>
-<th style="text-align: left;">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">int</td>
-<td style="text-align: left;">numThreads</td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>numThreads</code></td>
 <td style="text-align: right;">0</td>
 <td style="text-align: left;">maximum number of threads which the library should use; 0 will set it automatically to get the best performance</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">bool</td>
-<td style="text-align: left;">setAffinity</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>setAffinity</code></td>
 <td style="text-align: right;">true</td>
 <td style="text-align: left;">bind software threads to hardware threads if set to true (improves performance); false disables binding</td>
 </tr>
@@ -304,31 +304,31 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ERROR_NONE</td>
+<td style="text-align: left;"><code>OIDN_ERROR_NONE</code></td>
 <td style="text-align: left;">no error occurred</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_ERROR_UNKNOWN</td>
+<td style="text-align: left;"><code>OIDN_ERROR_UNKNOWN</code></td>
 <td style="text-align: left;">an unknown error occurred</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ERROR_INVALID_ARGUMENT</td>
+<td style="text-align: left;"><code>OIDN_ERROR_INVALID_ARGUMENT</code></td>
 <td style="text-align: left;">an invalid argument was specified</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_ERROR_INVALID_OPERATION</td>
+<td style="text-align: left;"><code>OIDN_ERROR_INVALID_OPERATION</code></td>
 <td style="text-align: left;">the operation is not allowed</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ERROR_OUT_OF_MEMORY</td>
+<td style="text-align: left;"><code>OIDN_ERROR_OUT_OF_MEMORY</code></td>
 <td style="text-align: left;">not enough memory to execute the operation</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_ERROR_UNSUPPORTED_HARDWARE</td>
+<td style="text-align: left;"><code>OIDN_ERROR_UNSUPPORTED_HARDWARE</code></td>
 <td style="text-align: left;">the hardware (e.g., CPU) is not supported</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ERROR_CANCELLED</td>
+<td style="text-align: left;"><code>OIDN_ERROR_CANCELLED</code></td>
 <td style="text-align: left;">the operation was cancelled by the user</td>
 </tr>
 </tbody>
@@ -356,19 +356,19 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ACCESS_READ</td>
+<td style="text-align: left;"><code>OIDN_ACCESS_READ</code></td>
 <td style="text-align: left;">read-only access</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_ACCESS_WRITE</td>
+<td style="text-align: left;"><code>OIDN_ACCESS_WRITE</code></td>
 <td style="text-align: left;">write-only access</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">OIDN_ACCESS_READ_WRITE</td>
+<td style="text-align: left;"><code>OIDN_ACCESS_READ_WRITE</code></td>
 <td style="text-align: left;">read and write access</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_ACCESS_WRITE_DISCARD</td>
+<td style="text-align: left;"><code>OIDN_ACCESS_WRITE_DISCARD</code></td>
 <td style="text-align: left;">write-only access but the previous contents will be discarded</td>
 </tr>
 </tbody>
@@ -388,16 +388,16 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">OIDN_FORMAT_UNDEFINED</td>
+<td style="text-align: left;"><code>OIDN_FORMAT_UNDEFINED</code></td>
 <td style="text-align: left;">undefined format</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">OIDN_FORMAT_FLOAT</td>
-<td style="text-align: left;">32-bit single-precision floating point scalar</td>
+<td style="text-align: left;"><code>OIDN_FORMAT_FLOAT</code></td>
+<td style="text-align: left;">32-bit floating point scalar</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">OIDN_FORMAT_FLOAT[234]</td>
-<td style="text-align: left;">… and [234]-element vector</td>
+<td style="text-align: left;"><code>OIDN_FORMAT_FLOAT[234]</code></td>
+<td style="text-align: left;">32-bit floating point [234]-element vector</td>
 </tr>
 </tbody>
 </table>
@@ -421,50 +421,61 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb18-10"><a href="#cb18-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
 <span id="cb18-11"><a href="#cb18-11"></a>                              <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</span></code></pre></div>
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to shared user-managed data (<code>ptr</code> argument) with the <code>oidnSetSharedFilterImage</code> function.</p>
-<p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>bytePixelStride</code> argument) and the row stride (<code>byteRowStride</code> argument), in number of bytes. Note that the row stride must be an integer multiple of the pixel stride.</p>
-<p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>bytePixelStride</code> and/or <code>byteRowStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
+<p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>bytePixelStride</code> argument) and the row stride (<code>byteRowStride</code> argument), in number of bytes.</p>
+<p>The row stride must be an integer multiple of the pixel stride. If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>bytePixelStride</code> and/or <code>byteRowStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
+<p>Images support only the <code>OIDN_FORMAT_FLOAT3</code> pixel format. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra data will be ignored by the filter.</p>
+<p>To unbind a previously set image from the filter, call</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb19-2"><a href="#cb19-2"></a>                             <span class="dt">void</span>* ptr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb20-2"><a href="#cb20-2"></a>                             <span class="dt">void</span>* ptr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<p>Modifying the contents of an opaque data parameter after binding it to a filter is allowed but the filter needs to be notified that the data has been updated by calling</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<p>Unbinding opaque data from the filter can be performed with</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a><span class="dt">void</span>  oidnSetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
-<span id="cb20-2"><a href="#cb20-2"></a><span class="dt">void</span>  oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
-<span id="cb20-3"><a href="#cb20-3"></a><span class="dt">void</span>  oidnSetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span>
-<span id="cb20-4"><a href="#cb20-4"></a><span class="dt">bool</span>  oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb20-5"><a href="#cb20-5"></a><span class="dt">int</span>   oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb20-6"><a href="#cb20-6"></a><span class="dt">float</span> oidnGetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">void</span>  oidnSetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="dt">void</span>  oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
+<span id="cb23-3"><a href="#cb23-3"></a><span class="dt">void</span>  oidnSetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span>
+<span id="cb23-4"><a href="#cb23-4"></a><span class="dt">bool</span>  oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb23-5"><a href="#cb23-5"></a><span class="dt">int</span>   oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb23-6"><a href="#cb23-6"></a><span class="dt">float</span> oidnGetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
-<span id="cb21-2"><a href="#cb21-2"></a></span>
-<span id="cb21-3"><a href="#cb21-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
-<span id="cb21-4"><a href="#cb21-4"></a>                                          OIDNProgressMonitorFunction func,</span>
-<span id="cb21-5"><a href="#cb21-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
+<span id="cb24-2"><a href="#cb24-2"></a></span>
+<span id="cb24-3"><a href="#cb24-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
+<span id="cb24-4"><a href="#cb24-4"></a>                                          OIDNProgressMonitorFunction func,</span>
+<span id="cb24-5"><a href="#cb24-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Intel Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Intel Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will cancel the filter operation with the <code>OIDN_ERROR_CANCELLED</code> error code.</p>
 <p>After setting all necessary parameters for the filter, the changes must be commmitted by calling</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
-<p>The parameters can be updated after committing the filter, but it must be re-committed for the changes to take effect.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
+<p>The parameters can be updated after committing the filter, but it must be re-committed for any new changes to take effect. Committing major changes to the filter (e.g. setting new image parameters, changing the image resolution) can be expensive, and thus should not be done frequently (e.g. per frame).</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>In the following we describe the different filters that are currently implemented in Intel Open Image Denoise.</p>
 <h3 id="rt">RT</h3>
 <p>The <code>RT</code> (<strong>r</strong>ay <strong>t</strong>racing) filter is a generic ray tracing denoising filter which is suitable for denoising images rendered with Monte Carlo ray tracing methods like unidirectional and bidirectional path tracing. It supports depth of field and motion blur as well, but it is <em>not</em> temporally stable. The filter is based on a convolutional neural network (CNN), and it aims to provide a good balance between denoising performance and quality. The filter comes with a set of pre-trained CNN models that work well with a wide range of ray tracing based renderers and noise levels.</p>
-<p>It accepts either a low dynamic range (LDR) or high dynamic range (HDR) color image as input. Optionally, it also accepts auxiliary <em>feature</em> images, e.g. albedo and normal, which improve the denoising quality, preserving more details in the image.</p>
+<figure>
+<img src="images/mazda_4spp_input.jpg" style="width:90.0%" alt="" /><figcaption>Example noisy color image rendered using unidirectional path tracing (4 samples per pixel). <em>Scene by Evermotion.</em></figcaption>
+</figure>
+<figure>
+<img src="images/mazda_4spp_oidn.jpg" style="width:90.0%" alt="" /><figcaption>Example output image denoised using clean auxiliary feature images (albedo and normal).</figcaption>
+</figure>
+<p>It accepts either a low dynamic range (LDR) or high dynamic range (HDR) color image as input. Optionally, it also accepts auxiliary <em>feature</em> images, e.g. albedo and normal, which improve the denoising quality, preserving more details in the image. It is possible to denoise auxiliary images as well, in which case only the respective auxiliary image has to be specified as input, instead of the color image.</p>
 <p>The <code>RT</code> filter has certain limitations regarding the supported input images. Most notably, it cannot denoise images that were not rendered with ray tracing. Another important limitation is related to anti-aliasing filters. Most renderers use a high-quality pixel reconstruction filter instead of a trivial box filter to minimize aliasing artifacts (e.g. Gaussian, Blackman-Harris). The <code>RT</code> filter does support such pixel filters but only if implemented with importance sampling. Weighted pixel sampling (sometimes called <em>splatting</em>) introduces correlation between neighboring pixels, which causes the denoising to fail (the noise will not be filtered), thus it is not supported.</p>
 <p>The filter can be created by passing <code>"RT"</code> to the <code>oidnNewFilter</code> function as the filter type. The filter supports the parameters listed in the table below. All specified images must have the same dimensions. The output image can be one of the input images (i.e. in-place denoising is supported).</p>
 <table style="width:98%;">
 <caption>Parameters supported by the <code>RT</code> filter.</caption>
 <colgroup>
-<col style="width: 11%" />
-<col style="width: 11%" />
+<col style="width: 15%" />
 <col style="width: 17%" />
-<col style="width: 12%" />
-<col style="width: 45%" />
+<col style="width: 14%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Type</th>
-<th style="text-align: left;">Format</th>
 <th style="text-align: left;">Name</th>
 <th style="text-align: right;">Default</th>
 <th style="text-align: left;">Description</th>
@@ -472,92 +483,84 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">color</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">input color image (RGB, LDR values in [0, 1] or HDR values in [0, +∞), values being interpreted such that, after scaling with the inputScale parameter, a value of 1 corresponds to a luminance level of 100 cd/m²)</td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>color</code></td>
+<td style="text-align: right;"><em>optional</em></td>
+<td style="text-align: left;">input color image (3 channels, LDR values in [0, 1] or HDR values in [0, +∞), values being interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to a luminance level of 100 cd/m²).</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">albedo</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">input feature image containing the albedo (RGB, values in [0, 1]) of the first hit per pixel; <em>optional</em></td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>albedo</code></td>
+<td style="text-align: right;"><em>optional</em></td>
+<td style="text-align: left;">input auxiliary image containing the albedo per pixel (3 channels, values in [0, 1])</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">normal</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">input feature image containing the shading normal (3D world-space or view-space vector with arbitrary length, values in (−∞, +∞)) of the first hit per pixel; <em>optional</em>, requires setting the albedo image too</td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>normal</code></td>
+<td style="text-align: right;"><em>optional</em></td>
+<td style="text-align: left;">input auxiliary image containing the shading normal per pixel (3 channels, world-space or view-space vectors with arbitrary length, values in [-1, 1])</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">output</td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>output</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">output image; it can be one of the input images</td>
+<td style="text-align: left;">output image (3 channels); can be one of the input images</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">bool</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">hdr</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>hdr</code></td>
 <td style="text-align: right;">false</td>
 <td style="text-align: left;">whether the color is HDR</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">bool</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">srgb</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>srgb</code></td>
 <td style="text-align: right;">false</td>
 <td style="text-align: left;">whether the color is encoded with the sRGB (or 2.2 gamma) curve (LDR only) or is linear; the output will be encoded with the same curve</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">float</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">inputScale</td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;"><code>inputScale</code></td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: left;">scales input color values before filtering, without scaling the output too, which can be used to map color values to the expected range, e.g. for mapping HDR values to physical units (which affects the quality of the output but <em>not</em> the range of the output values); if set to NaN, the scale is computed automatically for HDR images or set to 1 otherwise (<em>default</em>)</td>
+<td style="text-align: left;">scales input values before filtering, without scaling the output too, which can be used to map color or auxiliary feature values to the expected range, e.g. for mapping HDR values to physical units (which affects the quality of the output but <em>not</em> the range of the output values); if set to NaN, the scale is computed implicitly for HDR images or set to 1 otherwise</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Data</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">weights</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">trained model weights blob; <em>optional</em></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>cleanAux</code></td>
+<td style="text-align: right;">false</td>
+<td style="text-align: left;">whether the auxiliary feature (albedo, normal) images are noise-free; recommended for highest quality but should <em>not</em> be enabled for noisy auxiliary images to avoid residual noise</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">maxMemoryMB</td>
-<td style="text-align: right;">6000</td>
-<td style="text-align: left;">approximate maximum amount of scratch memory to use in megabytes (actual memory usage may be higher); limiting memory usage may cause slower denoising due to internally splitting the image into overlapping tiles, but cannot cause the denoising to fail</td>
+<td style="text-align: left;"><code>Data</code></td>
+<td style="text-align: left;"><code>weights</code></td>
+<td style="text-align: right;"><em>optional</em></td>
+<td style="text-align: left;">trained model weights blob</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">alignment</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">when manually denoising the image in tiles, the tile size and offsets should be multiples of this amount of pixels to avoid artifacts; note that manual tiled denoising of HDR images is supported <em>only</em> when inputScale is set by the user</td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>maxMemoryMB</code></td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: left;">approximate maximum scratch memory to use in megabytes (actual memory usage may be higher); limiting memory usage may cause slower denoising due to internally splitting the image into overlapping tiles</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">overlap</td>
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>alignment</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">when manually denoising the image in tiles, the tiles should overlap by this amount of pixels</td>
+<td style="text-align: left;">when manually denoising in tiles, the tile size and offsets should be multiples of this amount of pixels to avoid artifacts; when denoising HDR images <code>inputScale</code> <em>must</em> be set by the user to avoid seam artifacts</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>overlap</code></td>
+<td style="text-align: right;"></td>
+<td style="text-align: left;">when manually denoising in tiles, the tiles should overlap by this amount of pixels</td>
 </tr>
 </tbody>
 </table>
-<figure>
-<img src="images/mazda_64spp_input.jpg" style="width:90.0%" alt="" /><figcaption>Example noisy color image rendered using unidirectional path tracing (64 spp). <em>Scene by Evermotion.</em></figcaption>
-</figure>
-<figure>
-<img src="images/mazda_64spp_oidn.jpg" style="width:90.0%" alt="" /><figcaption>Example output image denoised using color and auxiliary feature images (albedo and normal).</figcaption>
-</figure>
-<p>Using auxiliary feature images like albedo and normal helps preserving fine details and textures in the image thus can significantly improve denoising quality. These images should typically contain feature values for the first hit (i.e. the surface which is directly visible) per pixel. This works well for most surfaces but does not provide any benefits for reflections and objects visible through transparent surfaces (compared to just using the color as input). However, in certain cases this issue can be fixed by storing feature values for a subsequent hit (i.e. the reflection and/or refraction) instead of the first hit. For example, it usually works well to follow perfect specular (<em>delta</em>) paths and store features for the first diffuse or glossy surface hit instead (e.g. for perfect specular dielectrics and mirrors). This can greatly improve the quality of reflections and transmission. We will describe this approach in more detail in the following subsections.</p>
-<p>The auxiliary feature images should be as noise-free as possible. It is not a strict requirement but too much noise in the feature images may cause residual noise in the output. Also, all feature images should use the same pixel reconstruction filter as the color image. Using a properly anti-aliased color image but aliased albedo or normal images will likely introduce artifacts around edges.</p>
+<p>Using auxiliary feature images like albedo and normal helps preserving fine details and textures in the image thus can significantly improve denoising quality. These images should typically contain feature values for the first hit (i.e. the surface which is directly visible) per pixel. This works well for most surfaces but does not provide any benefits for reflections and objects visible through transparent surfaces (compared to just using the color as input). However, this issue can be usually fixed by storing feature values for a subsequent hit (i.e. the reflection and/or refraction) instead of the first hit. For example, it usually works well to follow perfect specular (<em>delta</em>) paths and store features for the first diffuse or glossy surface hit instead (e.g. for perfect specular dielectrics and mirrors). This can greatly improve the quality of reflections and transmission. We will describe this approach in more detail in the following subsections.</p>
+<p>The auxiliary feature images should be as noise-free as possible. It is not a strict requirement but too much noise in the feature images may cause residual noise in the output. Ideally, these should be completely noise-free. If this is the case, this should be hinted to the filter using the <code>cleanAux</code> parameter to ensure the highest possible image quality. But this parameter should be used with care: if enabled, any noise present in the auxiliary images will end up in the denoised image as well, as residual noise. Thus, <code>cleanAux</code> should be enabled only if the auxiliary images are guaranteed to be noise-free.</p>
+<p>Usually it is difficult to provide clean feature images, and some residual noise might be present in the output even with <code>cleanAux</code> being disabled. To eliminate this noise and to even improve the sharpness of texture details, the auxiliary images should be first denoised in a pre-filtering step, as described earlier. Then, these denoised auxiliary images could be used for denoising the color image. Since these are now noise-free, the <code>cleanAux</code> parameter should be enabled. Pre-filtering makes denoising much more expensive but if there are multiple color AOVs to denoise, the pre-filtered auxiliary images can be reused for denoising multiple AOVs, amortizing the cost of the pre-filtering step.</p>
+<p>Thus, for final frame denoising, where the best possible image quality is required, it is recommended to pre-filter the auxiliary features if they are noisy and enable the <code>cleanAux</code> parameter. Denoising with noisy auxiliary features should be reserved for previews and interactive rendering.</p>
+<p>All feature images should use the same pixel reconstruction filter as the color image. Using a properly anti-aliased color image but aliased albedo or normal images will likely introduce artifacts around edges.</p>
 <h4 id="albedo">Albedo</h4>
 <p>The albedo image is the feature image that usually provides the biggest quality improvement. It should contain the approximate color of the surfaces independent of illumination and viewing angle.</p>
 <p>For simple matte surfaces this means using the diffuse color/texture as the albedo. For other, more complex surfaces it is not always obvious what is the best way to compute the albedo, but the denoising filter is flexibile to a certain extent and works well with differently computed albedos. Thus it is not necessary to compute the strict, exact albedo values but must be always between 0 and 1.</p>
@@ -572,7 +575,7 @@ div.sourceCode { overflow-x: initial; }
 <p>The albedo for layered surfaces can be computed as the weighted sum of the albedos of the individual layers. Non-absorbing clear coat layers can be simply ignored (or the albedo of the perfect specular reflection can be used as well) but absorption should be taken into account.</p>
 <h4 id="normal">Normal</h4>
 <p>The normal image should contain the shading normals of the surfaces either in world-space or view-space. It is recommended to include normal maps to preserve as much detail as possible.</p>
-<p>Just like any other input image, the normal image should be anti-aliased (i.e. by accumulating the normalized normals per pixel). The final accumulated normals do not have to be normalized but must be in a range symmetric about 0 (i.e. normals mapped to [0, 1] are <em>not</em> acceptable and must be remapped to e.g. [−1, 1]).</p>
+<p>Just like any other input image, the normal image should be anti-aliased (i.e. by accumulating the normalized normals per pixel). The final accumulated normals do not have to be normalized but must be in the [-1, 1] range (i.e. normals mapped to [0, 1] are <em>not</em> acceptable and must be remapped to [−1, 1]).</p>
 <p>Similar to the albedo, the normal can be stored for either the first or a subsequent hit (if the first hit has a perfect specular/delta BSDF).</p>
 <figure>
 <img src="images/mazda_firsthit_512spp_normal.jpg" style="width:90.0%" alt="" /><figcaption>Example normal image obtained using the first hit (the values are actually in [−1, 1] but were mapped to [0, 1] for illustration purposes).</figcaption>
@@ -588,16 +591,14 @@ div.sourceCode { overflow-x: initial; }
 <table style="width:98%;">
 <caption>Parameters supported by the <code>RTLightmap</code> filter.</caption>
 <colgroup>
-<col style="width: 11%" />
-<col style="width: 11%" />
+<col style="width: 15%" />
 <col style="width: 17%" />
-<col style="width: 12%" />
-<col style="width: 45%" />
+<col style="width: 14%" />
+<col style="width: 50%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Type</th>
-<th style="text-align: left;">Format</th>
 <th style="text-align: left;">Name</th>
 <th style="text-align: right;">Default</th>
 <th style="text-align: left;">Description</th>
@@ -605,60 +606,52 @@ div.sourceCode { overflow-x: initial; }
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">color</td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>color</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">input color image (RGB, HDR values in [0, +∞), interpreted such that, after scaling with the inputScale parameter, a value of 1 corresponds to a luminance level of 100 cd/m²; directional values in [-1, 1])</td>
+<td style="text-align: left;">input color image (3 channels, HDR values in [0, +∞), interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to aluminance level of 100 cd/m²; directional values in [-1, 1])</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Image</td>
-<td style="text-align: left;">float3</td>
-<td style="text-align: left;">output</td>
+<td style="text-align: left;"><code>Image</code></td>
+<td style="text-align: left;"><code>output</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">output image; it can be one of the input images</td>
+<td style="text-align: left;">output image (3 channels); can be one of the input images</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">bool</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">directional</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>directional</code></td>
 <td style="text-align: right;">false</td>
-<td style="text-align: left;">whether the input contains normalized coefficients (in [-1, 1]) of a directional lightmap (e.g. normalized L1 or higher spherical harmonics band with the L0 band divided out); if the range of the coefficients is different from [-1, 1], the inputScale parameter can be used to adjust the range without changing the stored values</td>
+<td style="text-align: left;">whether the input contains normalized coefficients (in [-1, 1]) of a directional lightmap (e.g. normalized L1 or higher spherical harmonics band with the L0 band divided out); if the range of the coefficients is different from [-1, 1], the <code>inputScale</code> parameter can be used to adjust the range without changing the stored values</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">float</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">inputScale</td>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;"><code>inputScale</code></td>
 <td style="text-align: right;">NaN</td>
-<td style="text-align: left;">scales input color values before filtering, without scaling the output too, which can be used to map color values to the expected range, e.g. for mapping HDR values to physical units (which affects the quality of the output but <em>not</em> the range of the output values); if set to NaN, the scale is computed automatically for HDR images or set to 1 otherwise (<em>default</em>)</td>
+<td style="text-align: left;">scales input color values before filtering, without scaling the output too, which can be used to map color values to the expected range, e.g. for mapping HDR values to physical units (which affects the quality of the output but <em>not</em> the range of the output values); if set to NaN, the scale is computed implicitly for HDR images or set to 1 otherwise</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Data</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">weights</td>
-<td style="text-align: right;"></td>
-<td style="text-align: left;">trained model weights blob; <em>optional</em></td>
+<td style="text-align: left;"><code>Data</code></td>
+<td style="text-align: left;"><code>weights</code></td>
+<td style="text-align: right;"><em>optional</em></td>
+<td style="text-align: left;">trained model weights blob</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">maxMemoryMB</td>
-<td style="text-align: right;">6000</td>
-<td style="text-align: left;">approximate maximum amount of scratch memory to use in megabytes (actual memory usage may be higher)</td>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>maxMemoryMB</code></td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: left;">approximate maximum scratch memory to use in megabytes (actual memory usage may be higher); limiting memory usage may cause slower denoising due to internally splitting the image into overlapping tiles</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">alignment</td>
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>alignment</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">when manually denoising the image in tiles, the tile size and offsets should be multiples of this amount of pixels to avoid artifacts; note that manual tiled denoising of HDR images is supported <em>only</em> when inputScale is set by the user</td>
+<td style="text-align: left;">when manually denoising in tiles, the tile size and offsets should be multiples of this amount of pixels to avoid artifacts; when denoising HDR images <code>inputScale</code> <em>must</em> be set by the user to avoid seam artifacts</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">const int</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">overlap</td>
+<td style="text-align: left;"><code>const int</code></td>
+<td style="text-align: left;"><code>overlap</code></td>
 <td style="text-align: right;"></td>
-<td style="text-align: left;">when manually denoising the image in tiles, the tiles should overlap by this amount of pixels</td>
+<td style="text-align: left;">when manually denoising in tiles, the tiles should overlap by this amount of pixels</td>
 </tr>
 </tbody>
 </table>
@@ -690,7 +683,7 @@ div.sourceCode { overflow-x: initial; }
 <ul>
 <li><p>Linux (other operating systems are currently not supported)</p></li>
 <li><p>Python 3.7 or later</p></li>
-<li><p><a href="https://pytorch.org/">PyTorch</a> 1.7 or later</p></li>
+<li><p><a href="https://pytorch.org/">PyTorch</a> 1.8 or later</p></li>
 <li><p><a href="https://numpy.org/">NumPy</a> 1.19 or later</p></li>
 <li><p><a href="http://openimageio.org/">OpenImageIO</a> 2.1 or later</p></li>
 <li><p><a href="https://www.tensorflow.org/tensorboard">TensorBoard</a> 2.4 or later (<em>optional</em>)</p></li>
@@ -770,7 +763,9 @@ div.sourceCode { overflow-x: initial; }
     `-- scene2_reference.hdr.exr</code></pre>
 <h2 id="preprocessing-preprocess.py">Preprocessing (preprocess.py)</h2>
 <p>Training and validation datasets can be used only after preprocessing them using the <code>preprocess.py</code> script. This will convert the specified training (<code>--train_data</code> or <code>-t</code> option) and validation datasets (<code>--valid_data</code> or <code>-v</code> option) located in the root dataset directory (<code>--data_dir</code> or <code>-D</code> option) to a format that can be loaded more efficiently during training. All preprocessed datasets will be stored in a root preprocessed dataset directory (<code>--preproc_dir</code> or <code>-P</code> option).</p>
-<p>The preprocessing script requires the set of image features to include in the preprocessed dataset as command-line arguments. Only these specified features will be available for training but it is not required to use all of them at the same time. Thus, a single preprocessed dataset can be reused for training multiple models with different combinations of the preprocessed features. Preprocessing also depends on the filter that will be trained (e.g. determines which HDR/LDR transfer function has to be used), which should be also specified (<code>--filter</code> or <code>-f</code> option). The alternative is to manually specify the transfer function (<code>--transfer</code> or <code>-x</code> option) and other filter-specific parameters, which could be useful for training custom filters.</p>
+<p>The preprocessing script requires the set of image features to include in the preprocessed dataset as command-line arguments. Only these specified features will be available for training but it is not required to use all of them at the same time. Thus, a single preprocessed dataset can be reused for training multiple models with different combinations of the preprocessed features.</p>
+<p>By default, all input features are assumed to be noisy, including the auxiliary features (e.g. albedo, normal), each having versions at different samples per pixel. However, it is also possible to train with noise-free auxiliary features, in which case the reference auxiliary features are used instead of the various noisy ones (<code>--clean_aux</code> option).</p>
+<p>Preprocessing also depends on the filter that will be trained (e.g. determines which HDR/LDR transfer function has to be used), which should be also specified (<code>--filter</code> or <code>-f</code> option). The alternative is to manually specify the transfer function (<code>--transfer</code> or <code>-x</code> option) and other filter-specific parameters, which could be useful for training custom filters.</p>
 <p>For example, to preprocess the training and validation datasets (<code>rt_train</code> and <code>rt_valid</code>) with HDR color, albedo, and normal image features, for training the <code>RT</code> filter, the following command can be used:</p>
 <pre><code>./preprocess.py hdr alb nrm --filter RT --train_data rt_train --valid_data rt_valid</code></pre>
 <p>It is possible to preprocess the same dataset multiple times, with possibly different combinations of features and options. The training script will use the most suitable and most recent preprocessed version depending on the training parameters.</p>
@@ -780,18 +775,19 @@ div.sourceCode { overflow-x: initial; }
 <p>The filters require separate trained models for each supported combination of input features. Thus, depending on which combinations of features the user wants to support for a particular filter, one or more models have to be trained.</p>
 <p>After preprocessing the datasets, it is possible to start training a model using the <code>train.py</code> script. Similar to the preprocessing script, the input features must be specified (could be a subset of the preprocessed features), and the dataset names, directory paths, and the filter can be also passed.</p>
 <p>The tool will produce a training <em>result</em>, the name of which can be either specified (<code>--result</code> or <code>-r</code> option) or automatically generated (by default). Each result is stored in its own subdirectory, and these are located in a common parent directory (<code>--results_dir</code> or <code>-R</code> option). If a training result already exists, the tool will resume training that result from the latest checkpoint.</p>
-<p>The default training hyperparameters should work reasonably well in general, but some adjustments might be necessary for certain datasets to attain optimal performance, most importantly: the number of epochs (<code>--num_epochs</code> or <code>-e</code> option), the global mini-batch size (<code>--batch_size</code> or <code>--bs</code> option), and the learning rate. The training tool uses a one-cycle learning rate schedule with cosine annealing, which can be configured by setting the base learning rate (<code>--learning_rate</code> or <code>--lr</code> option), the maximum learning rate (<code>--max_learning_rate</code> or <code>--max_lr</code> option), and the percentage of the cycle spent increasing the learning rate (<code>--lr_warmup</code> option).</p>
+<p>The default training hyperparameters should work reasonably well in general, but some adjustments might be necessary for certain datasets to attain optimal performance, most importantly: the number of epochs (<code>--num_epochs</code> or <code>-e</code> option), the global mini-batch size (<code>--batch_size</code> or <code>-b</code> option), and the learning rate. The training tool uses a one-cycle learning rate schedule with cosine annealing, which can be configured by setting the base learning rate (<code>--learning_rate</code> or <code>--lr</code> option), the maximum learning rate (<code>--max_learning_rate</code> or <code>--max_lr</code> option), and the percentage of the cycle spent increasing the learning rate (<code>--learning_rate_warmup</code> or <code>--lr_warmup</code> option).</p>
 <p>Example usage:</p>
 <pre><code>./train.py hdr alb --filter RT --train_data rt_train --valid_data rt_valid --result rt_hdr_alb</code></pre>
 <p>For finding the optimal learning rate range, we recommend using the included <code>find_lr.py</code> script, which trains one epoch using an increasing learning rate and logs the resulting losses in a comma-separated values (CSV) file. Plotting the loss curve can show when the model starts to learn (the base learning rate) and when it starts to diverge (the maximum learning rate).</p>
 <p>The model is evaluated with the validation dataset at regular intervals (<code>--num_valid_epochs</code> option), and checkpoints are also regularly created (<code>--num_save_epochs</code> option) to save training progress. Also, some statistics are logged (e.g. training and validation losses, learning rate) per epoch, which can be later visualized with TensorBoard by running the <code>visualize.py</code> script, e.g.:</p>
 <pre><code>./visualize.py --result rt_hdr_alb</code></pre>
-<p>Training is performed with mixed precision (FP16 and FP32) by default, if it supported by the hardware, which makes training faster and use less memory. However, in some rare cases this might cause some convergence issues. The training precision can be manually set to FP32 if necessary (<code>-p</code> or <code>--precision</code> option).</p>
+<p>Training is performed with mixed precision (FP16 and FP32) by default, if it supported by the hardware, which makes training faster and use less memory. However, in some rare cases this might cause some convergence issues. The training precision can be manually set to FP32 if necessary (<code>--precision</code> or <code>-p</code> option).</p>
 <h2 id="inference-infer.py">Inference (infer.py)</h2>
 <p>A training result can be tested by performing inference on an image dataset (<code>--input_data</code> or <code>-i</code> option) using the <code>infer.py</code> script. The dataset does <em>not</em> have to be preprocessed. In addition to the result to use, it is possible to specify which checkpoint to load as well (<code>-e</code> or <code>--num_epochs</code> option). By default the latest checkpoint is loaded.</p>
 <p>The tool saves the output images in a separate directory (<code>--output_dir</code> or <code>-O</code> option) in the requested formats (<code>--format</code> or <code>-F</code> option). It also evaluates a set of image quality metrics (<code>--metric</code> or <code>-M</code> option), e.g. PSNR, SSIM, for images that have reference images available. All metrics are computed in tonemapped non-linear sRGB space. Thus, HDR images are first tonemapped (with Naughty Dog’s Filmic Tonemapper from John Hable’s <em>Uncharted 2: HDR Lighting</em> presentation) and converted to sRGB before evaluating the metrics.</p>
 <p>Example usage:</p>
 <pre><code>./infer.py --result rt_hdr_alb --input_data rt_test --format exr png --metric ssim</code></pre>
+<p>The inference tool supports pre-filtering of auxiliary features as well, which can be performed by specifying the list of training results for each feature to pre-filter (<code>--aux_results</code> or <code>-a</code> option). This is primarily useful for evaluating the quality of models trained with clean auxiliary features.</p>
 <h2 id="exporting-results-export.py">Exporting Results (export.py)</h2>
 <p>The training result produced by the <code>train.py</code> script cannot be immediately used by the main library. It has to be first exported to the runtime model weights format, a <em>Tensor Archive</em> (TZA) file. Running the <code>export.py</code> script for a training result (and optionally a checkpoint epoch) will create a binary <code>.tza</code> file in the directory of the result, which can be either used at runtime through the API or it can be included in the library build by replacing one of the built-in weights files.</p>
 <p>Example usage:</p>
