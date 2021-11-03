@@ -296,7 +296,7 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>bool</code></td>
 <td style="text-align: left;"><code>setAffinity</code></td>
 <td style="text-align: right;">true</td>
-<td style="text-align: left;">bind software threads to hardware threads if set to true (improves performance); false disables binding</td>
+<td style="text-align: left;">enables thread affinitization (pinning software threads to hardware threads) if it is necessary for achieving optimal performance</td>
 </tr>
 </tbody>
 </table>
@@ -372,8 +372,10 @@ div.sourceCode { overflow-x: initial; }
 <p>Similar to device objects, buffer objects are also reference-counted and can be retained and released by calling the following functions:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">void</span> oidnRetainBuffer(OIDNBuffer buffer);</span>
 <span id="cb14-2"><a href="#cb14-2"></a><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</span></code></pre></div>
+<p>The size of the buffer in bytes can be queried using</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a><span class="dt">size_t</span> oidnGetBufferSize(OIDNBuffer buffer);</span></code></pre></div>
 <p>Accessing the data stored in a buffer object is possible by mapping it into the address space of the application using</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a><span class="dt">void</span>* oidnMapBuffer(OIDNBuffer buffer, OIDNAccess access, <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="dt">void</span>* oidnMapBuffer(OIDNBuffer buffer, OIDNAccess access, <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize)</span></code></pre></div>
 <p>where <code>access</code> is the desired access mode of the mapped memory, <code>byteOffset</code> is the offset to the beginning of the mapped memory region in bytes, and <code>byteSize</code> is the number of bytes to map. The function returns a pointer to the mapped buffer data. If the specified <code>byteSize</code> is 0, the maximum available amount of memory will be mapped. The <code>access</code> argument must be one of the access modes in the following table:</p>
 <table>
 <caption>Access modes for memory regions mapped with <code>oidnMapBuffer</code>, i.e., valid constants of type <code>OIDNAccess</code>.</caption>
@@ -403,8 +405,10 @@ div.sourceCode { overflow-x: initial; }
 </tbody>
 </table>
 <p>After accessing the mapped data in the buffer, the memory region must be unmapped with</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="dt">void</span> oidnUnmapBuffer(OIDNBuffer buffer, <span class="dt">void</span>* mappedPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a><span class="dt">void</span> oidnUnmapBuffer(OIDNBuffer buffer, <span class="dt">void</span>* mappedPtr);</span></code></pre></div>
 <p>where <code>mappedPtr</code> must be a pointer returned by a call to <code>oidnMapBuffer</code> for the specified buffer. Any change to the mapped data is guaranteed to take effect only after unmapping the memory region.</p>
+<p>It is also possible to get a pointer directly to the buffer data but this might be valid only on the device the buffer was created on:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="dt">void</span>* oidnGetBufferData(OIDNBuffer buffer);</span></code></pre></div>
 <h3 id="data-format">Data Format</h3>
 <p>Buffers store opaque data and thus have no information about the type and format of the data. Other objects, e.g. filters, typically require specifying the format of the data stored in buffers or shared via pointers. This can be done using the <code>OIDNFormat</code> enumeration type:</p>
 <table>
@@ -422,65 +426,73 @@ div.sourceCode { overflow-x: initial; }
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>OIDN_FORMAT_FLOAT</code></td>
-<td style="text-align: left;">32-bit floating point scalar</td>
+<td style="text-align: left;">32-bit floating-point scalar</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>OIDN_FORMAT_FLOAT[234]</code></td>
-<td style="text-align: left;">32-bit floating point [234]-element vector</td>
+<td style="text-align: left;">32-bit floating-point [234]-element vector</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_FORMAT_HALF</code></td>
+<td style="text-align: left;">16-bit floating-point scalar</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_FORMAT_HALF[234]</code></td>
+<td style="text-align: left;">16-bit floating-point [234]-element vector</td>
 </tr>
 </tbody>
 </table>
 <h2 id="filter">Filter</h2>
 <p>Filters are the main objects in Intel Open Image Denoise that are responsible for the actual denoising. The library ships with a collection of filters which are optimized for different types of images and use cases. To create a filter object, call</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
 <p>where <code>type</code> is the name of the filter type to create. The supported filter types are documented later in this section. Once created, filter objects can be retained and released with</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="dt">void</span> oidnRetainFilter(OIDNFilter filter);</span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a><span class="dt">void</span> oidnRetainFilter(OIDNFilter filter);</span>
+<span id="cb20-2"><a href="#cb20-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
 <p>After creating a filter, it needs to be set up by specifying the input and output images, and potentially setting other parameter values as well.</p>
 <p>To bind images to the filter, you can use one of the following functions:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb19-2"><a href="#cb19-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
-<span id="cb19-3"><a href="#cb19-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb19-4"><a href="#cb19-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb19-5"><a href="#cb19-5"></a>                        <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</span>
-<span id="cb19-6"><a href="#cb19-6"></a></span>
-<span id="cb19-7"><a href="#cb19-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb19-8"><a href="#cb19-8"></a>                              <span class="dt">void</span>* ptr, OIDNFormat format,</span>
-<span id="cb19-9"><a href="#cb19-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb19-10"><a href="#cb19-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb19-11"><a href="#cb19-11"></a>                              <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb21-2"><a href="#cb21-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
+<span id="cb21-3"><a href="#cb21-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb21-4"><a href="#cb21-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb21-5"><a href="#cb21-5"></a>                        <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</span>
+<span id="cb21-6"><a href="#cb21-6"></a></span>
+<span id="cb21-7"><a href="#cb21-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb21-8"><a href="#cb21-8"></a>                              <span class="dt">void</span>* ptr, OIDNFormat format,</span>
+<span id="cb21-9"><a href="#cb21-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb21-10"><a href="#cb21-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb21-11"><a href="#cb21-11"></a>                              <span class="dt">size_t</span> bytePixelStride, <span class="dt">size_t</span> byteRowStride);</span></code></pre></div>
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to shared user-managed data (<code>ptr</code> argument) with the <code>oidnSetSharedFilterImage</code> function.</p>
 <p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>bytePixelStride</code> argument) and the row stride (<code>byteRowStride</code> argument), in number of bytes.</p>
 <p>The row stride must be an integer multiple of the pixel stride. If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>bytePixelStride</code> and/or <code>byteRowStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
-<p>Images support only the <code>OIDN_FORMAT_FLOAT3</code> pixel format. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra data will be ignored by the filter.</p>
+<p>Images support only the <code>OIDN_FORMAT_FLOAT3</code> and <code>OIDN_FORMAT_HALF3</code> pixel formats. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra data will be ignored by the filter.</p>
 <p>To unbind a previously set image from the filter, call</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb21-2"><a href="#cb21-2"></a>                             <span class="dt">void</span>* ptr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb23-2"><a href="#cb23-2"></a>                             <span class="dt">void</span>* ptr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>Modifying the contents of an opaque data parameter after binding it to a filter is allowed but the filter needs to be notified that the data has been updated by calling</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Unbinding opaque data from the filter can be performed with</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">void</span>  oidnSetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
-<span id="cb24-2"><a href="#cb24-2"></a><span class="dt">void</span>  oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
-<span id="cb24-3"><a href="#cb24-3"></a><span class="dt">void</span>  oidnSetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span>
-<span id="cb24-4"><a href="#cb24-4"></a><span class="dt">bool</span>  oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb24-5"><a href="#cb24-5"></a><span class="dt">int</span>   oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb24-6"><a href="#cb24-6"></a><span class="dt">float</span> oidnGetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span>  oidnSetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
+<span id="cb26-2"><a href="#cb26-2"></a><span class="dt">void</span>  oidnSetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="dt">void</span>  oidnSetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="dt">bool</span>  oidnGetFilter1b(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb26-5"><a href="#cb26-5"></a><span class="dt">int</span>   oidnGetFilter1i(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="dt">float</span> oidnGetFilter1f(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
-<span id="cb25-2"><a href="#cb25-2"></a></span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
-<span id="cb25-4"><a href="#cb25-4"></a>                                          OIDNProgressMonitorFunction func,</span>
-<span id="cb25-5"><a href="#cb25-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
+<span id="cb27-2"><a href="#cb27-2"></a></span>
+<span id="cb27-3"><a href="#cb27-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
+<span id="cb27-4"><a href="#cb27-4"></a>                                          OIDNProgressMonitorFunction func,</span>
+<span id="cb27-5"><a href="#cb27-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Intel Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Intel Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will cancel the filter operation with the <code>OIDN_ERROR_CANCELLED</code> error code.</p>
 <p>After setting all necessary parameters for the filter, the changes must be commmitted by calling</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
 <p>The parameters can be updated after committing the filter, but it must be re-committed for any new changes to take effect. Committing major changes to the filter (e.g. setting new image parameters, changing the image resolution) can be expensive, and thus should not be done frequently (e.g. per frame).</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>In the following we describe the different filters that are currently implemented in Intel Open Image Denoise.</p>
 <h3 id="rt">RT</h3>

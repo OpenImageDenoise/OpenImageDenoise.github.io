@@ -65,6 +65,14 @@ High-Performance Denoising Library for Ray Tracing
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v1.4.2">Changes in v1.4.2:</h3>
+<ul>
+<li>Added support for 16-bit half-precision floating-point images</li>
+<li>Added <code>oidnGetBufferData</code> and <code>oidnGetBufferSize</code> functions</li>
+<li>Fixed performance issue on x86 hybrid architecture CPUs (e.g. Alder Lake)</li>
+<li>Fixed build error when using OpenImageIO 2.3 or later</li>
+<li>Upgraded to oneTBB 2021.4.0 in the official binaries</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v1.4.1">Changes in v1.4.1:</h3>
 <ul>
 <li>Fixed crash when in-place denoising images with certain unusual resolutions</li>
