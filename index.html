@@ -13,9 +13,6 @@
       </div>
       <div id="header-title">
         Intel<sup>®</sup> Open Image Denoise
-              <div id="header-subtitle">
-        High-Performance Denoising Library for Ray Tracing
-      </div>
       </div>
 
       <div id="header-navbar">
@@ -44,27 +41,78 @@ High-Performance Denoising Library for Ray Tracing
 </div>
 <div class="teaser-img">
 <div class="img-compare" style="padding-bottom: 41.875%; /* 536/1280 */" onmousemove="this.getElementsByTagName(&#39;div&#39;)[0].style.width=event.offsetX+&#39;px&#39;">
-<img src="images/moana_8spp_oidn.jpg" style="box-shadow: 0px 0px 24px rgba(0,0,0,0.4);"><span>Denoised</span>
+<img src="images/cabins_2spp_oidn.jpg" style="box-shadow: 0px 0px 24px rgba(0,0,0,0.4);"><span>Denoised</span>
 <div>
-<img src="images/moana_8spp_input.jpg"><span>Original</span>
+<img src="images/cabins_2spp_input.jpg"><span>Original</span>
 </div>
 </div>
 <!-- do not change formatting here! -->
 <p>
-<em>Moana Island Scene rendered at 8 samples per pixel with <a href="http://www.ospray.org">Intel® OSPRay</a> and denoised with Intel® Open Image Denoise using prefiltered albedo and normal buffers. <a href="https://www.technology.disneyanimation.com/islandscene">Publicly available</a> dataset courtesy of Walt Disney Animation Studios. Hover over the image (or tap on it) to move the slider between the original and denoised versions.</em>
+<em>Evermotion <a href="https://evermotion.org/shop/show_product/15th-anniversary-collection/16094">15th Anniversary Collection</a> scene rendered with <a href="https://corona-renderer.com/">Chaos Corona</a> and denoised with Intel® Open Image Denoise using prefiltered albedo and normal buffers. Hover over the image (or tap on it) to move the slider between the original and denoised versions.</em>
 </p>
 </div>
 <h1 id="overview">Overview</h1>
 <p>Intel Open Image Denoise is an open source library of high-performance, high-quality denoising filters for images rendered with ray tracing. Intel Open Image Denoise is part of the <a href="https://software.intel.com/en-us/oneapi/render-kit">Intel® oneAPI Rendering Toolkit</a> and is released under the permissive <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>.</p>
 <p>The purpose of Intel Open Image Denoise is to provide an open, high-quality, efficient, and easy-to-use denoising library that allows one to significantly reduce rendering times in ray tracing based rendering applications. It filters out the Monte Carlo noise inherent to stochastic ray tracing methods like path tracing, reducing the amount of necessary samples per pixel by even multiple orders of magnitude (depending on the desired closeness to the ground truth). A simple but flexible C/C++ API ensures that the library can be easily integrated into most existing or new rendering solutions.</p>
-<p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
+<p>At the heart of the Intel Open Image Denoise library is a collection of efficient deep learning based denoising filters, which were trained to handle a wide range of samples per pixel (spp), from 1 spp to almost fully converged. Thus it is suitable for both preview and final-frame rendering. The filters can denoise images either using only the noisy color (<em>beauty</em>) buffer, or, to preserve as much detail as possible, can optionally utilize auxiliary feature buffers as well (e.g. albedo, normal). Such buffers are supported by most renderers as arbitrary output variables (AOVs) or can be usually implemented with little effort.</p>
 <p>Although the library ships with a set of pre-trained filter models, it is not mandatory to use these. To optimize a filter for a specific renderer, sample count, content type, scene, etc., it is possible to train the model using the included training toolkit and user-provided image datasets.</p>
-<p>Intel Open Image Denoise supports Intel® 64 architecture compatible CPUs and Apple Silicon, and runs on anything from laptops, to workstations, to compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive ray tracing.</p>
-<p>Intel Open Image Denoise internally builds on top of <a href="https://github.com/oneapi-src/oneDNN">Intel oneAPI Deep Neural Network Library (oneDNN)</a>, and automatically exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 to achieve high denoising performance. A CPU with support for at least SSE4.1 or Apple Silicon is required to run Intel Open Image Denoise.</p>
+<p>Intel Open Image Denoise supports a wide variety of CPUs and GPUs from different vendors:</p>
+<ul>
+<li><p>Intel® 64 architecture compatible CPUs (with at least SSE4.1)</p></li>
+<li><p>Apple Silicon CPUs</p></li>
+<li><p>Intel Xe architecture GPUs, both dedicated and integrated, including Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex Series (Xe-HPG microarchitecture), Intel® Data Center GPU Max Series (Xe-HPC), 11th-13th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP)</p></li>
+<li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper architectures</p></li>
+<li><p>AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures</p></li>
+</ul>
+<p>It runs on most machines ranging from laptops to workstations and compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive or even real-time ray tracing.</p>
+<p>Intel Open Image Denoise exploits modern instruction sets like Intel SSE4, AVX2, and AVX-512 on CPUs, Intel® Xe Matrix Extensions (Intel® XMX) on Intel GPUs, and tensor cores on NVIDIA GPUs to achieve high denoising performance.</p>
+<h2 id="system-requirements">System Requirements</h2>
+<p>You need a CPU with SSE4.1 support or Apple Silicon to run Intel Open Image Denoise, and you need a 64-bit Windows, Linux, or macOS operating system as well.</p>
+<p>For Intel GPU support, please also install the latest Intel graphics drivers:</p>
+<ul>
+<li><p>Windows: <a href="https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html">Intel® Graphics Driver</a> 31.0.101.4314 or newer for Intel® Arc™ Graphics, 11th-13th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors</p></li>
+<li><p>Linux: <a href="https://dgpu-docs.intel.com/driver/installation.html">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer</p></li>
+</ul>
+<p>Using older driver versions is <em>not</em> supported and Intel Open Image Denoise might run with only limited capabilities, have suboptimal performance or might be unstable. Also, Resizable BAR <em>must</em> be enabled in the BIOS for Intel dedicated GPUs if running on Linux, and strongly recommended if running on Windows.</p>
+<p>For NVIDIA GPU support, please also install the latest <a href="https://www.nvidia.com/en-us/geforce/drivers/">NVIDIA graphics drivers</a>:</p>
+<ul>
+<li><p>Windows: Version 522.06 or newer</p></li>
+<li><p>Linux: Version 520.61.05 or newer</p></li>
+</ul>
+<p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
+<ul>
+<li><p>Windows: AMD Software: Adrenalin Edition 23.4.3 Driver Version 22.40.51.05 or newer</p></li>
+<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 22.40.5 or newer</p></li>
+</ul>
 <h2 id="support-and-contact">Support and Contact</h2>
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.0.0">Changes in v2.0.0:</h3>
+<ul>
+<li>Added SYCL device for Intel Xe architecture GPUs (Xe-LP, Xe-HPG and Xe-HPC)</li>
+<li>Added CUDA device for NVIDIA Volta, Turing, Ampere, Ada Lovelace and Hopper architecture GPUs</li>
+<li>Added HIP device for AMD RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architecture GPUs</li>
+<li>Added new buffer API functions for specifying the storage type (host, device or managed), copying data to/from the host, and importing external buffers from graphics APIs (e.g. Vulkan, Direct3D 12)</li>
+<li>Removed the <code>oidnMapBuffer</code> and <code>oidnUnmapBuffer</code> functions</li>
+<li>Added support for asynchronous execution (e.g. <code>oidnExecuteFilterAsync</code>, <code>oidnSyncDevice</code> functions)</li>
+<li>Added physical device API for querying the supported devices in the system</li>
+<li>Added functions for creating a device from a physical device ID, UUID, LUID or PCI address (e.g. <code>oidnNewDeviceByID</code>)</li>
+<li>Added SYCL, CUDA and HIP interoperability API functions (e.g. <code>oidnNewSYCLDevice</code>, <code>oidnExecuteSYCLFilterAsync</code>)</li>
+<li>Added <code>type</code> device parameter for querying the device type</li>
+<li>Added <code>systemMemorySupported</code> and <code>managedMemorySupported</code> device parameters for querying memory allocations supported by the device</li>
+<li>Added <code>externalMemoryTypes</code> device parameter for querying the supported external memory handle types</li>
+<li>Added <code>quality</code> filter parameter for setting the filtering quality mode (high or balanced quality)</li>
+<li>Minor API changes with backward compatibility:
+<ul>
+<li>Added <code>oidn(Get|Set)(Device|Filter)(Bool|Int|Float)</code> functions and deprecated <code>oidn(Get|Set)(Device|Filter)(1b|1i|1f)</code> functions</li>
+<li>Added <code>oidnUnsetFilter(Image|Data)</code> functions and deprecated <code>oidnRemoveFilter(Image|Data)</code> functions</li>
+<li>Renamed <code>alignment</code> and <code>overlap</code> filter parameters to <code>tileAlignment</code> and <code>tileOverlap</code> but the old names remain supported</li>
+</ul></li>
+<li>Removed <code>OIDN_STATIC_LIB</code> and <code>OIDN_STATIC_RUNTIME</code> CMake options due to technical limitations</li>
+<li>Fixed over-conservative buffer bounds checking for images with custom strides</li>
+<li>Upgraded to oneTBB 2021.9.0 in the official binaries</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v1.4.3">Changes in v1.4.3:</h3>
 <ul>
 <li>Fixed hardcoded library paths in installed macOS binaries</li>

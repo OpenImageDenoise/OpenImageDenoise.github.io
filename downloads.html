@@ -13,9 +13,6 @@
       </div>
       <div id="header-title">
         Intel<sup>®</sup> Open Image Denoise
-              <div id="header-subtitle">
-        High-Performance Denoising Library for Ray Tracing
-      </div>
       </div>
 
       <div id="header-navbar">
@@ -35,95 +32,128 @@
       <div id="content">
 
 <h1 id="download-precompiled-intel-open-image-denoise-binary-packages">Download Precompiled Intel Open Image Denoise Binary Packages</h1>
-<h2 id="prerequisites">Prerequisites</h2>
-<p>You need a CPU with SSE4.1 support or Apple Silicon to run Intel Open Image Denoise, and you need a 64-bit operating system as well. The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
-<h2 id="packages">Packages</h2>
-<p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.4.3/oidn-1.4.3.x86_64.linux.tar.gz">oidn-1.4.3.x86_64.linux.tar.gz</a></p>
-<p>For macOS we provide Intel Open Image Denoise as a TGZ file:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.4.3/oidn-1.4.3.x86_64.macos.tar.gz">oidn-1.4.3.x86_64.macos.tar.gz</a></p>
+<p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ archive:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.0/oidn-2.0.0.x86_64.linux.tar.gz">oidn-2.0.0.x86_64.linux.tar.gz</a></p>
+<p>For macOS we provide Intel Open Image Denoise precompiled for Intel processors as a separate TGZ archive:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.0/oidn-2.0.0.x86_64.macos.tar.gz">oidn-2.0.0.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.4.3/oidn-1.4.3.x64.vc14.windows.zip">oidn-1.4.3.x64.vc14.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.0/oidn-2.0.0.x64.windows.zip">oidn-2.0.0.x64.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.4.3/oidn-1.4.3.src.zip">oidn-1.4.3.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v1.4.3/oidn-1.4.3.src.tar.gz">oidn-1.4.3.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.0/oidn-2.0.0.src.zip">oidn-2.0.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.0/oidn-2.0.0.src.tar.gz">oidn-2.0.0.src.tar.gz</a></p>
+<p>The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compilation">Compilation</h1>
 <p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
-<h2 id="prerequisites-1">Prerequisites</h2>
+<h2 id="prerequisites">Prerequisites</h2>
 <p>You can clone the latest Intel Open Image Denoise sources using Git with the <a href="https://git-lfs.github.com/">Git Large File Storage (LFS)</a> extension installed:</p>
 <pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre>
 <p>Please note that installing the Git LFS extension is <em>required</em> to correctly clone the repository. Cloning without Git LFS will seemingly succeed but actually some of the files will be invalid and thus compilation will fail.</p>
-<p>Intel Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. In addition, before you can build Intel Open Image Denoise you need the following prerequisites:</p>
+<p>Intel Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. Before you can build Intel Open Image Denoise you need the following basic prerequisites:</p>
 <ul>
-<li><p><a href="http://www.cmake.org">CMake</a> 3.1 or later</p></li>
-<li><p>A C++11 compiler (we recommend using Clang, but also support GCC, Microsoft Visual Studio 2015 or later, and <a href="https://software.intel.com/en-us/c-compilers">Intel® C++ Compiler</a> 17.0 or later)</p></li>
-<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a>, version 1.14.1 or later. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
-<li><p>Python 2.7 or later</p></li>
-<li><p><a href="https://www.threadingbuildingblocks.org/">Intel® Threading Building Blocks</a> (TBB) 2017 or later</p></li>
+<li><p><a href="http://www.cmake.org">CMake</a> 3.15 or newer</p></li>
+<li><p>A C++11 compiler (we recommend using a Clang-based compiler but also support GCC and Microsoft Visual Studio 2015 and newer)</p></li>
+<li><p>Python 2.7 or newer</p></li>
 </ul>
-<p>Depending on your Linux distribution you can install these dependencies using <code>yum</code> or <code>apt-get</code>. Some of these packages might already be installed or might have slightly different names.</p>
-<p>Type the following to install the dependencies using <code>yum</code>:</p>
-<pre><code>sudo yum install cmake
-sudo yum install tbb-devel</code></pre>
-<p>Type the following to install the dependencies using <code>apt-get</code>:</p>
-<pre><code>sudo apt-get install cmake-curses-gui
-sudo apt-get install libtbb-dev</code></pre>
-<p>Under macOS these dependencies can be installed using <a href="http://www.macports.org/">MacPorts</a>:</p>
-<pre><code>sudo port install cmake tbb</code></pre>
-<p>Under Windows please directly use the appropriate installers or packages for <a href="https://cmake.org/download/">CMake</a>, <a href="https://www.python.org/downloads/">Python</a>, and <a href="https://github.com/01org/tbb/releases">TBB</a>.</p>
-<h2 id="compiling-on-linuxmacos">Compiling on Linux/macOS</h2>
-<p>Assuming the above prerequisites are all fulfilled, building Intel Open Image Denoise through CMake is easy:</p>
+<p>To build support for different types of CPUs and GPUs, the following additional prerequisites are needed:</p>
+<h4 class="unnumbered" id="cpu-device">CPU device:</h4>
 <ul>
-<li><p>Create a build directory, and go into it</p>
+<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.14.1 or newer. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
+<li><p><a href="https://github.com/oneapi-src/oneTBB">Intel® Threading Building Blocks</a> (TBB) 2017 or newer</p></li>
+</ul>
+<h4 class="unnumbered" id="sycl-device-for-intel-gpus">SYCL device for Intel GPUs:</h4>
+<ul>
+<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2023.1 or newer, or the open source <a href="https://github.com/intel/llvm/releases/tag/sycl-nightly%2F20221215">oneAPI DPC++ Compiler 2022-12-15</a>. Other SYCL compilers are <em>not</em> supported. The open source version of the compiler is more up-to-date but less stable, so we <em>strongly</em> recommend to use the exact version listed here.</p></li>
+<li><p>Intel® Graphics Offline Compiler for OpenCL™ Code (OCLOC)</p>
+<ul>
+<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/9926f1ea-209e-42b3-94db-a1f895ee56ce/ocloc_win_101.4314.zip">31.0.101.4314</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
+<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
+</ul></li>
+<li><p>If using Intel® oneAPI DPC++/C++ Compiler: <a href="http://www.cmake.org">CMake</a> 3.25.2 or newer</p></li>
+<li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
+</ul>
+<h4 class="unnumbered" id="cuda-device-for-nvidia-gpus">CUDA device for NVIDIA GPUs:</h4>
+<ul>
+<li><p><a href="http://www.cmake.org">CMake</a> 3.18 or newer</p></li>
+<li><p><a href="https://developer.nvidia.com/cuda-toolkit">NVIDIA CUDA Toolkit</a> 11.8 or newer</p></li>
+</ul>
+<h4 class="unnumbered" id="hip-device-for-amd-gpus">HIP device for AMD GPUs:</h4>
+<ul>
+<li><p><a href="http://www.cmake.org">CMake</a> 3.21 or newer</p></li>
+<li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
+<li><p><a href="https://docs.amd.com">AMD ROCm</a> v5.5.0 or newer. Currently there are no releases available for Windows but it can be build from source. This source distribution includes a script for downloading, building and installing a minimal version of ROCm with the HIP compiler for Windows: <code>scripts/rocm/build_rocm_windows.bat</code></p></li>
+<li><p>If building on Windows using a HIP compiler built from source: Perl (e.g. <a href="https://strawberryperl.com">Strawberry Perl</a>)</p></li>
+</ul>
+<p>Depending on your operating system, you can install some required dependencies (e.g., TBB) using <code>yum</code> or <code>apt-get</code> on Linux, <a href="https://brew.sh">Homebrew</a> or <a href="https://www.macports.org">MacPorts</a> on macOS, and <a href="https://vcpkg.io"><code>vcpkg</code></a> on Windows. For the other dependencies please download the necessary packages or installers and follow the included instructions.</p>
+<h2 id="compiling-on-linuxmacos">Compiling on Linux/macOS</h2>
+<p>If you are building with SYCL support on Linux, make sure that the DPC++ compiler is properly set up. The open source oneAPI DPC++ Compiler can be downloaded and simply extracted. However, before using the compiler, the environment must be set up as well with the following command:</p>
+<pre><code>source ./dpcpp_compiler/startup.sh</code></pre>
+<p>The <code>startup.sh</code> script will put <code>clang</code> and <code>clang++</code> from the oneAPI DPC++ Compiler into your <code>PATH</code>.</p>
+<p>Alternatively, if you have installed Intel® oneAPI DPC++/C++ Compiler instead, you can set up the compiler by sourcing the <code>vars.sh</code> script in the <code>env</code> directory of the compiler install directory, for example,</p>
+<pre><code>source /opt/intel/oneAPI/compiler/latest/env/vars.sh</code></pre>
+<p>This script will put the <code>icx</code> and <code>icpx</code> compiler executables from the Intel(R) oneAPI DPC++/C++ Compiler in your <code>PATH</code>.</p>
+<ul>
+<li><p>Create a build directory, and go into it using a command prompt</p>
 <pre><code>mkdir oidn/build
 cd oidn/build</code></pre>
 <p>(We do recommend having separate build directories for different configurations such as release, debug, etc.).</p></li>
-<li><p>The compiler CMake will use by default will be whatever the <code>CC</code> and <code>CXX</code> environment variables point to. Should you want to specify a different compiler, run cmake manually while specifying the desired compiler. The default compiler on most Linux machines is <code>gcc</code>, but it can be pointed to <code>clang</code> instead by executing the following:</p>
-<pre><code>cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..</code></pre>
-<p>CMake will now use Clang instead of GCC. If you are OK with using the default compiler on your system, then simply skip this step. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>ccmake</code> run.</p></li>
+<li><p>CMake will use the default compiler, which on most Linux machines is <code>gcc</code>, but it can be switched to <code>clang</code> by executing the following:</p>
+<pre><code>cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..</code></pre>
+<p>If you are building with SYCL support, you must set the DPC++ compiler (<code>clang</code>/<code>clang++</code> or <code>icx</code>/<code>icpx</code>) as the C/C++ compiler here. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>ccmake</code> run.</p></li>
 <li><p>Open the CMake configuration dialog</p>
 <pre><code>ccmake ..</code></pre></li>
-<li><p>Make sure to properly set the build mode and enable the components you need, etc.; then type ’c’onfigure and ’g’enerate. When back on the command prompt, build it using</p>
-<pre><code>make</code></pre></li>
-<li><p>You should now have <code>libOpenImageDenoise.so</code> on Linux or <code>libOpenImageDenoise.dylib</code> on macOS, and a set of example applications as well.</p></li>
+<li><p>Make sure to properly set the build mode and enable the components and options you need. By default only CPU support is built, so SYCL and other device support must be enabled manually (e.g. with the <code>OIDN_DEVICE_SYCL</code> option). Then type ’c’onfigure and ’g’enerate. When back on the command prompt, build the library using</p>
+<pre><code>ninja</code></pre></li>
 </ul>
-<h2 id="entitlements-on-macos">Entitlements on macOS</h2>
-<p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process.<br />
-Intel Open Image Denoise uses just-in-time compilaton through <a href="https://github.com/oneapi-src/oneDNN">oneDNN</a> and requires the following entitlements:</p>
+<h3 id="entitlements-on-macos">Entitlements on macOS</h3>
+<p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process. Intel Open Image Denoise uses just-in-time compilation through <a href="https://github.com/oneapi-src/oneDNN">oneDNN</a> and requires the following entitlements:</p>
 <ul>
 <li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit"><code>com.apple.security.cs.allow-jit</code></a></li>
 <li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-unsigned-executable-memory"><code>com.apple.security.cs.allow-unsigned-executable-memory</code></a></li>
 <li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_disable-executable-page-protection"><code>com.apple.security.cs.disable-executable-page-protection</code></a></li>
 </ul>
 <h2 id="compiling-on-windows">Compiling on Windows</h2>
-<p>On Windows using the CMake GUI (<code>cmake-gui.exe</code>) is the most convenient way to configure Intel Open Image Denoise and to create the Visual Studio solution files:</p>
+<p>If you are building with SYCL support, make sure that the DPC++ compiler is properly set up. The open source oneAPI DPC++ Compiler can be downloaded and simply extracted. However, before using the compiler, the environment must be set up. To achieve this, open the “x64 Native Tools Command Prompt for VS” that ships with Visual Studio and execute the following commands:</p>
+<pre><code>set &quot;DPCPP_DIR=path_to_dpcpp_compiler&quot;
+set &quot;PATH=%DPCPP_DIR%\bin;%PATH%&quot;
+set &quot;PATH=%DPCPP_DIR%\lib;%PATH%&quot;
+set &quot;CPATH=%DPCPP_DIR%\include;%CPATH%&quot;
+set &quot;INCLUDE=%DPCPP_DIR%\include;%INCLUDE%&quot;
+set &quot;LIB=%DPCPP_DIR%\lib;%LIB%&quot;</code></pre>
+<p>The <code>path_to_dpcpp_compiler</code> should point to the unpacked oneAPI DPC++ Compiler.</p>
+<p>Alternatively, if you have installed Intel® oneAPI DPC++/C++ Compiler instead, you can either open a regular “Command Prompt” and execute the <code>vars.bat</code> script in the <code>env</code> directory of the compiler install directory, for example</p>
+<pre><code>C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat</code></pre>
+<p>or simply open the installed “Intel oneAPI command prompt for Intel 64 for Visual Studio”. Either way, the <code>icx</code> compiler executable from the Intel® oneAPI DPC++/C++ Compiler will be added to your <code>PATH</code>.</p>
+<p>On Windows we highly recommend to use Ninja as the CMake generator because not all devices can be built using the Visual Studio generator (e.g. SYCL).</p>
 <ul>
-<li><p>Browse to the Intel Open Image Denoise sources and specify a build directory (if it does not exist yet CMake will create it).</p></li>
-<li><p>Click “Configure” and select as generator the Visual Studio version you have (Intel Open Image Denoise needs Visual Studio 14 2015 or newer), for Win64 (32-bit builds are not supported), e.g., “Visual Studio 15 2017 Win64”.</p></li>
-<li><p>If the configuration fails because some dependencies could not be found then follow the instructions given in the error message, e.g., set the variable <code>TBB_ROOT</code> to the folder where TBB was installed.</p></li>
-<li><p>Optionally change the default build options, and then click “Generate” to create the solution and project files in the build directory.</p></li>
-<li><p>Open the generated <code>OpenImageDenoise.sln</code> in Visual Studio, select the build configuration and compile the project.</p></li>
+<li><p>Create a build directory, and go into it using a Visual Studio command prompt</p>
+<pre><code>mkdir oidn/build
+cd oidn/build</code></pre>
+<p>(We do recommend having separate build directories for different configurations such as release, debug, etc.).</p></li>
+<li><p>CMake will use the default compiler, which on most Windows machines is MSVC, but it can be switched to <code>clang</code> by executing the following:</p>
+<pre><code>cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..</code></pre>
+<p>If you are building with SYCL support, you must set the DPC++ compiler (<code>clang</code>/<code>clang++</code> or <code>icx</code>) as the C/C++ compiler here. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>cmake-gui</code> run.</p></li>
+<li><p>Open the CMake GUI (<code>cmake-gui.exe</code>)</p>
+<pre><code>cmake-gui ..</code></pre></li>
+<li><p>Make sure to properly set the build mode and enable the components and options you need. By default only CPU support is built, so SYCL and other device support must be enabled manually (e.g. <code>OIDN_DEVICE_SYCL</code> option). Then click on Configure and Generate. When back on the command prompt, build the library using</p>
+<pre><code>ninja</code></pre></li>
 </ul>
-<p>Alternatively, Intel Open Image Denoise can also be built without any GUI, entirely on the console. In the Visual Studio command prompt type:</p>
-<pre><code>cd path\to\oidn
-mkdir build
-cd build
-cmake -G &quot;Visual Studio 15 2017 Win64&quot; [-D VARIABLE=value] ..
-cmake --build . --config Release</code></pre>
-<p>Use <code>-D</code> to set variables for CMake, e.g., the path to TBB with “<code>-D TBB_ROOT=\path\to\tbb</code>”.</p>
 <h2 id="cmake-configuration">CMake Configuration</h2>
-<p>The default CMake configuration in the configuration dialog should be appropriate for most usages. The following list describes the options that can be configured in CMake:</p>
+<p>The following list describes the options that can be configured in CMake:</p>
 <ul>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
-<li><p><code>OIDN_STATIC_LIB</code>: Build Intel Open Image Denoise as a static library (OFF by default). When using the statically compiled Intel Open Image Denoise library, you either have to use the generated CMake configuration files (recommended), or you have to manually define <code>OIDN_STATIC_LIB</code> before including the library headers in your application.</p></li>
-<li><p><code>OIDN_STATIC_RUNTIME</code>: Use the static version of the C/C++ runtime library (available only on Windows, OFF by default).</p></li>
-<li><p><code>OIDN_NEURAL_RUNTIME</code>: Specifies which neural network runtime library to use: <code>DNNL</code> (oneDNN, default) or <code>BNNS</code> (available only on macOS).</p></li>
-<li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. By default no namespace is used and plain C symbols are exported.</p></li>
+<li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. This is also added as an outer namespace for the C++ wrapper API. By default no namespace is used and plain C symbols are exported.</p></li>
+<li><p><code>OIDN_DEVICE_CPU</code>: Enable CPU device support (ON by default).</p></li>
+<li><p><code>OIDN_DEVICE_SYCL</code>: Enable SYCL device support for Intel GPUs (OFF by default).</p></li>
+<li><p><code>OIDN_DEVICE_SYCL_AOT</code>: Enable ahead-of-time (AOT) compilation for SYCL kernels (ON by default). Turning this off removes dependency on OCLOC at build time and decreases binary size but significantly increases initialization time at runtime, so it is recommended only for development.</p></li>
+<li><p><code>OIDN_DEVICE_CUDA</code>: Enable CUDA device support for NVIDIA GPUs (OFF by default).</p></li>
+<li><p><code>OIDN_DEVICE_HIP</code>: Enable HIP device support for AMD GPUs (OFF by default).</p></li>
 <li><p><code>OIDN_FILTER_RT</code>: Include the trained weights of the <code>RT</code> filter in the build (ON by default). Turning this OFF significantly decreases the size of the library binary, while the filter remains functional if the weights are set by the user at runtime.</p></li>
 <li><p><code>OIDN_FILTER_RTLIGHTMAP</code>: Include the trained weights of the <code>RTLightmap</code> filter in the build (ON by default).</p></li>
 <li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
 <li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
+<li><p><code>OIDN_INSTALL_DEPENDENCIES</code>: Enable installing the dependencies (e.g. TBB, SYCL runtime) as well.</p></li>
 <li><p><code>TBB_ROOT</code>: The path to the TBB installation (autodetected by default).</p></li>
+<li><p><code>ROCM_PATH</code>: The path to the ROCm installation (autodetected by default).</p></li>
 <li><p><code>OPENIMAGEIO_ROOT</code>: The path to the OpenImageIO installation (autodetected by default).</p></li>
 </ul>
 <section class="footnotes" role="doc-endnotes">
