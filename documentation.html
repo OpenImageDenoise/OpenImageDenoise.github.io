@@ -98,120 +98,6 @@ div.sourceCode { overflow-x: initial; }
 
 <h1 id="documentation">Documentation</h1>
 <p>The following <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Intel Open Image Denoise Documentation">documentation</a> of Intel Open Image Denoise can also be found as a <a href="https://github.com/OpenImageDenoise/oidn/blob/master/readme.pdf" title="Intel Open Image Denoise Documentation">pdf document</a>.</p>
-<h1 id="compilation">Compilation</h1>
-<p>The latest Intel Open Image Denoise sources are always available at the <a href="http://github.com/OpenImageDenoise/oidn">Intel Open Image Denoise GitHub repository</a>. The default <code>master</code> branch should always point to the latest tested bugfix release.</p>
-<h2 id="prerequisites">Prerequisites</h2>
-<p>You can clone the latest Intel Open Image Denoise sources using Git with the <a href="https://git-lfs.github.com/">Git Large File Storage (LFS)</a> extension installed:</p>
-<pre><code>git clone --recursive https://github.com/OpenImageDenoise/oidn.git</code></pre>
-<p>Please note that installing the Git LFS extension is <em>required</em> to correctly clone the repository. Cloning without Git LFS will seemingly succeed but actually some of the files will be invalid and thus compilation will fail.</p>
-<p>Intel Open Image Denoise currently supports 64-bit Linux, Windows, and macOS operating systems. Before you can build Intel Open Image Denoise you need the following basic prerequisites:</p>
-<ul>
-<li><p><a href="http://www.cmake.org">CMake</a> 3.15 or newer</p></li>
-<li><p>A C++11 compiler (we recommend using a Clang-based compiler but also support GCC and Microsoft Visual Studio 2015 and newer)</p></li>
-<li><p>Python 2.7 or newer</p></li>
-</ul>
-<p>To build support for different types of CPUs and GPUs, the following additional prerequisites are needed:</p>
-<h4 class="unnumbered" id="cpu-device">CPU device:</h4>
-<ul>
-<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.14.1 or newer. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
-<li><p><a href="https://github.com/oneapi-src/oneTBB">Intel® Threading Building Blocks</a> (TBB) 2017 or newer</p></li>
-</ul>
-<h4 class="unnumbered" id="sycl-device-for-intel-gpus">SYCL device for Intel GPUs:</h4>
-<ul>
-<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2023.1 or newer, or the open source <a href="https://github.com/intel/llvm/releases/tag/sycl-nightly%2F20221215">oneAPI DPC++ Compiler 2022-12-15</a>. Other SYCL compilers are <em>not</em> supported. The open source version of the compiler is more up-to-date but less stable, so we <em>strongly</em> recommend to use the exact version listed here.</p></li>
-<li><p>Intel® Graphics Offline Compiler for OpenCL™ Code (OCLOC)</p>
-<ul>
-<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/9926f1ea-209e-42b3-94db-a1f895ee56ce/ocloc_win_101.4314.zip">31.0.101.4314</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
-<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
-</ul></li>
-<li><p>If using Intel® oneAPI DPC++/C++ Compiler: <a href="http://www.cmake.org">CMake</a> 3.25.2 or newer</p></li>
-<li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
-</ul>
-<h4 class="unnumbered" id="cuda-device-for-nvidia-gpus">CUDA device for NVIDIA GPUs:</h4>
-<ul>
-<li><p><a href="http://www.cmake.org">CMake</a> 3.18 or newer</p></li>
-<li><p><a href="https://developer.nvidia.com/cuda-toolkit">NVIDIA CUDA Toolkit</a> 11.8 or newer</p></li>
-</ul>
-<h4 class="unnumbered" id="hip-device-for-amd-gpus">HIP device for AMD GPUs:</h4>
-<ul>
-<li><p><a href="http://www.cmake.org">CMake</a> 3.21 or newer</p></li>
-<li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
-<li><p><a href="https://docs.amd.com">AMD ROCm</a> v5.5.0 or newer. Currently there are no releases available for Windows but it can be build from source. This source distribution includes a script for downloading, building and installing a minimal version of ROCm with the HIP compiler for Windows: <code>scripts/rocm/build_rocm_windows.bat</code></p></li>
-<li><p>If building on Windows using a HIP compiler built from source: Perl (e.g. <a href="https://strawberryperl.com">Strawberry Perl</a>)</p></li>
-</ul>
-<p>Depending on your operating system, you can install some required dependencies (e.g., TBB) using <code>yum</code> or <code>apt-get</code> on Linux, <a href="https://brew.sh">Homebrew</a> or <a href="https://www.macports.org">MacPorts</a> on macOS, and <a href="https://vcpkg.io"><code>vcpkg</code></a> on Windows. For the other dependencies please download the necessary packages or installers and follow the included instructions.</p>
-<h2 id="compiling-on-linuxmacos">Compiling on Linux/macOS</h2>
-<p>If you are building with SYCL support on Linux, make sure that the DPC++ compiler is properly set up. The open source oneAPI DPC++ Compiler can be downloaded and simply extracted. However, before using the compiler, the environment must be set up as well with the following command:</p>
-<pre><code>source ./dpcpp_compiler/startup.sh</code></pre>
-<p>The <code>startup.sh</code> script will put <code>clang</code> and <code>clang++</code> from the oneAPI DPC++ Compiler into your <code>PATH</code>.</p>
-<p>Alternatively, if you have installed Intel® oneAPI DPC++/C++ Compiler instead, you can set up the compiler by sourcing the <code>vars.sh</code> script in the <code>env</code> directory of the compiler install directory, for example,</p>
-<pre><code>source /opt/intel/oneAPI/compiler/latest/env/vars.sh</code></pre>
-<p>This script will put the <code>icx</code> and <code>icpx</code> compiler executables from the Intel(R) oneAPI DPC++/C++ Compiler in your <code>PATH</code>.</p>
-<ul>
-<li><p>Create a build directory, and go into it using a command prompt</p>
-<pre><code>mkdir oidn/build
-cd oidn/build</code></pre>
-<p>(We do recommend having separate build directories for different configurations such as release, debug, etc.).</p></li>
-<li><p>CMake will use the default compiler, which on most Linux machines is <code>gcc</code>, but it can be switched to <code>clang</code> by executing the following:</p>
-<pre><code>cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..</code></pre>
-<p>If you are building with SYCL support, you must set the DPC++ compiler (<code>clang</code>/<code>clang++</code> or <code>icx</code>/<code>icpx</code>) as the C/C++ compiler here. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>ccmake</code> run.</p></li>
-<li><p>Open the CMake configuration dialog</p>
-<pre><code>ccmake ..</code></pre></li>
-<li><p>Make sure to properly set the build mode and enable the components and options you need. By default only CPU support is built, so SYCL and other device support must be enabled manually (e.g. with the <code>OIDN_DEVICE_SYCL</code> option). Then type ’c’onfigure and ’g’enerate. When back on the command prompt, build the library using</p>
-<pre><code>ninja</code></pre></li>
-</ul>
-<h3 id="entitlements-on-macos">Entitlements on macOS</h3>
-<p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process. Intel Open Image Denoise uses just-in-time compilation through <a href="https://github.com/oneapi-src/oneDNN">oneDNN</a> and requires the following entitlements:</p>
-<ul>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit"><code>com.apple.security.cs.allow-jit</code></a></li>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-unsigned-executable-memory"><code>com.apple.security.cs.allow-unsigned-executable-memory</code></a></li>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_disable-executable-page-protection"><code>com.apple.security.cs.disable-executable-page-protection</code></a></li>
-</ul>
-<h2 id="compiling-on-windows">Compiling on Windows</h2>
-<p>If you are building with SYCL support, make sure that the DPC++ compiler is properly set up. The open source oneAPI DPC++ Compiler can be downloaded and simply extracted. However, before using the compiler, the environment must be set up. To achieve this, open the “x64 Native Tools Command Prompt for VS” that ships with Visual Studio and execute the following commands:</p>
-<pre><code>set &quot;DPCPP_DIR=path_to_dpcpp_compiler&quot;
-set &quot;PATH=%DPCPP_DIR%\bin;%PATH%&quot;
-set &quot;PATH=%DPCPP_DIR%\lib;%PATH%&quot;
-set &quot;CPATH=%DPCPP_DIR%\include;%CPATH%&quot;
-set &quot;INCLUDE=%DPCPP_DIR%\include;%INCLUDE%&quot;
-set &quot;LIB=%DPCPP_DIR%\lib;%LIB%&quot;</code></pre>
-<p>The <code>path_to_dpcpp_compiler</code> should point to the unpacked oneAPI DPC++ Compiler.</p>
-<p>Alternatively, if you have installed Intel® oneAPI DPC++/C++ Compiler instead, you can either open a regular “Command Prompt” and execute the <code>vars.bat</code> script in the <code>env</code> directory of the compiler install directory, for example</p>
-<pre><code>C:\Program Files (x86)\Intel\oneAPI\compiler\latest\env\vars.bat</code></pre>
-<p>or simply open the installed “Intel oneAPI command prompt for Intel 64 for Visual Studio”. Either way, the <code>icx</code> compiler executable from the Intel® oneAPI DPC++/C++ Compiler will be added to your <code>PATH</code>.</p>
-<p>On Windows we highly recommend to use Ninja as the CMake generator because not all devices can be built using the Visual Studio generator (e.g. SYCL).</p>
-<ul>
-<li><p>Create a build directory, and go into it using a Visual Studio command prompt</p>
-<pre><code>mkdir oidn/build
-cd oidn/build</code></pre>
-<p>(We do recommend having separate build directories for different configurations such as release, debug, etc.).</p></li>
-<li><p>CMake will use the default compiler, which on most Windows machines is MSVC, but it can be switched to <code>clang</code> by executing the following:</p>
-<pre><code>cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..</code></pre>
-<p>If you are building with SYCL support, you must set the DPC++ compiler (<code>clang</code>/<code>clang++</code> or <code>icx</code>) as the C/C++ compiler here. Note that the compiler variables cannot be changed after the first <code>cmake</code> or <code>cmake-gui</code> run.</p></li>
-<li><p>Open the CMake GUI (<code>cmake-gui.exe</code>)</p>
-<pre><code>cmake-gui ..</code></pre></li>
-<li><p>Make sure to properly set the build mode and enable the components and options you need. By default only CPU support is built, so SYCL and other device support must be enabled manually (e.g. <code>OIDN_DEVICE_SYCL</code> option). Then click on Configure and Generate. When back on the command prompt, build the library using</p>
-<pre><code>ninja</code></pre></li>
-</ul>
-<h2 id="cmake-configuration">CMake Configuration</h2>
-<p>The following list describes the options that can be configured in CMake:</p>
-<ul>
-<li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
-<li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. This is also added as an outer namespace for the C++ wrapper API. By default no namespace is used and plain C symbols are exported.</p></li>
-<li><p><code>OIDN_DEVICE_CPU</code>: Enable CPU device support (ON by default).</p></li>
-<li><p><code>OIDN_DEVICE_SYCL</code>: Enable SYCL device support for Intel GPUs (OFF by default).</p></li>
-<li><p><code>OIDN_DEVICE_SYCL_AOT</code>: Enable ahead-of-time (AOT) compilation for SYCL kernels (ON by default). Turning this off removes dependency on OCLOC at build time and decreases binary size but significantly increases initialization time at runtime, so it is recommended only for development.</p></li>
-<li><p><code>OIDN_DEVICE_CUDA</code>: Enable CUDA device support for NVIDIA GPUs (OFF by default).</p></li>
-<li><p><code>OIDN_DEVICE_HIP</code>: Enable HIP device support for AMD GPUs (OFF by default).</p></li>
-<li><p><code>OIDN_FILTER_RT</code>: Include the trained weights of the <code>RT</code> filter in the build (ON by default). Turning this OFF significantly decreases the size of the library binary, while the filter remains functional if the weights are set by the user at runtime.</p></li>
-<li><p><code>OIDN_FILTER_RTLIGHTMAP</code>: Include the trained weights of the <code>RTLightmap</code> filter in the build (ON by default).</p></li>
-<li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
-<li><p><code>OIDN_APPS_OPENIMAGEIO</code>: Enable <a href="http://openimageio.org/">OpenImageIO</a> support in the example and test applications to be able to load/save OpenEXR, PNG, and other image file formats (OFF by default).</p></li>
-<li><p><code>OIDN_INSTALL_DEPENDENCIES</code>: Enable installing the dependencies (e.g. TBB, SYCL runtime) as well.</p></li>
-<li><p><code>TBB_ROOT</code>: The path to the TBB installation (autodetected by default).</p></li>
-<li><p><code>ROCM_PATH</code>: The path to the ROCm installation (autodetected by default).</p></li>
-<li><p><code>OPENIMAGEIO_ROOT</code>: The path to the OpenImageIO installation (autodetected by default).</p></li>
-</ul>
 <h1 id="open-image-denoise-api">Open Image Denoise API</h1>
 <p>Open Image Denoise provides a C99 API (also compatible with C++) and a C++11 wrapper API as well. For simplicity, this document mostly refers to the C99 version of the API.</p>
 <p>The API is designed in an object-oriented manner, e.g. it contains device objects (<code>OIDNDevice</code> type), buffer objects (<code>OIDNBuffer</code> type), and filter objects (<code>OIDNFilter</code> type). All objects are reference-counted, and handles can be released by calling the appropriate release function (e.g. <code>oidnReleaseDevice</code>) or retained by incrementing the reference count (e.g. <code>oidnRetainDevice</code>).</p>
@@ -220,110 +106,110 @@ cd oidn/build</code></pre>
 <h2 id="examples">Examples</h2>
 <p>To have a quick overview of the C99 and C++11 APIs, see the following simple example code snippets.</p>
 <h3 id="basic-denoising-c99-api">Basic Denoising (C99 API)</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1"></a><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.h&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2"></a>...</span>
-<span id="cb14-3"><a href="#cb14-3"></a></span>
-<span id="cb14-4"><a href="#cb14-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
-<span id="cb14-5"><a href="#cb14-5"></a>OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_DEFAULT); <span class="co">// CPU or GPU if available</span></span>
-<span id="cb14-6"><a href="#cb14-6"></a>oidnCommitDevice(device);</span>
-<span id="cb14-7"><a href="#cb14-7"></a></span>
-<span id="cb14-8"><a href="#cb14-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
-<span id="cb14-9"><a href="#cb14-9"></a>OIDNBuffer colorBuf  = oidnNewBuffer(device, width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
-<span id="cb14-10"><a href="#cb14-10"></a>OIDNBuffer albedoBuf = ...</span>
-<span id="cb14-11"><a href="#cb14-11"></a></span>
-<span id="cb14-12"><a href="#cb14-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
-<span id="cb14-13"><a href="#cb14-13"></a><span class="co">// This can be an expensive operation, so try not to create a new filter for every image!</span></span>
-<span id="cb14-14"><a href="#cb14-14"></a>OIDNFilter filter = oidnNewFilter(device, <span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
-<span id="cb14-15"><a href="#cb14-15"></a>oidnSetFilterImage(filter, <span class="st">&quot;color&quot;</span>,  colorBuf,</span>
-<span id="cb14-16"><a href="#cb14-16"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// beauty</span></span>
-<span id="cb14-17"><a href="#cb14-17"></a>oidnSetFilterImage(filter, <span class="st">&quot;albedo&quot;</span>, albedoBuf,</span>
-<span id="cb14-18"><a href="#cb14-18"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
-<span id="cb14-19"><a href="#cb14-19"></a>oidnSetFilterImage(filter, <span class="st">&quot;normal&quot;</span>, normalBuf,</span>
-<span id="cb14-20"><a href="#cb14-20"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
-<span id="cb14-21"><a href="#cb14-21"></a>oidnSetFilterImage(filter, <span class="st">&quot;output&quot;</span>, colorBuf,</span>
-<span id="cb14-22"><a href="#cb14-22"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// denoised beauty</span></span>
-<span id="cb14-23"><a href="#cb14-23"></a>oidnSetFilterBool(filter, <span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
-<span id="cb14-24"><a href="#cb14-24"></a>oidnCommitFilter(filter);</span>
-<span id="cb14-25"><a href="#cb14-25"></a></span>
-<span id="cb14-26"><a href="#cb14-26"></a><span class="co">// Fill the input image buffers</span></span>
-<span id="cb14-27"><a href="#cb14-27"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)oidnGetBufferData(colorBuf);</span>
-<span id="cb14-28"><a href="#cb14-28"></a>...</span>
-<span id="cb14-29"><a href="#cb14-29"></a></span>
-<span id="cb14-30"><a href="#cb14-30"></a><span class="co">// Filter the beauty image</span></span>
-<span id="cb14-31"><a href="#cb14-31"></a>oidnExecuteFilter(filter);</span>
-<span id="cb14-32"><a href="#cb14-32"></a></span>
-<span id="cb14-33"><a href="#cb14-33"></a><span class="co">// Check for errors</span></span>
-<span id="cb14-34"><a href="#cb14-34"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
-<span id="cb14-35"><a href="#cb14-35"></a><span class="cf">if</span> (oidnGetDeviceError(device, &amp;errorMessage) != OIDN_ERROR_NONE)</span>
-<span id="cb14-36"><a href="#cb14-36"></a>  printf(<span class="st">&quot;Error: </span><span class="sc">%s\n</span><span class="st">&quot;</span>, errorMessage);</span>
-<span id="cb14-37"><a href="#cb14-37"></a></span>
-<span id="cb14-38"><a href="#cb14-38"></a><span class="co">// Cleanup</span></span>
-<span id="cb14-39"><a href="#cb14-39"></a>oidnReleaseBuffer(colorBuf);</span>
-<span id="cb14-40"><a href="#cb14-40"></a>...</span>
-<span id="cb14-41"><a href="#cb14-41"></a>oidnReleaseFilter(filter);</span>
-<span id="cb14-42"><a href="#cb14-42"></a>oidnReleaseDevice(device);</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.h&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>...</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a>OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_DEFAULT); <span class="co">// CPU or GPU if available</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a>oidnCommitDevice(device);</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a>OIDNBuffer colorBuf  = oidnNewBuffer(device, width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
+<span id="cb1-10"><a href="#cb1-10"></a>OIDNBuffer albedoBuf = ...</span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">// This can be an expensive operation, so try not to create a new filter for every image!</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a>OIDNFilter filter = oidnNewFilter(device, <span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>oidnSetFilterImage(filter, <span class="st">&quot;color&quot;</span>,  colorBuf,</span>
+<span id="cb1-16"><a href="#cb1-16"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// beauty</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a>oidnSetFilterImage(filter, <span class="st">&quot;albedo&quot;</span>, albedoBuf,</span>
+<span id="cb1-18"><a href="#cb1-18"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a>oidnSetFilterImage(filter, <span class="st">&quot;normal&quot;</span>, normalBuf,</span>
+<span id="cb1-20"><a href="#cb1-20"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>oidnSetFilterImage(filter, <span class="st">&quot;output&quot;</span>, colorBuf,</span>
+<span id="cb1-22"><a href="#cb1-22"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// denoised beauty</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a>oidnSetFilterBool(filter, <span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>oidnCommitFilter(filter);</span>
+<span id="cb1-25"><a href="#cb1-25"></a></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co">// Fill the input image buffers</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)oidnGetBufferData(colorBuf);</span>
+<span id="cb1-28"><a href="#cb1-28"></a>...</span>
+<span id="cb1-29"><a href="#cb1-29"></a></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="co">// Filter the beauty image</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a>oidnExecuteFilter(filter);</span>
+<span id="cb1-32"><a href="#cb1-32"></a></span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="co">// Check for errors</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="cf">if</span> (oidnGetDeviceError(device, &amp;errorMessage) != OIDN_ERROR_NONE)</span>
+<span id="cb1-36"><a href="#cb1-36"></a>  printf(<span class="st">&quot;Error: </span><span class="sc">%s\n</span><span class="st">&quot;</span>, errorMessage);</span>
+<span id="cb1-37"><a href="#cb1-37"></a></span>
+<span id="cb1-38"><a href="#cb1-38"></a><span class="co">// Cleanup</span></span>
+<span id="cb1-39"><a href="#cb1-39"></a>oidnReleaseBuffer(colorBuf);</span>
+<span id="cb1-40"><a href="#cb1-40"></a>...</span>
+<span id="cb1-41"><a href="#cb1-41"></a>oidnReleaseFilter(filter);</span>
+<span id="cb1-42"><a href="#cb1-42"></a>oidnReleaseDevice(device);</span></code></pre></div>
 <h3 id="basic-denoising-c11-api">Basic Denoising (C++11 API)</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.hpp&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a>...</span>
-<span id="cb15-3"><a href="#cb15-3"></a></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
-<span id="cb15-5"><a href="#cb15-5"></a>oidn::DeviceRef device = oidn::newDevice(); <span class="co">// CPU or GPU if available</span></span>
-<span id="cb15-6"><a href="#cb15-6"></a>device.commit();</span>
-<span id="cb15-7"><a href="#cb15-7"></a></span>
-<span id="cb15-8"><a href="#cb15-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a>oidn::BufferRef colorBuf  = device.newBuffer(width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
-<span id="cb15-10"><a href="#cb15-10"></a>oidn::BufferRef albedoBuf = ...</span>
-<span id="cb15-11"><a href="#cb15-11"></a></span>
-<span id="cb15-12"><a href="#cb15-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
-<span id="cb15-13"><a href="#cb15-13"></a><span class="co">// This can be an expensive operation, so try no to create a new filter for every image!</span></span>
-<span id="cb15-14"><a href="#cb15-14"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
-<span id="cb15-15"><a href="#cb15-15"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
-<span id="cb15-16"><a href="#cb15-16"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb15-17"><a href="#cb15-17"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb15-18"><a href="#cb15-18"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, colorBuf,  oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
-<span id="cb15-19"><a href="#cb15-19"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
-<span id="cb15-20"><a href="#cb15-20"></a>filter.commit();</span>
-<span id="cb15-21"><a href="#cb15-21"></a></span>
-<span id="cb15-22"><a href="#cb15-22"></a><span class="co">// Fill the input image buffers</span></span>
-<span id="cb15-23"><a href="#cb15-23"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)colorBuf.getData();</span>
-<span id="cb15-24"><a href="#cb15-24"></a>...</span>
-<span id="cb15-25"><a href="#cb15-25"></a></span>
-<span id="cb15-26"><a href="#cb15-26"></a><span class="co">// Filter the beauty image</span></span>
-<span id="cb15-27"><a href="#cb15-27"></a>filter.execute();</span>
-<span id="cb15-28"><a href="#cb15-28"></a></span>
-<span id="cb15-29"><a href="#cb15-29"></a><span class="co">// Check for errors</span></span>
-<span id="cb15-30"><a href="#cb15-30"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
-<span id="cb15-31"><a href="#cb15-31"></a><span class="cf">if</span> (device.getError(errorMessage) != oidn::Error::None)</span>
-<span id="cb15-32"><a href="#cb15-32"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: &quot;</span> &lt;&lt; errorMessage &lt;&lt; <span class="bu">std::</span>endl;</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.hpp&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>...</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>oidn::DeviceRef device = oidn::newDevice(); <span class="co">// CPU or GPU if available</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>device.commit();</span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a>oidn::BufferRef colorBuf  = device.newBuffer(width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
+<span id="cb2-10"><a href="#cb2-10"></a>oidn::BufferRef albedoBuf = ...</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">// This can be an expensive operation, so try no to create a new filter for every image!</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, colorBuf,  oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>filter.commit();</span>
+<span id="cb2-21"><a href="#cb2-21"></a></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">// Fill the input image buffers</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)colorBuf.getData();</span>
+<span id="cb2-24"><a href="#cb2-24"></a>...</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">// Filter the beauty image</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a>filter.execute();</span>
+<span id="cb2-28"><a href="#cb2-28"></a></span>
+<span id="cb2-29"><a href="#cb2-29"></a><span class="co">// Check for errors</span></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="cf">if</span> (device.getError(errorMessage) != oidn::Error::None)</span>
+<span id="cb2-32"><a href="#cb2-32"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: &quot;</span> &lt;&lt; errorMessage &lt;&lt; <span class="bu">std::</span>endl;</span></code></pre></div>
 <h3 id="denoising-with-prefiltering-c11-api">Denoising with Prefiltering (C++11 API)</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="co">// Create a filter for denoising a beauty (color) image using prefiltered auxiliary images too</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb16-5"><a href="#cb16-5"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb16-6"><a href="#cb16-6"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, outputBuf, oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
-<span id="cb16-7"><a href="#cb16-7"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
-<span id="cb16-8"><a href="#cb16-8"></a>filter.set(<span class="st">&quot;cleanAux&quot;</span>, <span class="kw">true</span>); <span class="co">// auxiliary images will be prefiltered</span></span>
-<span id="cb16-9"><a href="#cb16-9"></a>filter.commit();</span>
-<span id="cb16-10"><a href="#cb16-10"></a></span>
-<span id="cb16-11"><a href="#cb16-11"></a><span class="co">// Create a separate filter for denoising an auxiliary albedo image (in-place)</span></span>
-<span id="cb16-12"><a href="#cb16-12"></a>oidn::FilterRef albedoFilter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// same filter type as for beauty</span></span>
-<span id="cb16-13"><a href="#cb16-13"></a>albedoFilter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height);</span>
-<span id="cb16-14"><a href="#cb16-14"></a>albedoFilter.setImage(<span class="st">&quot;output&quot;</span>, albedoBuf, oidn::Format::Float3, width, height);</span>
-<span id="cb16-15"><a href="#cb16-15"></a>albedoFilter.commit();</span>
-<span id="cb16-16"><a href="#cb16-16"></a></span>
-<span id="cb16-17"><a href="#cb16-17"></a><span class="co">// Create a separate filter for denoising an auxiliary normal image (in-place)</span></span>
-<span id="cb16-18"><a href="#cb16-18"></a>oidn::FilterRef normalFilter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// same filter type as for beauty</span></span>
-<span id="cb16-19"><a href="#cb16-19"></a>normalFilter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height);</span>
-<span id="cb16-20"><a href="#cb16-20"></a>normalFilter.setImage(<span class="st">&quot;output&quot;</span>, normalBuf, oidn::Format::Float3, width, height);</span>
-<span id="cb16-21"><a href="#cb16-21"></a>normalFilter.commit();</span>
-<span id="cb16-22"><a href="#cb16-22"></a></span>
-<span id="cb16-23"><a href="#cb16-23"></a><span class="co">// Prefilter the auxiliary images</span></span>
-<span id="cb16-24"><a href="#cb16-24"></a>albedoFilter.execute();</span>
-<span id="cb16-25"><a href="#cb16-25"></a>normalFilter.execute();</span>
-<span id="cb16-26"><a href="#cb16-26"></a></span>
-<span id="cb16-27"><a href="#cb16-27"></a><span class="co">// Filter the beauty image</span></span>
-<span id="cb16-28"><a href="#cb16-28"></a>filter.execute();</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// Create a filter for denoising a beauty (color) image using prefiltered auxiliary images too</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, outputBuf, oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>filter.set(<span class="st">&quot;cleanAux&quot;</span>, <span class="kw">true</span>); <span class="co">// auxiliary images will be prefiltered</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>filter.commit();</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">// Create a separate filter for denoising an auxiliary albedo image (in-place)</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>oidn::FilterRef albedoFilter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// same filter type as for beauty</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a>albedoFilter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height);</span>
+<span id="cb3-14"><a href="#cb3-14"></a>albedoFilter.setImage(<span class="st">&quot;output&quot;</span>, albedoBuf, oidn::Format::Float3, width, height);</span>
+<span id="cb3-15"><a href="#cb3-15"></a>albedoFilter.commit();</span>
+<span id="cb3-16"><a href="#cb3-16"></a></span>
+<span id="cb3-17"><a href="#cb3-17"></a><span class="co">// Create a separate filter for denoising an auxiliary normal image (in-place)</span></span>
+<span id="cb3-18"><a href="#cb3-18"></a>oidn::FilterRef normalFilter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// same filter type as for beauty</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>normalFilter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height);</span>
+<span id="cb3-20"><a href="#cb3-20"></a>normalFilter.setImage(<span class="st">&quot;output&quot;</span>, normalBuf, oidn::Format::Float3, width, height);</span>
+<span id="cb3-21"><a href="#cb3-21"></a>normalFilter.commit();</span>
+<span id="cb3-22"><a href="#cb3-22"></a></span>
+<span id="cb3-23"><a href="#cb3-23"></a><span class="co">// Prefilter the auxiliary images</span></span>
+<span id="cb3-24"><a href="#cb3-24"></a>albedoFilter.execute();</span>
+<span id="cb3-25"><a href="#cb3-25"></a>normalFilter.execute();</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co">// Filter the beauty image</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a>filter.execute();</span></code></pre></div>
 <h2 id="upgrading-from-open-image-denoise-1.x">Upgrading from Open Image Denoise 1.x</h2>
 <p>Open Image Denoise 2.0 introduces GPU support, which requires implementing some minor changes in applications. There are also small API changes, additions and improvements in this new version. In this section we summarize the necessary code modifications and also briefly mention the new features that users might find useful when upgrading to 2.0. For a full description of the changes and new functionality, please see the API reference.</p>
 <h3 id="buffers">Buffers</h3>
@@ -362,15 +248,15 @@ cd oidn/build</code></pre>
 <h2 id="physical-devices-1">Physical Devices</h2>
 <p>Systems often have multiple different types of devices supported by Open Image Denoise (CPUs and GPUs). The application can get the list of supported <em>physical devices</em> and select which of these to use for denoising.</p>
 <p>The number of supported physical devices can be queried with</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a><span class="dt">int</span> oidnGetNumPhysicalDevices();</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="dt">int</span> oidnGetNumPhysicalDevices();</span></code></pre></div>
 <p>The physical devices can be identified using IDs between 0 and (<code>oidnGetNumPhysicalDevices()</code> <span class="math inline">−</span> 1), and are ordered <em>approximately</em> from fastest to slowest (e.g., ID of 0 corresponds to the likely fastest physical device). Note that the reported number and order of physical devices may change between application runs, so no assumptions should be made about this list.</p>
 <p>Parameters of these physical devices can be queried using</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="dt">bool</span>         oidnGetPhysicalDeviceBool  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="dt">int</span>          oidnGetPhysicalDeviceInt   (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb18-3"><a href="#cb18-3"></a><span class="dt">unsigned</span> <span class="dt">int</span> oidnGetPhysicalDeviceUInt  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb18-4"><a href="#cb18-4"></a><span class="at">const</span> <span class="dt">char</span>*  oidnGetPhysicalDeviceString(<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb18-5"><a href="#cb18-5"></a><span class="at">const</span> <span class="dt">void</span>*  oidnGetPhysicalDeviceData  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb18-6"><a href="#cb18-6"></a>                                         <span class="dt">size_t</span>* byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="dt">bool</span>         oidnGetPhysicalDeviceBool  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="dt">int</span>          oidnGetPhysicalDeviceInt   (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="dt">unsigned</span> <span class="dt">int</span> oidnGetPhysicalDeviceUInt  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="at">const</span> <span class="dt">char</span>*  oidnGetPhysicalDeviceString(<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="at">const</span> <span class="dt">void</span>*  oidnGetPhysicalDeviceData  (<span class="dt">int</span> physicalDeviceID, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb5-6"><a href="#cb5-6"></a>                                         <span class="dt">size_t</span>* byteSize);</span></code></pre></div>
 <p>where <code>name</code> is the name of the parameter, and <code>byteSize</code> is the number of returned bytes for data parameters. The following parameters can be queried:</p>
 <table style="width:98%;">
 <caption>Constant parameters supported by physical devices.</caption>
@@ -451,7 +337,7 @@ cd oidn/build</code></pre>
 </table>
 <h2 id="devices">Devices</h2>
 <p>Open Image Denoise has a <em>logical</em> device concept as well, or simply referred to as <em>device</em>, which allows different components of the application to use the Open Image Denoise API without interfering with each other. Each physical device may be associated with one ore more logical devices. A basic way to create a device is by calling</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a>OIDNDevice oidnNewDevice(OIDNDeviceType type);</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a>OIDNDevice oidnNewDevice(OIDNDeviceType type);</span></code></pre></div>
 <p>where the <code>type</code> enumeration maps to a specific device implementation, which can be one of the following:</p>
 <table style="width:98%;">
 <caption>Supported device types, i.e., valid constants of type <code>OIDNDeviceType</code>.</caption>
@@ -490,28 +376,28 @@ cd oidn/build</code></pre>
 </table>
 <p>If there are multiple supported devices of the specified type, an implementation-dependent default will be selected.</p>
 <p>A device can be created by specifying a physical device ID as well using</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a>OIDNDevice oidnNewDeviceByID(<span class="dt">int</span> physicalDeviceID);</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a>OIDNDevice oidnNewDeviceByID(<span class="dt">int</span> physicalDeviceID);</span></code></pre></div>
 <p>Applications can manually iterate over the list of physical devices and select from them based on their properties but there are also some built-in helper functions as well, which make creating a device by a particular physical device property easier:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a>OIDNDevice oidnNewDeviceByUUID(<span class="at">const</span> <span class="dt">void</span>* uuid);</span>
-<span id="cb21-2"><a href="#cb21-2"></a>OIDNDevice oidnNewDeviceByLUID(<span class="at">const</span> <span class="dt">void</span>* luid);</span>
-<span id="cb21-3"><a href="#cb21-3"></a>OIDNDevice oidnNewDeviceByPCIAddress(<span class="dt">int</span> pciDomain, <span class="dt">int</span> pciBus, <span class="dt">int</span> pciDevice,</span>
-<span id="cb21-4"><a href="#cb21-4"></a>                                     <span class="dt">int</span> pciFunction);</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a>OIDNDevice oidnNewDeviceByUUID(<span class="at">const</span> <span class="dt">void</span>* uuid);</span>
+<span id="cb8-2"><a href="#cb8-2"></a>OIDNDevice oidnNewDeviceByLUID(<span class="at">const</span> <span class="dt">void</span>* luid);</span>
+<span id="cb8-3"><a href="#cb8-3"></a>OIDNDevice oidnNewDeviceByPCIAddress(<span class="dt">int</span> pciDomain, <span class="dt">int</span> pciBus, <span class="dt">int</span> pciDevice,</span>
+<span id="cb8-4"><a href="#cb8-4"></a>                                     <span class="dt">int</span> pciFunction);</span></code></pre></div>
 <p>These functions are particularly useful when the application needs interoperability with a graphics API (e.g. DX12, Vulkan). However, not all of these properties may be supported by the intended physical device (or drivers might even report inconsistent identifiers), so it is recommended to select by more than one property, if possible.</p>
 <p>If the application requires interoperability with a particular compute API (SYCL, CUDA, HIP), it is recommended to use one of the following dedicated functions instead:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a>OIDNDevice oidnNewSYCLDevice(<span class="at">const</span> sycl::queue* queues, <span class="dt">int</span> numQueues);</span>
-<span id="cb22-2"><a href="#cb22-2"></a>OIDNDevice oidnNewCUDADevice(<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">cudaStream_t</span>* streams,</span>
-<span id="cb22-3"><a href="#cb22-3"></a>                             <span class="dt">int</span> numPairs);</span>
-<span id="cb22-4"><a href="#cb22-4"></a>OIDNDevice oidnNewHIPDevice (<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">hipStream_t</span>* streams,</span>
-<span id="cb22-5"><a href="#cb22-5"></a>                             <span class="dt">int</span> numPairs);</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a>OIDNDevice oidnNewSYCLDevice(<span class="at">const</span> sycl::queue* queues, <span class="dt">int</span> numQueues);</span>
+<span id="cb9-2"><a href="#cb9-2"></a>OIDNDevice oidnNewCUDADevice(<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">cudaStream_t</span>* streams,</span>
+<span id="cb9-3"><a href="#cb9-3"></a>                             <span class="dt">int</span> numPairs);</span>
+<span id="cb9-4"><a href="#cb9-4"></a>OIDNDevice oidnNewHIPDevice (<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">hipStream_t</span>* streams,</span>
+<span id="cb9-5"><a href="#cb9-5"></a>                             <span class="dt">int</span> numPairs);</span></code></pre></div>
 <p>For SYCL, it is possible to pass one or more SYCL queues which will be used by Open Image Denoise for all device operations. This is useful when the application wants to use the same queues for both denoising and its own operations (e.g. rendering). Passing multiple queues is not intended to be used for different physical devices but just for a single SYCL root-device which consists of multiple sub-devices (e.g. Intel® Data Center GPU Max Series having multiple Xe-Stacks/tiles). The only supported SYCL backend is oneAPI Level Zero.</p>
 <p>For CUDA and HIP, pairs of CUDA/HIP device IDs and corresponding streams can be specified but the current implementation supports only one pair. Negative device IDs correspond to the default device, and a <code>NULL</code> stream corresponds to the default stream on the corresponding device. Open Image Denoise automatically sets and restores the current CUDA/HIP device on the calling thread when necessary, thus the current device does not have to be changed manually by the application.</p>
 <p>Once a device is created, you can call</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">bool</span> oidnGetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb23-2"><a href="#cb23-2"></a><span class="dt">void</span> oidnSetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</span>
-<span id="cb23-3"><a href="#cb23-3"></a><span class="dt">int</span>  oidnGetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb23-4"><a href="#cb23-4"></a><span class="dt">void</span> oidnSetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</span>
-<span id="cb23-5"><a href="#cb23-5"></a><span class="dt">int</span>  oidnGetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb23-6"><a href="#cb23-6"></a><span class="dt">void</span> oidnSetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">unsigned</span> <span class="dt">int</span> value);</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="dt">bool</span> oidnGetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="dt">void</span> oidnSetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="dt">int</span>  oidnGetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="dt">void</span> oidnSetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="dt">int</span>  oidnGetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="dt">void</span> oidnSetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">unsigned</span> <span class="dt">int</span> value);</span></code></pre></div>
 <p>to set and get parameter values on the device. Note that some parameters are constants, thus trying to set them is an error. See the tables below for the parameters supported by devices.</p>
 <table style="width:98%;">
 <caption>Parameters supported by all devices.</caption>
@@ -619,24 +505,24 @@ cd oidn/build</code></pre>
 </table>
 <p>Note that the CPU device heavily relies on setting the thread affinities to achieve optimal performance, so it is highly recommended to leave this option enabled. However, this may interfere with the application if that also sets the thread affinities, potentially causing performance degradation. In such cases, the recommended solution is to either disable setting the affinities in the application or in Open Image Denoise, or to always set/reset the affinities before/after each parallel region in the application (e.g., if using TBB, with <code>tbb::task_arena</code> and <code>tbb::task_scheduler_observer</code>).</p>
 <p>Once parameters are set on the created device, the device must be committed with</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">void</span> oidnCommitDevice(OIDNDevice device);</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="dt">void</span> oidnCommitDevice(OIDNDevice device);</span></code></pre></div>
 <p>This device can then be used to construct further objects, such as buffers and filters. Note that a device can be committed only once during its lifetime.</p>
 <p>Some functions may execute asynchronously with respect to the host. The names of these functions are suffixed with <code>Async</code>. Asynchronous operations are executed <em>in order</em> on the device but may not block on the host. Eventually, it is necessary to wait for all asynchronous operations to complete, which can be done by calling</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span> oidnSyncDevice(OIDNDevice device);</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="dt">void</span> oidnSyncDevice(OIDNDevice device);</span></code></pre></div>
 <p>Currently the CPU device does not support asynchronous execution, and thus the asynchronous versions of functions will block as well. However, <code>oidnSyncDevice</code> should be always called to ensure correctness on GPU devices too, which do support asynchronous execution.</p>
 <p>Before the application exits, it should release all devices by invoking</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnReleaseDevice(OIDNDevice device);</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1"></a><span class="dt">void</span> oidnReleaseDevice(OIDNDevice device);</span></code></pre></div>
 <p>Note that Open Image Denoise uses reference counting for all object types, so this function decreases the reference count of the device, and if the count reaches 0 the device will automatically get deleted. It is also possible to increase the reference count by calling</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a><span class="dt">void</span> oidnRetainDevice(OIDNDevice device);</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1"></a><span class="dt">void</span> oidnRetainDevice(OIDNDevice device);</span></code></pre></div>
 <p>An application should typically create only a single device object per physical device (one for <em>all</em> CPUs or one per GPU) as creation can be very expensive and additional device objects may incur a significant memory overhead. If required differently, it should only use a small number of device objects at any given time.</p>
 <h3 id="error-handling">Error Handling</h3>
 <p>Each user thread has its own error code per device. If an error occurs when calling an API function, this error code is set to the occurred error if it stores no previous error. The currently stored error can be queried by the application via</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a>OIDNError oidnGetDeviceError(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>** outMessage);</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a>OIDNError oidnGetDeviceError(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>** outMessage);</span></code></pre></div>
 <p>where <code>outMessage</code> can be a pointer to a C string which will be set to a more descriptive error message, or it can be <code>NULL</code>. This function also clears the error code, which assures that the returned error code is always the first error occurred since the last invocation of <code>oidnGetDeviceError</code> on the current thread. Note that the optionally returned error message string is valid only until the next invocation of the function.</p>
 <p>Alternatively, the application can also register a callback function of type</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">typedef</span> <span class="dt">void</span> (*OIDNErrorFunction)(<span class="dt">void</span>* userPtr, OIDNError code, <span class="at">const</span> <span class="dt">char</span>* message);</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">typedef</span> <span class="dt">void</span> (*OIDNErrorFunction)(<span class="dt">void</span>* userPtr, OIDNError code, <span class="at">const</span> <span class="dt">char</span>* message);</span></code></pre></div>
 <p>via</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnSetDeviceErrorFunction(OIDNDevice device, OIDNErrorFunction func, <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a><span class="dt">void</span> oidnSetDeviceErrorFunction(OIDNDevice device, OIDNErrorFunction func, <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>to get notified when errors occur. Only a single callback function can be registered per device, and further invocations overwrite the previously set callback function, which do <em>not</em> require also calling the <code>oidnCommitDevice</code> function. Passing <code>NULL</code> as function pointer disables the registered callback function. When the registered callback function is invoked, it gets passed the user-defined payload (<code>userPtr</code> argument as specified at registration time), the error code (<code>code</code> argument) of the occurred error, as well as a string (<code>message</code> argument) that further describes the error. The error code is always set even if an error callback function is registered. It is recommended to always set a error callback function, to detect all errors.</p>
 <p>When the device construction fails, <code>oidnNewDevice</code> returns <code>NULL</code> as device. To detect the error code of a such failed device construction, pass <code>NULL</code> as device to the <code>oidnGetDeviceError</code> function. For all other invocations of <code>oidnGetDeviceError</code>, a proper device handle must be specified.</p>
 <p>The following errors are currently used by Open Image Denoise:</p>
@@ -734,10 +620,10 @@ cd oidn/build</code></pre>
 </table>
 <h2 id="buffers-1">Buffers</h2>
 <p>Image data can be passed to Open Image Denoise either via pointers to memory allocated and managed by the user or by creating buffer objects. Regardless of which method is used, the data must be allocated in a way that it is accessible by the device (either CPU or GPU). Using buffers is typically the preferred approach because this ensures that the allocation requirements are fulfilled regardless of device type. To create a new data buffer with memory allocated and owned by the device, use</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a>OIDNBuffer oidnNewBuffer(OIDNDevice device, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a>OIDNBuffer oidnNewBuffer(OIDNDevice device, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>The created buffer is bound to the specified device (<code>device</code> argument). The specified number of bytes (<code>byteSize</code>) are allocated at buffer construction time and deallocated when the buffer is destroyed. The memory is by default allocated as managed memory automatically migrated between host and device, if supported, or as pinned host memory otherwise.</p>
 <p>If this default buffer allocation is not suitable, a buffer can be created with a manually specified storage mode as well:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a>OIDNBuffer oidnNewBufferWithStorage(OIDNDevice device, <span class="dt">size_t</span> byteSize, OIDNStorage storage);</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a>OIDNBuffer oidnNewBufferWithStorage(OIDNDevice device, <span class="dt">size_t</span> byteSize, OIDNStorage storage);</span></code></pre></div>
 <p>The supported storage modes are the following:</p>
 <table style="width:98%;">
 <caption>Supported storage modes for buffers, i.e., valid constants of type <code>OIDNStorage</code>.</caption>
@@ -772,16 +658,16 @@ cd oidn/build</code></pre>
 </table>
 <p>Note that the host and device storage modes are supported by all devices but managed storage is an optional feature. Before using managed storage, the <code>managedMemorySupported</code> device parameter should be queried.</p>
 <p>It is also possible to create a “shared” data buffer with memory allocated and managed by the user with</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a>OIDNBuffer oidnNewSharedBuffer(OIDNDevice device, <span class="dt">void</span>* devPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1"></a>OIDNBuffer oidnNewSharedBuffer(OIDNDevice device, <span class="dt">void</span>* devPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>where <code>devPtr</code> points to user-managed device-accessible memory and <code>byteSize</code> is its size in bytes. At buffer construction time no buffer data is allocated, but the buffer data provided by the user is used. The buffer data must remain valid for as long as the buffer may be used, and the user is responsible to free the buffer data when no longer required. The user must also ensure that the memory is accessible by the device by using allocation functions supported by the device (e.g. <code>sycl::malloc_device</code>, <code>cudaMalloc</code>, <code>hipMalloc</code>).</p>
 <p>Buffers can be also imported from graphics APIs as external memory, to avoid expensive copying of data through host memory. Different types of external memory can be imported from either POSIX file descriptors or Win32 handles using</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a>OIDNBuffer oidnNewSharedBufferFromFD(OIDNDevice device,</span>
-<span id="cb34-2"><a href="#cb34-2"></a>                                     OIDNExternalMemoryTypeFlag fdType,</span>
-<span id="cb34-3"><a href="#cb34-3"></a>                                     <span class="dt">int</span> fd, <span class="dt">size_t</span> byteSize);</span>
-<span id="cb34-4"><a href="#cb34-4"></a></span>
-<span id="cb34-5"><a href="#cb34-5"></a>OIDNBuffer oidnNewSharedBufferFromWin32Handle(OIDNDevice device,</span>
-<span id="cb34-6"><a href="#cb34-6"></a>                                              OIDNExternalMemoryTypeFlag handleType,</span>
-<span id="cb34-7"><a href="#cb34-7"></a>                                              <span class="dt">void</span>* handle, <span class="at">const</span> <span class="dt">void</span>* name, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1"></a>OIDNBuffer oidnNewSharedBufferFromFD(OIDNDevice device,</span>
+<span id="cb21-2"><a href="#cb21-2"></a>                                     OIDNExternalMemoryTypeFlag fdType,</span>
+<span id="cb21-3"><a href="#cb21-3"></a>                                     <span class="dt">int</span> fd, <span class="dt">size_t</span> byteSize);</span>
+<span id="cb21-4"><a href="#cb21-4"></a></span>
+<span id="cb21-5"><a href="#cb21-5"></a>OIDNBuffer oidnNewSharedBufferFromWin32Handle(OIDNDevice device,</span>
+<span id="cb21-6"><a href="#cb21-6"></a>                                              OIDNExternalMemoryTypeFlag handleType,</span>
+<span id="cb21-7"><a href="#cb21-7"></a>                                              <span class="dt">void</span>* handle, <span class="at">const</span> <span class="dt">void</span>* name, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>Before exporting memory from the graphics API, the application should find a handle type which is supported by both the Open Image Denoise device (see <code>externalMemoryTypes</code> device parameter) and the graphics API. Note that different GPU vendors may support different handle types. To ensure compatibility with all device types, applications should support at least <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD</code> on Windows and both <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD</code> and <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF</code> on Linux. All possible external memory types are listed in the table below.</p>
 <table style="width:98%;">
 <caption>Supported external memory type flags, i.e., valid constants of type <code>OIDNExternalMemoryTypeFlag</code>.</caption>
@@ -843,26 +729,26 @@ cd oidn/build</code></pre>
 </tbody>
 </table>
 <p>Similar to device objects, buffer objects are also reference-counted and can be retained and released by calling the following functions:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="dt">void</span> oidnRetainBuffer (OIDNBuffer buffer);</span>
-<span id="cb35-2"><a href="#cb35-2"></a><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnRetainBuffer (OIDNBuffer buffer);</span>
+<span id="cb22-2"><a href="#cb22-2"></a><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</span></code></pre></div>
 <p>The size of in bytes and storage mode of the buffer can be queried using</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="dt">size_t</span>      oidnGetBufferSize   (OIDNBuffer buffer);</span>
-<span id="cb36-2"><a href="#cb36-2"></a>OIDNStorage oidnGetBufferStorage(OIDNBuffer buffer);</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">size_t</span>      oidnGetBufferSize   (OIDNBuffer buffer);</span>
+<span id="cb23-2"><a href="#cb23-2"></a>OIDNStorage oidnGetBufferStorage(OIDNBuffer buffer);</span></code></pre></div>
 <p>It is possible to get a pointer directly to the buffer data, which is usually the preferred way to access the data stored in the buffer:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="dt">void</span>* oidnGetBufferData(OIDNBuffer buffer);</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">void</span>* oidnGetBufferData(OIDNBuffer buffer);</span></code></pre></div>
 <p>However, accessing the data on the host through this pointer is possible only if the buffer was created with a storage mode that enables this, i.e., any mode <em>except</em> <code>OIDN_STORAGE_DEVICE</code>. Note that a <code>NULL</code> pointer may be returned if the buffer is empty or getting a pointer to data with device storage is not supported by the device.</p>
 <p>In some cases better performance can be achieved by using device storage for buffers. Such data can be accessed on the host by copying to/from host memory (including pageable system memory) using the following functions:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnReadBuffer(OIDNBuffer buffer,</span>
-<span id="cb38-2"><a href="#cb38-2"></a>                    <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
-<span id="cb38-3"><a href="#cb38-3"></a></span>
-<span id="cb38-4"><a href="#cb38-4"></a><span class="dt">void</span> oidnWriteBuffer(OIDNBuffer buffer,</span>
-<span id="cb38-5"><a href="#cb38-5"></a>                     <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span> oidnReadBuffer(OIDNBuffer buffer,</span>
+<span id="cb25-2"><a href="#cb25-2"></a>                    <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
+<span id="cb25-3"><a href="#cb25-3"></a></span>
+<span id="cb25-4"><a href="#cb25-4"></a><span class="dt">void</span> oidnWriteBuffer(OIDNBuffer buffer,</span>
+<span id="cb25-5"><a href="#cb25-5"></a>                     <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
 <p>These functions will always block until the read/write operation has been completed, which is often suboptimal. The following functions may execute the operation asynchronously if it is supported by the device (GPUs), or still block otherwise (CPUs):</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">void</span> oidnReadBufferAsync(OIDNBuffer buffer,</span>
-<span id="cb39-2"><a href="#cb39-2"></a>                         <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
-<span id="cb39-3"><a href="#cb39-3"></a></span>
-<span id="cb39-4"><a href="#cb39-4"></a><span class="dt">void</span> oidnWriteBufferAsync(OIDNBuffer buffer,</span>
-<span id="cb39-5"><a href="#cb39-5"></a>                          <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnReadBufferAsync(OIDNBuffer buffer,</span>
+<span id="cb26-2"><a href="#cb26-2"></a>                         <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
+<span id="cb26-3"><a href="#cb26-3"></a></span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="dt">void</span> oidnWriteBufferAsync(OIDNBuffer buffer,</span>
+<span id="cb26-5"><a href="#cb26-5"></a>                          <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
 <p>When copying asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the copied data or releasing the buffer. Failure to do so will result in undefined behavior.</p>
 <h3 id="data-format">Data Format</h3>
 <p>Buffers store opaque data and thus have no information about the type and format of the data. Other objects, e.g. filters, typically require specifying the format of the data stored in buffers or shared via pointers. This can be done using the <code>OIDNFormat</code> enumeration type:</p>
@@ -899,62 +785,62 @@ cd oidn/build</code></pre>
 </table>
 <h2 id="filters">Filters</h2>
 <p>Filters are the main objects in Open Image Denoise that are responsible for the actual denoising. The library ships with a collection of filters which are optimized for different types of images and use cases. To create a filter object, call</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
 <p>where <code>type</code> is the name of the filter type to create. The supported filter types are documented later in this section.</p>
 <p>Creating filter objects can be very expensive, therefore it is <em>strongly</em> recommended to reuse the same filter for denoising as many images as possible, as long as the these images have the same same size, format, and features (i.e., only the memory locations and pixel values may be different). Otherwise (e.g. for images with different resolutions), reusing the same filter would not have any benefits.</p>
 <p>Once created, filter objects can be retained and released with</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
-<span id="cb41-2"><a href="#cb41-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
 <p>After creating a filter, it needs to be set up by specifying the input and output images, and potentially setting other parameter values as well.</p>
 <p>To set image parameters of a filter, you can use one of the following functions:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb42-2"><a href="#cb42-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
-<span id="cb42-3"><a href="#cb42-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb42-4"><a href="#cb42-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb42-5"><a href="#cb42-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
-<span id="cb42-6"><a href="#cb42-6"></a></span>
-<span id="cb42-7"><a href="#cb42-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb42-8"><a href="#cb42-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
-<span id="cb42-9"><a href="#cb42-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb42-10"><a href="#cb42-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb42-11"><a href="#cb42-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb29-2"><a href="#cb29-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
+<span id="cb29-3"><a href="#cb29-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb29-4"><a href="#cb29-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb29-5"><a href="#cb29-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
+<span id="cb29-6"><a href="#cb29-6"></a></span>
+<span id="cb29-7"><a href="#cb29-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb29-8"><a href="#cb29-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
+<span id="cb29-9"><a href="#cb29-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb29-10"><a href="#cb29-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb29-11"><a href="#cb29-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to user-managed device-accessible data (<code>devPtr</code> argument) with the <code>oidnSetSharedFilterImage</code> function. Regardless of whether a buffer or a pointer is specified, the data <em>must</em> be accessible to the device. The easiest way to guarantee this regardless of the device type (CPU or GPU) is using buffer objects.</p>
 <p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>pixelByteStride</code> argument) and the row stride (<code>rowByteStride</code> argument), in number of bytes.</p>
 <p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>pixelByteStride</code> and/or <code>rowByteStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
 <p>Images support only the <code>OIDN_FORMAT_FLOAT3</code> and <code>OIDN_FORMAT_HALF3</code> pixel formats. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra data will be ignored by the filter.</p>
 <p>To unset a previously set image parameter, returning it to a state as if it had not been set, call</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb44-1"><a href="#cb44-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb44-2"><a href="#cb44-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb31-2"><a href="#cb31-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>This data (<code>hostPtr</code>) must be accessible to the <em>host</em>, therefore system memory allocation is suitable (i.e., there is no reason to use buffer objects for allocation).</p>
 <p>Modifying the contents of an opaque data parameter after setting it as a filter parameter is allowed but the filter needs to be notified that the data has been updated by calling</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb45-1"><a href="#cb45-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Unsetting an opaque data parameter can be performed with</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb46-1"><a href="#cb46-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb47-1"><a href="#cb47-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb47-2"><a href="#cb47-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
-<span id="cb47-3"><a href="#cb47-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb47-4"><a href="#cb47-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
-<span id="cb47-5"><a href="#cb47-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb47-6"><a href="#cb47-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
+<span id="cb34-3"><a href="#cb34-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb34-4"><a href="#cb34-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
+<span id="cb34-5"><a href="#cb34-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb34-6"><a href="#cb34-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
 <p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
-<span id="cb48-2"><a href="#cb48-2"></a></span>
-<span id="cb48-3"><a href="#cb48-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
-<span id="cb48-4"><a href="#cb48-4"></a>                                          OIDNProgressMonitorFunction func,</span>
-<span id="cb48-5"><a href="#cb48-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
+<span id="cb35-2"><a href="#cb35-2"></a></span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
+<span id="cb35-4"><a href="#cb35-4"></a>                                          OIDNProgressMonitorFunction func,</span>
+<span id="cb35-5"><a href="#cb35-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will attempt to cancel the filter operation as soon as possible, and if that is fulfilled, it will raise an <code>OIDN_ERROR_CANCELLED</code> error.</p>
 <p>Please note that using a progress monitor callback function introduces some overhead, which may be significant on GPU devices, hurting performance. Therefore we recommend progress monitoring only for offline denoising, when denoising an image is expected to take several seconds.</p>
 <p>After setting all necessary parameters for the filter, the changes must be committed by calling</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb49-1"><a href="#cb49-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
 <p>The parameters can be updated after committing the filter, but it must be re-committed for any new changes to take effect. Committing major changes to the filter (e.g. setting new image parameters, changing the image resolution) can be expensive, and thus should not be done frequently (e.g. per frame).</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>This function will always block until the filtering operation has been completed. The following function may execute the operation asynchronously if it is supported by the device (GPUs), or block otherwise (CPUs):</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
 <p>When filtering asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the output image data or releasing the filter. Failure to do so will result in undefined behavior.</p>
 <p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
 <h3 id="rt">RT</h3>
@@ -1222,7 +1108,7 @@ cd oidn/build</code></pre>
 <li><p><code>convert_image.py</code>: Converts a feature image to a different image format.</p></li>
 <li><p><code>compare_image.py</code>: Compares two feature images using the specified quality metrics.</p></li>
 </ul>
-<h2 id="prerequisites-1">Prerequisites</h2>
+<h2 id="prerequisites">Prerequisites</h2>
 <p>Before you can run the training toolkit you need the following prerequisites:</p>
 <ul>
 <li><p>Linux (other operating systems are currently not supported)</p></li>
@@ -1342,12 +1228,6 @@ cd oidn/build</code></pre>
 <pre><code>./convert_image.py view1_0004.hdr.exr view1_0004.png --exposure 2.5</code></pre>
 <p>The <code>compare_image.py</code> script compares two feature images (preferably having the dataset filename format to correctly detect the feature) using the specified image quality metrics, similar to the <code>infer.py</code> tool. Example usage:</p>
 <pre><code>./compare_image.py view1_0004.hdr.exr view1_8192.hdr.exr --exposure 2.5 --metric mse ssim</code></pre>
-<section class="footnotes" role="doc-endnotes">
-<hr />
-<ol>
-<li id="fn1" role="doc-endnote"><p>For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.14.1-linux</code><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section>
 
       </div>
     </div>
