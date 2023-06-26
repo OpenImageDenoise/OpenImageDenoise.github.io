@@ -88,6 +88,14 @@ High-Performance Denoising Library for Ray Tracing
 <p>Intel Open Image Denoise is under active development, and though we do our best to guarantee stable release versions a certain number of bugs, as-yet-missing features, inconsistencies, or any other issues are still possible. Should you find any such issues please report them immediately via the <a href="https://github.com/OpenImageDenoise/oidn/issues">Intel Open Image Denoise GitHub Issue Tracker</a> (or, if you should happen to have a fix for it, you can also send us a pull request); for missing features please contact us via email at <a href="mailto:openimagedenoise@googlegroups.com" class="email">openimagedenoise@googlegroups.com</a>.</p>
 <p>Join our <a href="https://groups.google.com/d/forum/openimagedenoise/">mailing list</a> to receive release announcements and major news regarding Intel Open Image Denoise.</p>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.0.1">Changes in v2.0.1:</h3>
+<ul>
+<li>Fixed performance issue for Intel integrated GPUs using recent Linux drivers</li>
+<li>Fixed crash on systems with both dedicated and integrated AMD GPUs</li>
+<li>Fixed importing <code>D3D12_RESOURCE</code>, <code>D3D11_RESOURCE</code>, <code>D3D11_RESOURCE_KMT</code>, <code>D3D11_TEXTURE</code> and <code>D3D11_TEXTURE_KMT</code> external memory types on CUDA and HIP devices</li>
+<li>Fixed the macOS deployment target of the official x86 binaries (lowered from 11.0 to 10.11)</li>
+<li>Minor improvements to verbose output</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.0.0">Changes in v2.0.0:</h3>
 <ul>
 <li>Added SYCL device for Intel Xe architecture GPUs (Xe-LP, Xe-HPG and Xe-HPC)</li>
