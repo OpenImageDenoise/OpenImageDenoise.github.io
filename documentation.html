@@ -807,7 +807,7 @@ div.sourceCode { overflow-x: initial; }
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to user-managed device-accessible data (<code>devPtr</code> argument) with the <code>oidnSetSharedFilterImage</code> function. Regardless of whether a buffer or a pointer is specified, the data <em>must</em> be accessible to the device. The easiest way to guarantee this regardless of the device type (CPU or GPU) is using buffer objects.</p>
 <p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>pixelByteStride</code> argument) and the row stride (<code>rowByteStride</code> argument), in number of bytes.</p>
 <p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>pixelByteStride</code> and/or <code>rowByteStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
-<p>Images support only the <code>OIDN_FORMAT_FLOAT3</code> and <code>OIDN_FORMAT_HALF3</code> pixel formats. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra data will be ignored by the filter.</p>
+<p>Images support only <code>FLOAT</code> and <code>HALF</code> pixel formats with up to 3 channels. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra channels will be ignored by the filter. If these channels also need to be denoised, separate filters can be used.</p>
 <p>To unset a previously set image parameter, returning it to a state as if it had not been set, call</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
@@ -841,6 +841,10 @@ div.sourceCode { overflow-x: initial; }
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>This function will always block until the filtering operation has been completed. The following function may execute the operation asynchronously if it is supported by the device (GPUs), or block otherwise (CPUs):</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
+<p>For filters created on a SYCL device it is also possible to specify dependent SYCL events (<code>depEvents</code> and <code>numDepEvents</code> arguments, may be <code>NULL</code>/0) and get a completion event as well (<code>doneEvent</code> argument, may be <code>NULL</code>):</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">void</span> oidnExecuteSYCLFilterAsync(OIDNFilter filter,</span>
+<span id="cb39-2"><a href="#cb39-2"></a>                                <span class="at">const</span> sycl::event* depEvents, <span class="dt">int</span> numDepEvents,</span>
+<span id="cb39-3"><a href="#cb39-3"></a>                                sycl::event* doneEvent);</span></code></pre></div>
 <p>When filtering asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the output image data or releasing the filter. Failure to do so will result in undefined behavior.</p>
 <p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
 <h3 id="rt">RT</h3>
@@ -876,7 +880,7 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>color</code></td>
 <td style="text-align: right;"><em>optional</em></td>
-<td style="text-align: left;">input beauty image (3 channels, LDR values in [0, 1] or HDR values in [0, +∞), values being interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to a luminance level of 100 cd/m²)</td>
+<td style="text-align: left;">input beauty image (1–3 channels, LDR values in [0, 1] or HDR values in [0, +∞), values being interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to a luminance level of 100 cd/m²)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>Image</code></td>
@@ -894,7 +898,7 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>output</code></td>
 <td style="text-align: right;"><em>required</em></td>
-<td style="text-align: left;">output image (3 channels); can be one of the input images</td>
+<td style="text-align: left;">output image (1–3 channels); can be one of the input images</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>Bool</code></td>

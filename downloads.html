@@ -33,13 +33,13 @@
 
 <h1 id="download-precompiled-intel-open-image-denoise-binary-packages">Download Precompiled Intel Open Image Denoise Binary Packages</h1>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.1/oidn-2.0.1.x86_64.linux.tar.gz">oidn-2.0.1.x86_64.linux.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x86_64.linux.tar.gz">oidn-2.1.0.x86_64.linux.tar.gz</a></p>
 <p>For macOS we provide Intel Open Image Denoise precompiled for Intel processors as a separate TGZ archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.1/oidn-2.0.1.x86_64.macos.tar.gz">oidn-2.0.1.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x86_64.macos.tar.gz">oidn-2.1.0.x86_64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.1/oidn-2.0.1.x64.windows.zip">oidn-2.0.1.x64.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x64.windows.zip">oidn-2.1.0.x64.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.1/oidn-2.0.1.src.zip">oidn-2.0.1.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.0.1/oidn-2.0.1.src.tar.gz">oidn-2.0.1.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.src.zip">oidn-2.1.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.src.tar.gz">oidn-2.1.0.src.tar.gz</a></p>
 <p>The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compilation">Compilation</h1>
@@ -52,7 +52,7 @@
 <ul>
 <li><p><a href="http://www.cmake.org">CMake</a> 3.15 or newer</p></li>
 <li><p>A C++11 compiler (we recommend using a Clang-based compiler but also support GCC and Microsoft Visual Studio 2015 and newer)</p></li>
-<li><p>Python 2.7 or newer</p></li>
+<li><p>Python 3</p></li>
 </ul>
 <p>To build support for different types of CPUs and GPUs, the following additional prerequisites are needed:</p>
 <h4 class="unnumbered" id="cpu-device">CPU device:</h4>
@@ -62,11 +62,11 @@
 </ul>
 <h4 class="unnumbered" id="sycl-device-for-intel-gpus">SYCL device for Intel GPUs:</h4>
 <ul>
-<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2023.1 or newer, or the open source <a href="https://github.com/intel/llvm/releases/tag/sycl-nightly%2F20221215">oneAPI DPC++ Compiler 2022-12-15</a>. Other SYCL compilers are <em>not</em> supported. The open source version of the compiler is more up-to-date but less stable, so we <em>strongly</em> recommend to use the exact version listed here.</p></li>
+<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2024.0 or newer, or the open source <a href="https://github.com/intel/llvm/releases/tag/nightly-2023-09-22">oneAPI DPC++ Compiler 2023-09-22</a>. Other SYCL compilers are <em>not</em> supported. The open source version of the compiler is more up-to-date but less stable, so we <em>strongly</em> recommend to use the exact version listed here, and on Linux we also recommend to rebuild it from source with the <code>--disable-fusion</code> flag.</p></li>
 <li><p>Intel® Graphics Offline Compiler for OpenCL™ Code (OCLOC)</p>
 <ul>
-<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/9926f1ea-209e-42b3-94db-a1f895ee56ce/ocloc_win_101.4314.zip">31.0.101.4314</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
-<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
+<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/fcd74e0e-43b3-4930-9bad-29c8b9581339/ocloc_win_101.4824.zip">31.0.101.4824</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
+<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_704_30_20230918.html">20230918</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
 </ul></li>
 <li><p>If using Intel® oneAPI DPC++/C++ Compiler: <a href="http://www.cmake.org">CMake</a> 3.25.2 or newer</p></li>
 <li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
@@ -80,8 +80,7 @@
 <ul>
 <li><p><a href="http://www.cmake.org">CMake</a> 3.21 or newer</p></li>
 <li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
-<li><p><a href="https://rocm.docs.amd.com">AMD ROCm</a> v5.5.0 or newer. Currently there are no releases available for Windows but it can be build from source. This source distribution includes a script for downloading, building and installing a minimal version of ROCm with the HIP compiler for Windows: <code>scripts/rocm/build_rocm_windows.bat</code></p></li>
-<li><p>If building on Windows using a HIP compiler built from source: Perl (e.g. <a href="https://strawberryperl.com">Strawberry Perl</a>)</p></li>
+<li><p><a href="https://rocm.docs.amd.com">AMD ROCm (HIP SDK)</a> v5.5.0 or newer.</p></li>
 </ul>
 <p>Depending on your operating system, you can install some required dependencies (e.g., TBB) using <code>yum</code> or <code>apt-get</code> on Linux, <a href="https://brew.sh">Homebrew</a> or <a href="https://www.macports.org">MacPorts</a> on macOS, and <a href="https://vcpkg.io"><code>vcpkg</code></a> on Windows. For the other dependencies please download the necessary packages or installers and follow the included instructions.</p>
 <h2 id="compiling-on-linuxmacos">Compiling on Linux/macOS</h2>
@@ -141,6 +140,7 @@ cd oidn/build</code></pre>
 <p>The following list describes the options that can be configured in CMake:</p>
 <ul>
 <li><p><code>CMAKE_BUILD_TYPE</code>: Can be used to switch between Debug mode (Debug), Release mode (Release) (default), and Release mode with enabled assertions and debug symbols (RelWithDebInfo).</p></li>
+<li><p><code>OIDN_STATIC_LIB</code>: Build Open Image Denoise as a static (if only CPU support is enabled) or a hybrid static/shared (if GPU support is enabled as well) library.</p></li>
 <li><p><code>OIDN_API_NAMESPACE</code>: Specifies a namespace to put all Intel Open Image Denoise API symbols inside. This is also added as an outer namespace for the C++ wrapper API. By default no namespace is used and plain C symbols are exported.</p></li>
 <li><p><code>OIDN_DEVICE_CPU</code>: Enable CPU device support (ON by default).</p></li>
 <li><p><code>OIDN_DEVICE_SYCL</code>: Enable SYCL device support for Intel GPUs (OFF by default).</p></li>
