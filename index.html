@@ -135,7 +135,8 @@ High-Performance Denoising Library for Ray Tracing
 <p>You need a CPU with SSE4.1 support or Apple Silicon to run Intel Open Image Denoise, and you need a 64-bit Windows, Linux, or macOS operating system as well.</p>
 <p>For Intel GPU support, please also install the latest Intel graphics drivers:</p>
 <ul>
-<li><p>Windows: <a href="https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html">Intel® Graphics Driver</a> 31.0.101.4314 or newer for Intel® Arc™ Graphics, 11th-13th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors</p></li>
+<li><p>Windows: <a href="https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html">Intel® Graphics Driver</a> 31.0.101.4314 or newer for Intel® Arc™ Graphics, 11th-13th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors</p>
+<p><strong>Note:</strong> Vulkan interop on Intel® Arc™ Graphics is broken in driver versions 31.0.101.4887 and 31.0.101.4885. We strongly recommend to use a different driver. As of 10/12/2023, the last known good version is 31.0.101.4826.</p></li>
 <li><p>Linux: <a href="https://dgpu-docs.intel.com/driver/installation.html">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer</p></li>
 </ul>
 <p>Using older driver versions is <em>not</em> supported and Intel Open Image Denoise might run with only limited capabilities, have suboptimal performance or might be unstable. Also, Resizable BAR <em>must</em> be enabled in the BIOS for Intel dedicated GPUs if running on Linux, and strongly recommended if running on Windows.</p>
