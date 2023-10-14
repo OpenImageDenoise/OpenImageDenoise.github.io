@@ -57,7 +57,7 @@
 <p>To build support for different types of CPUs and GPUs, the following additional prerequisites are needed:</p>
 <h4 class="unnumbered" id="cpu-device">CPU device:</h4>
 <ul>
-<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.14.1 or newer. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
+<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.14.1 or newer, <em>except</em> 1.21.0 and 1.21.1. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources. For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.14.1-linux</code>. Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
 <li><p><a href="https://github.com/oneapi-src/oneTBB">Intel® Threading Building Blocks</a> (TBB) 2017 or newer</p></li>
 </ul>
 <h4 class="unnumbered" id="sycl-device-for-intel-gpus">SYCL device for Intel GPUs:</h4>
@@ -156,12 +156,6 @@ cd oidn/build</code></pre>
 <li><p><code>ROCM_PATH</code>: The path to the ROCm installation (autodetected by default).</p></li>
 <li><p><code>OPENIMAGEIO_ROOT</code>: The path to the OpenImageIO installation (autodetected by default).</p></li>
 </ul>
-<section class="footnotes" role="doc-endnotes">
-<hr />
-<ol>
-<li id="fn1" role="doc-endnote"><p>For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.14.1-linux</code><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-</ol>
-</section>
 
       </div>
     </div>
