@@ -211,7 +211,7 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb3-27"><a href="#cb3-27"></a><span class="co">// Filter the beauty image</span></span>
 <span id="cb3-28"><a href="#cb3-28"></a>filter.execute();</span></code></pre></div>
 <h2 id="upgrading-from-open-image-denoise-1.x">Upgrading from Open Image Denoise 1.x</h2>
-<p>Open Image Denoise 2.0 introduces GPU support, which requires implementing some minor changes in applications. There are also small API changes, additions and improvements in this new version. In this section we summarize the necessary code modifications and also briefly mention the new features that users might find useful when upgrading to 2.0. For a full description of the changes and new functionality, please see the API reference.</p>
+<p>Open Image Denoise 2 introduces GPU support, which requires implementing some minor changes in applications. There are also small API changes, additions and improvements in this new version. In this section we summarize the necessary code modifications and also briefly mention the new features that users might find useful when upgrading to version 2.x. For a full description of the changes and new functionality, please see the API reference.</p>
 <h3 id="buffers">Buffers</h3>
 <p>The most important required change is related to how data is passed to Open Image Denoise. If the application is explicitly using only the CPU (by specifying <code>OIDN_DEVICE_TYPE_CPU</code>), no changes should be necessary. But if it wants to support GPUs as well, passing pointers to memory allocated with the system allocator (e.g. <code>malloc</code>) would raise an error because GPUs cannot access such memory in almost all cases.</p>
 <p>To ensure compatibility with any kind of device, including GPUs, the application should use <code>OIDNBuffer</code> objects to store all image data passed to the library. Memory allocated using buffers is by default accessible by both the host (CPU) and the device (CPU or GPU).</p>
@@ -232,7 +232,7 @@ div.sourceCode { overflow-x: initial; }
 <p>When importing external memory, the application also needs to make sure that the Open Image Denoise device is running on the same <em>physical</em> device as the graphics API. This can be easily achieved by using the new physical device feature, described in the next section.</p>
 <h3 id="physical-devices">Physical Devices</h3>
 <p>Although it is possible to explicitly create devices of a particular type (with, e.g., <code>OIDN_DEVICE_TYPE_SYCL</code>), this is often insufficient, especially if the system has multiple devices of the same type, and with GPU support it is very common that there are multiple different types of supported devices in the system (e.g. a CPU and one or more GPUs).</p>
-<p>The 2.0 version of the library introduces a simple <em>physical device</em> API, which enables the application to query the list of supported physical devices in the system, including their name, type, UUID, LUID, PCI address, etc. (see <code>oidnGetNumPhysicalDevices</code>, <code>oidnGetPhysicalDeviceString</code>, etc.). New logical device (i.e. <code>OIDNDevice</code>) creation functions for have been also introduced, which enable creating a logical device on a specific physical device: <code>oidnNewDeviceByID</code>, <code>oidnNewDeviceByUUID</code>, etc.</p>
+<p>Open Image Denoise 2 introduces a simple <em>physical device</em> API, which enables the application to query the list of supported physical devices in the system, including their name, type, UUID, LUID, PCI address, etc. (see <code>oidnGetNumPhysicalDevices</code>, <code>oidnGetPhysicalDeviceString</code>, etc.). New logical device (i.e. <code>OIDNDevice</code>) creation functions for have been also introduced, which enable creating a logical device on a specific physical device: <code>oidnNewDeviceByID</code>, <code>oidnNewDeviceByUUID</code>, etc.</p>
 <p>Creating a logical device on a physical device having a particular UUID, LUID or PCI address is particularly important when importing external memory from graphics APIs. However, not all device types support all types of IDs, and some graphics drivers may even report mismatching UUIDs or LUIDs for the same physical device, so applications should try to implement multiple identification methods, or at least assume that identification might fail.</p>
 <h3 id="asynchronous-execution">Asynchronous Execution</h3>
 <p>With the introduction of GPU support, it is now possible to execute some operations asynchronously, most importantly filtering (<code>oidnExecuteFilterAsync</code>, <code>oidnExecuteSYCLFilterAsync</code>) and copying data (the already mentioned <code>oidnReadBufferAsync</code> and <code>oidnWriteBufferAsync</code>). Although these new asynchronous functions can be used with any device type, it is <em>not</em> guaranteed that these will be actually executed asynchronously. The most important such exceptions are CPU devices, which are still blocking the calling thread when these functions are called.</p>
@@ -243,7 +243,7 @@ div.sourceCode { overflow-x: initial; }
 <p>A few existing API functions have been renamed to improve clarity (e.g. <code>oidnSetFilter1i</code> to <code>oidnSetFilterInt</code>) but the old function names are still available as deprecated functions. When compiling legacy code, warnings will be emitted for these deprecated functions. To upgrade to the new API, please simply follow the instructions in the warnings.</p>
 <p>Some filter parameters have been also renamed (<code>alignment</code> to <code>tileAlignment</code>, <code>overlap</code> to <code>tileOverlap</code>). When using the old names, warnings will be emitted at runtime.</p>
 <h3 id="building-as-a-static-library">Building as a Static Library</h3>
-<p>The support to build Open Image Denoise as a static library (<code>OIDN_STATIC_LIB</code> CMake option) has been removed due to switching to a modular library design, which was necessary for adding multi-vendor GPU support.</p>
+<p>The support to build Open Image Denoise as a static library (<code>OIDN_STATIC_LIB</code> CMake option) has been limited to CPU-only builds due to switching to a modular library design that was necessary for adding multi-vendor GPU support. If the library is built with GPU support as well, the <code>OIDN_STATIC_LIB</code> option is still available but enabling it results in a hybrid static/shared library.</p>
 <p>If the main reason for building as a static library would be is the ability to use multiple versions of Open Image Denoise in the same process, please use the existing <code>OIDN_API_NAMESPACE</code> CMake option instead. With this feature all symbols of the library will be put into a custom namespace, which can prevent symbol clashes.</p>
 <h2 id="physical-devices-1">Physical Devices</h2>
 <p>Systems often have multiple different types of devices supported by Open Image Denoise (CPUs and GPUs). The application can get the list of supported <em>physical devices</em> and select which of these to use for denoising.</p>
@@ -886,13 +886,13 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>albedo</code></td>
 <td style="text-align: right;"><em>optional</em></td>
-<td style="text-align: left;">input auxiliary image containing the albedo per pixel (3 channels, values in [0, 1])</td>
+<td style="text-align: left;">input auxiliary image containing the albedo per pixel (1–3 channels, values in [0, 1])</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>normal</code></td>
 <td style="text-align: right;"><em>optional</em></td>
-<td style="text-align: left;">input auxiliary image containing the shading normal per pixel (3 channels, world-space or view-space vectors with arbitrary length, values in [-1, 1])</td>
+<td style="text-align: left;">input auxiliary image containing the shading normal per pixel (1–3 channels, world-space or view-space vectors with arbitrary length, values in [-1, 1])</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>Image</code></td>
@@ -1037,13 +1037,13 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>color</code></td>
 <td style="text-align: right;"><em>required</em></td>
-<td style="text-align: left;">input beauty image (3 channels, HDR values in [0, +∞), interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to a luminance level of 100 cd/m²; directional values in [-1, 1])</td>
+<td style="text-align: left;">input beauty image (1–3 channels, HDR values in [0, +∞), interpreted such that, after scaling with the <code>inputScale</code> parameter, a value of 1 corresponds to a luminance level of 100 cd/m²; directional values in [-1, 1])</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>Image</code></td>
 <td style="text-align: left;"><code>output</code></td>
 <td style="text-align: right;"><em>required</em></td>
-<td style="text-align: left;">output image (3 channels); can be one of the input images</td>
+<td style="text-align: left;">output image (1–3 channels); can be one of the input images</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"><code>Bool</code></td>
