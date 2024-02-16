@@ -223,10 +223,10 @@ div.sourceCode { overflow-x: initial; }
 <li><p>If image data must be copied, using the default buffer allocation may not be the most efficient method. If the device memory is not physically shared with the host memory (e.g. for dedicated GPUs), higher performance may be achieved by creating the buffers with device storage (<code>OIDN_STORAGE_DEVICE</code>) using the new <code>oidnNewBufferWithStorage</code> function. This way, the buffer data cannot be directly accessed by the host anymore but this should not matter because the data must be copied from some other memory location anyway. However, this ensures that the data is stored only in high-performance device memory, and the user has full control over when and how the data is transferred between host and device.</p></li>
 </ul>
 <p>The <code>oidnMapBuffer</code> and <code>oidnUnmapBuffer</code> functions have been removed from the API due to these not being supported by any of the device backends. Please use <code>oidnReadBuffer(Async)</code> and <code>oidnWriteBuffer(Async)</code> instead.</p>
-<h3 id="interop-with-compute-sycl-cuda-hip-and-graphics-dx-vulkan-apis">Interop with Compute (SYCL, CUDA, HIP) and Graphics (DX, Vulkan) APIs</h3>
+<h3 id="interop-with-compute-sycl-cuda-hip-and-graphics-dx-vulkan-metal-apis">Interop with Compute (SYCL, CUDA, HIP) and Graphics (DX, Vulkan, Metal) APIs</h3>
 <p>If the application is explicitly using a particular device type which supports unified memory allocations, e.g. SYCL or CUDA, it may directly pass pointers allocated using the native allocator of the respective compute API (e.g. <code>sycl::malloc_device</code>, <code>cudaMalloc</code>) instead of using buffers. This way, it is the responsibility of the user to correctly allocate the memory for the device.</p>
 <p>In such cases, it often necessary to have more control over the device creation as well, to ensure that filtering is running on the intended device and command queues or streams from the application can be shared to improve performance. If the application is using the same compute or graphics API as the Open Image Denoise device, this can be achieved by creating devices with <code>oidnNewSYCLDevice</code>, <code>oidnNewCUDADevice</code>, etc. For some APIs there are additional interoperability functions as well, e.g. <code>oidnExecuteSYCLFilterAsync</code>.</p>
-<p>If the application is using a graphics API which does not support unified memory allocations, e.g. DX12 or Vulkan, it may be still possible to share memory between the application and Open Image Denoise using buffers, avoiding expensive copying through host memory. External buffers can be imported from graphics APIs with the new <code>oidnNewSharedBufferFromFD</code> and <code>oidnNewSharedBufferFromWin32Handle</code> functions. To use this feature, buffers must be exported in the graphics API and must be imported in Open Image Denoise using the same kind of handle. Care must be taken to select an external memory handle type which is supported by both APIs. The external memory types supported by an Open Image Denoise device can be queried using the <code>externalMemoryTypes</code> device parameter. Note that some devices do not support importing external memory at all (e.g. CPUs, and on GPUs it primarily depends on the installed drivers), so the application should always implement a fallback too, which copies the data through the host if there is no other supported way.</p>
+<p>If the application is using a graphics API which does not support unified memory allocations, e.g. DX12 or Vulkan, it may be still possible to share memory between the application and Open Image Denoise using buffers, avoiding expensive copying through host memory. External buffers can be imported from graphics APIs with the new <code>oidnNewSharedBufferFromFD</code> and <code>oidnNewSharedBufferFromWin32Handle</code> functions. To use this feature, buffers must be exported in the graphics API and must be imported in Open Image Denoise using the same kind of handle. Care must be taken to select an external memory handle type which is supported by both APIs. The external memory types supported by an Open Image Denoise device can be queried using the <code>externalMemoryTypes</code> device parameter. Note that some devices do not support importing external memory at all (e.g. CPUs, and on GPUs it primarily depends on the installed drivers), so the application should always implement a fallback too, which copies the data through the host if there is no other supported way. Metal buffers can be used directly with the <code>oidnNewSharedBufferFromMetal</code> function.</p>
 <p>Sharing textures is currently not supported natively but it is still possible avoid copying texture data by using a linear texture layout (e.g. <code>VK_IMAGE_TILING_LINEAR</code> in Vulkan) and sharing the buffer that backs this data. In this case, you should ensure that the row stride of the linear texture data is correctly set.</p>
 <p>Importing external synchronization primitives (e.g. semaphores) from graphics APIs is not yet supported either but it is planned for a future release. Meanwhile, synchronizing access to shared memory should be done on the host using <code>oidnSyncDevice</code> and the used graphics API.</p>
 <p>When importing external memory, the application also needs to make sure that the Open Image Denoise device is running on the same <em>physical</em> device as the graphics API. This can be easily achieved by using the new physical device feature, described in the next section.</p>
@@ -372,6 +372,10 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>OIDN_DEVICE_TYPE_HIP</code></td>
 <td style="text-align: left;">HIP device (requires a supported AMD GPU)</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_DEVICE_TYPE_METAL</code></td>
+<td style="text-align: left;">Metal device (requires a supported Apple GPU)</td>
+</tr>
 </tbody>
 </table>
 <p>If there are multiple supported devices of the specified type, an implementation-dependent default will be selected.</p>
@@ -383,14 +387,17 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb8-3"><a href="#cb8-3"></a>OIDNDevice oidnNewDeviceByPCIAddress(<span class="dt">int</span> pciDomain, <span class="dt">int</span> pciBus, <span class="dt">int</span> pciDevice,</span>
 <span id="cb8-4"><a href="#cb8-4"></a>                                     <span class="dt">int</span> pciFunction);</span></code></pre></div>
 <p>These functions are particularly useful when the application needs interoperability with a graphics API (e.g. DX12, Vulkan). However, not all of these properties may be supported by the intended physical device (or drivers might even report inconsistent identifiers), so it is recommended to select by more than one property, if possible.</p>
-<p>If the application requires interoperability with a particular compute API (SYCL, CUDA, HIP), it is recommended to use one of the following dedicated functions instead:</p>
+<p>If the application requires interoperability with a particular compute or graphics API (SYCL, CUDA, HIP, Metal), it is recommended to use one of the following dedicated functions instead:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a>OIDNDevice oidnNewSYCLDevice(<span class="at">const</span> sycl::queue* queues, <span class="dt">int</span> numQueues);</span>
 <span id="cb9-2"><a href="#cb9-2"></a>OIDNDevice oidnNewCUDADevice(<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">cudaStream_t</span>* streams,</span>
 <span id="cb9-3"><a href="#cb9-3"></a>                             <span class="dt">int</span> numPairs);</span>
-<span id="cb9-4"><a href="#cb9-4"></a>OIDNDevice oidnNewHIPDevice (<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">hipStream_t</span>* streams,</span>
-<span id="cb9-5"><a href="#cb9-5"></a>                             <span class="dt">int</span> numPairs);</span></code></pre></div>
+<span id="cb9-4"><a href="#cb9-4"></a>OIDNDevice oidnNewHIPDevice(<span class="at">const</span> <span class="dt">int</span>* deviceIDs, <span class="at">const</span> <span class="dt">hipStream_t</span>* streams,</span>
+<span id="cb9-5"><a href="#cb9-5"></a>                            <span class="dt">int</span> numPairs);</span>
+<span id="cb9-6"><a href="#cb9-6"></a>OIDNDevice oidnNewMetalDevice(<span class="at">const</span> MTLCommandQueue_id* commandQueues,</span>
+<span id="cb9-7"><a href="#cb9-7"></a>                              <span class="dt">int</span> numQueues);</span></code></pre></div>
 <p>For SYCL, it is possible to pass one or more SYCL queues which will be used by Open Image Denoise for all device operations. This is useful when the application wants to use the same queues for both denoising and its own operations (e.g. rendering). Passing multiple queues is not intended to be used for different physical devices but just for a single SYCL root-device which consists of multiple sub-devices (e.g. Intel® Data Center GPU Max Series having multiple Xe-Stacks/tiles). The only supported SYCL backend is oneAPI Level Zero.</p>
 <p>For CUDA and HIP, pairs of CUDA/HIP device IDs and corresponding streams can be specified but the current implementation supports only one pair. Negative device IDs correspond to the default device, and a <code>NULL</code> stream corresponds to the default stream on the corresponding device. Open Image Denoise automatically sets and restores the current CUDA/HIP device on the calling thread when necessary, thus the current device does not have to be changed manually by the application.</p>
+<p>For Metal, a single command queue is supported.</p>
 <p>Once a device is created, you can call</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="dt">bool</span> oidnGetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="dt">void</span> oidnSetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</span>
@@ -601,18 +608,22 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;">value of 0 disables HIP device support</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;"><code>OIDN_DEVICE_METAL</code></td>
+<td style="text-align: left;">value of 0 disables Metal device support</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;"><code>OIDN_NUM_THREADS</code></td>
 <td style="text-align: left;">overrides <code>numThreads</code> device parameter</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code>OIDN_SET_AFFINITY</code></td>
 <td style="text-align: left;">overrides <code>setAffinity</code> device parameter</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;"><code>OIDN_NUM_SUBDEVICES</code></td>
 <td style="text-align: left;">overrides number of SYCL sub-devices to use (e.g. for Intel® Data Center GPU Max Series)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;"><code>OIDN_VERBOSE</code></td>
 <td style="text-align: left;">overrides <code>verbose</code> device parameter</td>
 </tr>
@@ -728,27 +739,30 @@ div.sourceCode { overflow-x: initial; }
 </tr>
 </tbody>
 </table>
+<p>Metal buffers can be imported directly with</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a>OIDNBuffer oidnNewSharedBufferFromMetal(OIDNDevice device, MTLBuffer_id buffer);</span></code></pre></div>
+<p>Note that if a buffer with an <code>MTLStorageModeManaged</code> storage mode is imported, it is the responsibility of the user to synchronize the contents of the buffer between the host and the device.</p>
 <p>Similar to device objects, buffer objects are also reference-counted and can be retained and released by calling the following functions:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a><span class="dt">void</span> oidnRetainBuffer (OIDNBuffer buffer);</span>
-<span id="cb22-2"><a href="#cb22-2"></a><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">void</span> oidnRetainBuffer (OIDNBuffer buffer);</span>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="dt">void</span> oidnReleaseBuffer(OIDNBuffer buffer);</span></code></pre></div>
 <p>The size of in bytes and storage mode of the buffer can be queried using</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a><span class="dt">size_t</span>      oidnGetBufferSize   (OIDNBuffer buffer);</span>
-<span id="cb23-2"><a href="#cb23-2"></a>OIDNStorage oidnGetBufferStorage(OIDNBuffer buffer);</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">size_t</span>      oidnGetBufferSize   (OIDNBuffer buffer);</span>
+<span id="cb24-2"><a href="#cb24-2"></a>OIDNStorage oidnGetBufferStorage(OIDNBuffer buffer);</span></code></pre></div>
 <p>It is possible to get a pointer directly to the buffer data, which is usually the preferred way to access the data stored in the buffer:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1"></a><span class="dt">void</span>* oidnGetBufferData(OIDNBuffer buffer);</span></code></pre></div>
-<p>However, accessing the data on the host through this pointer is possible only if the buffer was created with a storage mode that enables this, i.e., any mode <em>except</em> <code>OIDN_STORAGE_DEVICE</code>. Note that a <code>NULL</code> pointer may be returned if the buffer is empty or getting a pointer to data with device storage is not supported by the device.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span>* oidnGetBufferData(OIDNBuffer buffer);</span></code></pre></div>
+<p>Accessing the data on the host through this pointer is possible <em>only</em> if the buffer was created with <code>OIDN_STORAGE_HOST</code> or <code>OIDN_STORAGE_MANAGED</code>. Note that a <code>NULL</code> pointer may be returned if the buffer is empty.</p>
 <p>In some cases better performance can be achieved by using device storage for buffers. Such data can be accessed on the host by copying to/from host memory (including pageable system memory) using the following functions:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1"></a><span class="dt">void</span> oidnReadBuffer(OIDNBuffer buffer,</span>
-<span id="cb25-2"><a href="#cb25-2"></a>                    <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
-<span id="cb25-3"><a href="#cb25-3"></a></span>
-<span id="cb25-4"><a href="#cb25-4"></a><span class="dt">void</span> oidnWriteBuffer(OIDNBuffer buffer,</span>
-<span id="cb25-5"><a href="#cb25-5"></a>                     <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
-<p>These functions will always block until the read/write operation has been completed, which is often suboptimal. The following functions may execute the operation asynchronously if it is supported by the device (GPUs), or still block otherwise (CPUs):</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnReadBufferAsync(OIDNBuffer buffer,</span>
-<span id="cb26-2"><a href="#cb26-2"></a>                         <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1"></a><span class="dt">void</span> oidnReadBuffer(OIDNBuffer buffer,</span>
+<span id="cb26-2"><a href="#cb26-2"></a>                    <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
 <span id="cb26-3"><a href="#cb26-3"></a></span>
-<span id="cb26-4"><a href="#cb26-4"></a><span class="dt">void</span> oidnWriteBufferAsync(OIDNBuffer buffer,</span>
-<span id="cb26-5"><a href="#cb26-5"></a>                          <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="dt">void</span> oidnWriteBuffer(OIDNBuffer buffer,</span>
+<span id="cb26-5"><a href="#cb26-5"></a>                     <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
+<p>These functions will always block until the read/write operation has been completed, which is often suboptimal. The following functions may execute the operation asynchronously if it is supported by the device (GPUs), or still block otherwise (CPUs):</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a><span class="dt">void</span> oidnReadBufferAsync(OIDNBuffer buffer,</span>
+<span id="cb27-2"><a href="#cb27-2"></a>                         <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="dt">void</span>* dstHostPtr);</span>
+<span id="cb27-3"><a href="#cb27-3"></a></span>
+<span id="cb27-4"><a href="#cb27-4"></a><span class="dt">void</span> oidnWriteBufferAsync(OIDNBuffer buffer,</span>
+<span id="cb27-5"><a href="#cb27-5"></a>                          <span class="dt">size_t</span> byteOffset, <span class="dt">size_t</span> byteSize, <span class="at">const</span> <span class="dt">void</span>* srcHostPtr);</span></code></pre></div>
 <p>When copying asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the copied data or releasing the buffer. Failure to do so will result in undefined behavior.</p>
 <h3 id="data-format">Data Format</h3>
 <p>Buffers store opaque data and thus have no information about the type and format of the data. Other objects, e.g. filters, typically require specifying the format of the data stored in buffers or shared via pointers. This can be done using the <code>OIDNFormat</code> enumeration type:</p>
@@ -785,66 +799,66 @@ div.sourceCode { overflow-x: initial; }
 </table>
 <h2 id="filters">Filters</h2>
 <p>Filters are the main objects in Open Image Denoise that are responsible for the actual denoising. The library ships with a collection of filters which are optimized for different types of images and use cases. To create a filter object, call</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
 <p>where <code>type</code> is the name of the filter type to create. The supported filter types are documented later in this section.</p>
 <p>Creating filter objects can be very expensive, therefore it is <em>strongly</em> recommended to reuse the same filter for denoising as many images as possible, as long as the these images have the same same size, format, and features (i.e., only the memory locations and pixel values may be different). Otherwise (e.g. for images with different resolutions), reusing the same filter would not have any benefits.</p>
 <p>Once created, filter objects can be retained and released with</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
+<span id="cb29-2"><a href="#cb29-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
 <p>After creating a filter, it needs to be set up by specifying the input and output images, and potentially setting other parameter values as well.</p>
 <p>To set image parameters of a filter, you can use one of the following functions:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb29-2"><a href="#cb29-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
-<span id="cb29-3"><a href="#cb29-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb29-4"><a href="#cb29-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb29-5"><a href="#cb29-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
-<span id="cb29-6"><a href="#cb29-6"></a></span>
-<span id="cb29-7"><a href="#cb29-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb29-8"><a href="#cb29-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
-<span id="cb29-9"><a href="#cb29-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb29-10"><a href="#cb29-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb29-11"><a href="#cb29-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb30-2"><a href="#cb30-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
+<span id="cb30-3"><a href="#cb30-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb30-4"><a href="#cb30-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb30-5"><a href="#cb30-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
+<span id="cb30-6"><a href="#cb30-6"></a></span>
+<span id="cb30-7"><a href="#cb30-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb30-8"><a href="#cb30-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
+<span id="cb30-9"><a href="#cb30-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb30-10"><a href="#cb30-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb30-11"><a href="#cb30-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to user-managed device-accessible data (<code>devPtr</code> argument) with the <code>oidnSetSharedFilterImage</code> function. Regardless of whether a buffer or a pointer is specified, the data <em>must</em> be accessible to the device. The easiest way to guarantee this regardless of the device type (CPU or GPU) is using buffer objects.</p>
 <p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>pixelByteStride</code> argument) and the row stride (<code>rowByteStride</code> argument), in number of bytes.</p>
 <p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>pixelByteStride</code> and/or <code>rowByteStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
 <p>Images support only <code>FLOAT</code> and <code>HALF</code> pixel formats with up to 3 channels. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra channels will be ignored by the filter. If these channels also need to be denoised, separate filters can be used.</p>
 <p>To unset a previously set image parameter, returning it to a state as if it had not been set, call</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb31-2"><a href="#cb31-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb32-2"><a href="#cb32-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>This data (<code>hostPtr</code>) must be accessible to the <em>host</em>, therefore system memory allocation is suitable (i.e., there is no reason to use buffer objects for allocation).</p>
 <p>Modifying the contents of an opaque data parameter after setting it as a filter parameter is allowed but the filter needs to be notified that the data has been updated by calling</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Unsetting an opaque data parameter can be performed with</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb34-2"><a href="#cb34-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
-<span id="cb34-3"><a href="#cb34-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb34-4"><a href="#cb34-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
-<span id="cb34-5"><a href="#cb34-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb34-6"><a href="#cb34-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
+<span id="cb35-3"><a href="#cb35-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb35-6"><a href="#cb35-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
 <p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
-<span id="cb35-2"><a href="#cb35-2"></a></span>
-<span id="cb35-3"><a href="#cb35-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
-<span id="cb35-4"><a href="#cb35-4"></a>                                          OIDNProgressMonitorFunction func,</span>
-<span id="cb35-5"><a href="#cb35-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
+<span id="cb36-2"><a href="#cb36-2"></a></span>
+<span id="cb36-3"><a href="#cb36-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
+<span id="cb36-4"><a href="#cb36-4"></a>                                          OIDNProgressMonitorFunction func,</span>
+<span id="cb36-5"><a href="#cb36-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will attempt to cancel the filter operation as soon as possible, and if that is fulfilled, it will raise an <code>OIDN_ERROR_CANCELLED</code> error.</p>
 <p>Please note that using a progress monitor callback function introduces some overhead, which may be significant on GPU devices, hurting performance. Therefore we recommend progress monitoring only for offline denoising, when denoising an image is expected to take several seconds.</p>
 <p>After setting all necessary parameters for the filter, the changes must be committed by calling</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
 <p>The parameters can be updated after committing the filter, but it must be re-committed for any new changes to take effect. Committing major changes to the filter (e.g. setting new image parameters, changing the image resolution) can be expensive, and thus should not be done frequently (e.g. per frame).</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>This function will always block until the filtering operation has been completed. The following function may execute the operation asynchronously if it is supported by the device (GPUs), or block otherwise (CPUs):</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
 <p>For filters created on a SYCL device it is also possible to specify dependent SYCL events (<code>depEvents</code> and <code>numDepEvents</code> arguments, may be <code>NULL</code>/0) and get a completion event as well (<code>doneEvent</code> argument, may be <code>NULL</code>):</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">void</span> oidnExecuteSYCLFilterAsync(OIDNFilter filter,</span>
-<span id="cb39-2"><a href="#cb39-2"></a>                                <span class="at">const</span> sycl::event* depEvents, <span class="dt">int</span> numDepEvents,</span>
-<span id="cb39-3"><a href="#cb39-3"></a>                                sycl::event* doneEvent);</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1"></a><span class="dt">void</span> oidnExecuteSYCLFilterAsync(OIDNFilter filter,</span>
+<span id="cb40-2"><a href="#cb40-2"></a>                                <span class="at">const</span> sycl::event* depEvents, <span class="dt">int</span> numDepEvents,</span>
+<span id="cb40-3"><a href="#cb40-3"></a>                                sycl::event* doneEvent);</span></code></pre></div>
 <p>When filtering asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the output image data or releasing the filter. Failure to do so will result in undefined behavior.</p>
 <p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
 <h3 id="rt">RT</h3>
@@ -940,7 +954,7 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Int</code></td>
 <td style="text-align: left;"><code>maxMemoryMB</code></td>
 <td style="text-align: right;">-1</td>
-<td style="text-align: left;">if set to &gt;= 0, an attempt will be made to limit the memory usage below the specified amount in megabytes at the potential cost of slower performance but actual memory usage may be higher (the target may not be achievable or the device may not support this feature at all); otherwise memory usage will be limited to an unspecified device-dependent amount</td>
+<td style="text-align: left;">if set to &gt;= 0, a request is made to limit the memory usage below the specified amount in megabytes at the potential cost of slower performance, but actual memory usage may be higher (the target may not be achievable or there may be additional allocations beyond the control of the library); otherwise, memory usage will be limited to an unspecified device-dependent amount; in both cases, filters on the same device share almost all of their allocated memory to minimize total memory usage</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>Int</code></td>
@@ -1073,7 +1087,7 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>Int</code></td>
 <td style="text-align: left;"><code>maxMemoryMB</code></td>
 <td style="text-align: right;">-1</td>
-<td style="text-align: left;">if set to &gt;= 0, an attempt will be made to limit the memory usage below the specified amount in megabytes at the potential cost of slower performance but actual memory usage may be higher (the target may not be achievable or the device may not support this feature at all); otherwise memory usage will be limited to an unspecified device-dependent amount</td>
+<td style="text-align: left;">if set to &gt;= 0, a request is made to limit the memory usage below the specified amount in megabytes at the potential cost of slower performance, but actual memory usage may be higher (the target may not be achievable or there may be additional allocations beyond the control of the library); otherwise, memory usage will be limited to an unspecified device-dependent amount; in both cases, filters on the same device share almost all of their allocated memory to minimize total memory usage</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>Int</code></td>
@@ -1237,7 +1251,7 @@ div.sourceCode { overflow-x: initial; }
     </div>
 
       <div id="footer">
-        © 2018–2023 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2024 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>

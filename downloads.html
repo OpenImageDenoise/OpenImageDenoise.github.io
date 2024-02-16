@@ -33,13 +33,15 @@
 
 <h1 id="download-precompiled-intel-open-image-denoise-binary-packages">Download Precompiled Intel Open Image Denoise Binary Packages</h1>
 <p>For Linux we provide Intel Open Image Denoise precompiled for 64-bit as a TGZ archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x86_64.linux.tar.gz">oidn-2.1.0.x86_64.linux.tar.gz</a></p>
-<p>For macOS we provide Intel Open Image Denoise precompiled for Intel processors as a separate TGZ archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x86_64.macos.tar.gz">oidn-2.1.0.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.x86_64.linux.tar.gz">oidn-2.2.0.x86_64.linux.tar.gz</a></p>
+<p>For macOS we provide Intel Open Image Denoise precompiled for Intel processors and Apple silicon as separate TGZ archives:</p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.x86_64.macos.tar.gz">oidn-2.2.0.x86_64.macos.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.arm64.macos.tar.gz">oidn-2.2.0.arm64.macos.tar.gz</a></p>
 <p>For Windows we provide Intel Open Image Denoise binaries precompiled for 64-bit as a ZIP archive:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.x64.windows.zip">oidn-2.1.0.x64.windows.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.x64.windows.zip">oidn-2.2.0.x64.windows.zip</a></p>
 <p>The source code of the latest Intel Open Image Denoise version can be downloaded here:</p>
-<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.src.zip">oidn-2.1.0.src.zip</a> <a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.1.0/oidn-2.1.0.src.tar.gz">oidn-2.1.0.src.tar.gz</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.src.zip">oidn-2.2.0.src.zip</a></p>
+<p><a href="https://github.com/OpenImageDenoise/oidn/releases/download/v2.2.0/oidn-2.2.0.src.tar.gz">oidn-2.2.0.src.tar.gz</a></p>
 <p>The TGZ/ZIP packages contain most needed 3rd party dependencies.</p>
 <p>You can also access <a href="https://github.com/OpenImageDenoise/oidn/releases">old Intel Open Image Denoise releases</a>.</p>
 <h1 id="compilation">Compilation</h1>
@@ -57,16 +59,21 @@
 <p>To build support for different types of CPUs and GPUs, the following additional prerequisites are needed:</p>
 <h4 class="unnumbered" id="cpu-device">CPU device:</h4>
 <ul>
-<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.14.1 or newer, <em>except</em> 1.21.0 and 1.21.1. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources. For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.14.1-linux</code>. Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
+<li><p><a href="http://ispc.github.io">Intel® SPMD Program Compiler (ISPC)</a> 1.21.0 or newer. Please obtain a release of ISPC from the <a href="https://ispc.github.io/downloads.html">ISPC downloads page</a>. The build system looks for ISPC in the <code>PATH</code> and in the directory right “next to” the checked-out Intel Open Image Denoise sources. For example, if Intel Open Image Denoise is in <code>~/Projects/oidn</code>, ISPC will also be searched in <code>~/Projects/ispc-v1.21.0-linux</code>. Alternatively set the CMake variable <code>ISPC_EXECUTABLE</code> to the location of the ISPC compiler.</p></li>
 <li><p><a href="https://github.com/oneapi-src/oneTBB">Intel® Threading Building Blocks</a> (TBB) 2017 or newer</p></li>
 </ul>
 <h4 class="unnumbered" id="sycl-device-for-intel-gpus">SYCL device for Intel GPUs:</h4>
 <ul>
-<li><p><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2024.0 or newer, or the open source <a href="https://github.com/intel/llvm/releases/tag/nightly-2023-09-22">oneAPI DPC++ Compiler 2023-09-22</a>. Other SYCL compilers are <em>not</em> supported. The open source version of the compiler is more up-to-date but less stable, so we <em>strongly</em> recommend to use the exact version listed here, and on Linux we also recommend to rebuild it from source with the <code>--disable-fusion</code> flag.</p></li>
+<li><p>oneAPI DPC++ Compiler, one of the following versions (other versions are <em>not</em> supported):</p>
+<ul>
+<li><a href="https://github.com/intel/llvm/releases/tag/nightly-2023-10-26">oneAPI DPC++ Compiler 2023-10-26</a>. This is the open source version of the compiler, which is more up-to-date but less stable, so we <em>strongly</em> recommend to use this exact version. On Linux we also recommend to rebuild it from source with the <code>--disable-fusion</code> flag to minimize the size of the SYCL runtime.</li>
+<li><a href="https://github.com/intel/llvm/releases/tag/2022-12">oneAPI DPC++ Compiler 2022-12</a>. <em>Must</em> be rebuilt from source.</li>
+<li><a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel® oneAPI DPC++/C++ Compiler</a> 2024.1 or newer</li>
+</ul></li>
 <li><p>Intel® Graphics Offline Compiler for OpenCL™ Code (OCLOC)</p>
 <ul>
-<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/fcd74e0e-43b3-4930-9bad-29c8b9581339/ocloc_win_101.4824.zip">31.0.101.4824</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
-<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_704_30_20230918.html">20230918</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
+<li><p>Windows: Version <a href="https://registrationcenter-download.intel.com/akdlm/IRC_NAS/77a13ae6-6100-4ddc-b069-0086ff44730c/ocloc_win_101.5082.zip">31.0.101.5082</a> or newer as a <a href="https://www.intel.com/content/www/us/en/developer/articles/tool/oneapi-standalone-components.html">standalone component of Intel® oneAPI Toolkits</a>, which must be extracted and its contents added to the <code>PATH</code>. Also included with <a href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/toolkits.html#base-kit">Intel® oneAPI Base Toolkit</a>.</p></li>
+<li><p>Linux: Included with <a href="https://dgpu-docs.intel.com">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_775_20_20231219.html">20231219</a> or newer (install at least <code>intel-opencl-icd</code> on Ubuntu, <code>intel-ocloc</code> on RHEL or SLES). Also available with <a href="https://github.com/intel/compute-runtime">Intel® Graphics Compute Runtime for oneAPI Level Zero and OpenCL™ Driver</a>.</p></li>
 </ul></li>
 <li><p>If using Intel® oneAPI DPC++/C++ Compiler: <a href="http://www.cmake.org">CMake</a> 3.25.2 or newer</p></li>
 <li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
@@ -81,6 +88,12 @@
 <li><p><a href="http://www.cmake.org">CMake</a> 3.21 or newer</p></li>
 <li><p><a href="https://ninja-build.org">Ninja</a> or Make as the CMake generator. The Visual Studio generator is <em>not</em> supported.</p></li>
 <li><p><a href="https://rocm.docs.amd.com">AMD ROCm (HIP SDK)</a> v5.5.0 or newer.</p></li>
+<li><p>Perl (e.g. <a href="https://strawberryperl.com">Strawberry Perl</a> on Windows)</p></li>
+</ul>
+<h4 class="unnumbered" id="metal-device-for-apple-gpus">Metal device for Apple GPUs:</h4>
+<ul>
+<li><p><a href="http://www.cmake.org">CMake</a> 3.21 or newer</p></li>
+<li><p><a href="https://developer.apple.com/xcode/">Xcode</a> 14 or newer</p></li>
 </ul>
 <p>Depending on your operating system, you can install some required dependencies (e.g., TBB) using <code>yum</code> or <code>apt-get</code> on Linux, <a href="https://brew.sh">Homebrew</a> or <a href="https://www.macports.org">MacPorts</a> on macOS, and <a href="https://vcpkg.io"><code>vcpkg</code></a> on Windows. For the other dependencies please download the necessary packages or installers and follow the included instructions.</p>
 <h2 id="compiling-on-linuxmacos">Compiling on Linux/macOS</h2>
@@ -102,13 +115,6 @@ cd oidn/build</code></pre>
 <pre><code>ccmake ..</code></pre></li>
 <li><p>Make sure to properly set the build mode and enable the components and options you need. By default only CPU support is built, so SYCL and other device support must be enabled manually (e.g. with the <code>OIDN_DEVICE_SYCL</code> option). Then type ’c’onfigure and ’g’enerate. When back on the command prompt, build the library using</p>
 <pre><code>ninja</code></pre></li>
-</ul>
-<h3 id="entitlements-on-macos">Entitlements on macOS</h3>
-<p>macOS requires notarization of applications as a security mechanism, and <a href="https://developer.apple.com/documentation/bundleresources/entitlements">entitlements must be declared</a> during the notarization process. Intel Open Image Denoise uses just-in-time compilation through <a href="https://github.com/oneapi-src/oneDNN">oneDNN</a> and requires the following entitlements:</p>
-<ul>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit"><code>com.apple.security.cs.allow-jit</code></a></li>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-unsigned-executable-memory"><code>com.apple.security.cs.allow-unsigned-executable-memory</code></a></li>
-<li><a href="https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_disable-executable-page-protection"><code>com.apple.security.cs.disable-executable-page-protection</code></a></li>
 </ul>
 <h2 id="compiling-on-windows">Compiling on Windows</h2>
 <p>If you are building with SYCL support, make sure that the DPC++ compiler is properly set up. The open source oneAPI DPC++ Compiler can be downloaded and simply extracted. However, before using the compiler, the environment must be set up. To achieve this, open the “x64 Native Tools Command Prompt for VS” that ships with Visual Studio and execute the following commands:</p>
@@ -146,7 +152,9 @@ cd oidn/build</code></pre>
 <li><p><code>OIDN_DEVICE_SYCL</code>: Enable SYCL device support for Intel GPUs (OFF by default).</p></li>
 <li><p><code>OIDN_DEVICE_SYCL_AOT</code>: Enable ahead-of-time (AOT) compilation for SYCL kernels (ON by default). Turning this off removes dependency on OCLOC at build time and decreases binary size but significantly increases initialization time at runtime, so it is recommended only for development.</p></li>
 <li><p><code>OIDN_DEVICE_CUDA</code>: Enable CUDA device support for NVIDIA GPUs (OFF by default).</p></li>
+<li><p><code>OIDN_DEVICE_CUDA_API</code>: Use the CUDA driver API (<code>Driver</code>, default), the static CUDA runtime library (<code>RuntimeStatic</code>), or the shared CUDA runtime library (<code>RuntimeShared</code>).</p></li>
 <li><p><code>OIDN_DEVICE_HIP</code>: Enable HIP device support for AMD GPUs (OFF by default).</p></li>
+<li><p><code>OIDN_DEVICE_METAL</code>: Enable Metal device support for Apple GPUs (OFF by default).</p></li>
 <li><p><code>OIDN_FILTER_RT</code>: Include the trained weights of the <code>RT</code> filter in the build (ON by default). Turning this OFF significantly decreases the size of the library binary, while the filter remains functional if the weights are set by the user at runtime.</p></li>
 <li><p><code>OIDN_FILTER_RTLIGHTMAP</code>: Include the trained weights of the <code>RTLightmap</code> filter in the build (ON by default).</p></li>
 <li><p><code>OIDN_APPS</code>: Enable building example and test applications (ON by default).</p></li>
@@ -161,7 +169,7 @@ cd oidn/build</code></pre>
     </div>
 
       <div id="footer">
-        © 2018–2023 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2024 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>
