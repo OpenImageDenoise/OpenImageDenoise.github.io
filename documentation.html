@@ -111,76 +111,78 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb1-3"><a href="#cb1-3"></a></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a>OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_DEFAULT); <span class="co">// CPU or GPU if available</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>oidnCommitDevice(device);</span>
-<span id="cb1-7"><a href="#cb1-7"></a></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a>OIDNBuffer colorBuf  = oidnNewBuffer(device, width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
-<span id="cb1-10"><a href="#cb1-10"></a>OIDNBuffer albedoBuf = ...</span>
-<span id="cb1-11"><a href="#cb1-11"></a></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">// This can be an expensive operation, so try not to create a new filter for every image!</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a>OIDNFilter filter = oidnNewFilter(device, <span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a>oidnSetFilterImage(filter, <span class="st">&quot;color&quot;</span>,  colorBuf,</span>
-<span id="cb1-16"><a href="#cb1-16"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// beauty</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a>oidnSetFilterImage(filter, <span class="st">&quot;albedo&quot;</span>, albedoBuf,</span>
-<span id="cb1-18"><a href="#cb1-18"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a>oidnSetFilterImage(filter, <span class="st">&quot;normal&quot;</span>, normalBuf,</span>
-<span id="cb1-20"><a href="#cb1-20"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a>oidnSetFilterImage(filter, <span class="st">&quot;output&quot;</span>, colorBuf,</span>
-<span id="cb1-22"><a href="#cb1-22"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// denoised beauty</span></span>
-<span id="cb1-23"><a href="#cb1-23"></a>oidnSetFilterBool(filter, <span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
-<span id="cb1-24"><a href="#cb1-24"></a>oidnCommitFilter(filter);</span>
-<span id="cb1-25"><a href="#cb1-25"></a></span>
-<span id="cb1-26"><a href="#cb1-26"></a><span class="co">// Fill the input image buffers</span></span>
-<span id="cb1-27"><a href="#cb1-27"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)oidnGetBufferData(colorBuf);</span>
-<span id="cb1-28"><a href="#cb1-28"></a>...</span>
-<span id="cb1-29"><a href="#cb1-29"></a></span>
-<span id="cb1-30"><a href="#cb1-30"></a><span class="co">// Filter the beauty image</span></span>
-<span id="cb1-31"><a href="#cb1-31"></a>oidnExecuteFilter(filter);</span>
-<span id="cb1-32"><a href="#cb1-32"></a></span>
-<span id="cb1-33"><a href="#cb1-33"></a><span class="co">// Check for errors</span></span>
-<span id="cb1-34"><a href="#cb1-34"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
-<span id="cb1-35"><a href="#cb1-35"></a><span class="cf">if</span> (oidnGetDeviceError(device, &amp;errorMessage) != OIDN_ERROR_NONE)</span>
-<span id="cb1-36"><a href="#cb1-36"></a>  printf(<span class="st">&quot;Error: </span><span class="sc">%s\n</span><span class="st">&quot;</span>, errorMessage);</span>
-<span id="cb1-37"><a href="#cb1-37"></a></span>
-<span id="cb1-38"><a href="#cb1-38"></a><span class="co">// Cleanup</span></span>
-<span id="cb1-39"><a href="#cb1-39"></a>oidnReleaseBuffer(colorBuf);</span>
-<span id="cb1-40"><a href="#cb1-40"></a>...</span>
-<span id="cb1-41"><a href="#cb1-41"></a>oidnReleaseFilter(filter);</span>
-<span id="cb1-42"><a href="#cb1-42"></a>oidnReleaseDevice(device);</span></code></pre></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">// OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_CPU);</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a>oidnCommitDevice(device);</span>
+<span id="cb1-8"><a href="#cb1-8"></a></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a>OIDNBuffer colorBuf  = oidnNewBuffer(device, width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
+<span id="cb1-11"><a href="#cb1-11"></a>OIDNBuffer albedoBuf = ...</span>
+<span id="cb1-12"><a href="#cb1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">// This can be an expensive operation, so try not to create a new filter for every image!</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a>OIDNFilter filter = oidnNewFilter(device, <span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a>oidnSetFilterImage(filter, <span class="st">&quot;color&quot;</span>,  colorBuf,</span>
+<span id="cb1-17"><a href="#cb1-17"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// beauty</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a>oidnSetFilterImage(filter, <span class="st">&quot;albedo&quot;</span>, albedoBuf,</span>
+<span id="cb1-19"><a href="#cb1-19"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>oidnSetFilterImage(filter, <span class="st">&quot;normal&quot;</span>, normalBuf,</span>
+<span id="cb1-21"><a href="#cb1-21"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// auxiliary</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a>oidnSetFilterImage(filter, <span class="st">&quot;output&quot;</span>, colorBuf,</span>
+<span id="cb1-23"><a href="#cb1-23"></a>                   OIDN_FORMAT_FLOAT3, width, height, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>); <span class="co">// denoised beauty</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a>oidnSetFilterBool(filter, <span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a>oidnCommitFilter(filter);</span>
+<span id="cb1-26"><a href="#cb1-26"></a></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">// Fill the input image buffers</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)oidnGetBufferData(colorBuf);</span>
+<span id="cb1-29"><a href="#cb1-29"></a>...</span>
+<span id="cb1-30"><a href="#cb1-30"></a></span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="co">// Filter the beauty image</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a>oidnExecuteFilter(filter);</span>
+<span id="cb1-33"><a href="#cb1-33"></a></span>
+<span id="cb1-34"><a href="#cb1-34"></a><span class="co">// Check for errors</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="cf">if</span> (oidnGetDeviceError(device, &amp;errorMessage) != OIDN_ERROR_NONE)</span>
+<span id="cb1-37"><a href="#cb1-37"></a>  printf(<span class="st">&quot;Error: </span><span class="sc">%s\n</span><span class="st">&quot;</span>, errorMessage);</span>
+<span id="cb1-38"><a href="#cb1-38"></a></span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="co">// Cleanup</span></span>
+<span id="cb1-40"><a href="#cb1-40"></a>oidnReleaseBuffer(colorBuf);</span>
+<span id="cb1-41"><a href="#cb1-41"></a>...</span>
+<span id="cb1-42"><a href="#cb1-42"></a>oidnReleaseFilter(filter);</span>
+<span id="cb1-43"><a href="#cb1-43"></a>oidnReleaseDevice(device);</span></code></pre></div>
 <h3 id="basic-denoising-c11-api">Basic Denoising (C++11 API)</h3>
 <div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="pp">#include </span><span class="im">&lt;OpenImageDenoise/oidn.hpp&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>...</span>
 <span id="cb2-3"><a href="#cb2-3"></a></span>
 <span id="cb2-4"><a href="#cb2-4"></a><span class="co">// Create an Open Image Denoise device</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a>oidn::DeviceRef device = oidn::newDevice(); <span class="co">// CPU or GPU if available</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>device.commit();</span>
-<span id="cb2-7"><a href="#cb2-7"></a></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>oidn::BufferRef colorBuf  = device.newBuffer(width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
-<span id="cb2-10"><a href="#cb2-10"></a>oidn::BufferRef albedoBuf = ...</span>
-<span id="cb2-11"><a href="#cb2-11"></a></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co">// This can be an expensive operation, so try no to create a new filter for every image!</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
-<span id="cb2-15"><a href="#cb2-15"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
-<span id="cb2-16"><a href="#cb2-16"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb2-17"><a href="#cb2-17"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, colorBuf,  oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>filter.commit();</span>
-<span id="cb2-21"><a href="#cb2-21"></a></span>
-<span id="cb2-22"><a href="#cb2-22"></a><span class="co">// Fill the input image buffers</span></span>
-<span id="cb2-23"><a href="#cb2-23"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)colorBuf.getData();</span>
-<span id="cb2-24"><a href="#cb2-24"></a>...</span>
-<span id="cb2-25"><a href="#cb2-25"></a></span>
-<span id="cb2-26"><a href="#cb2-26"></a><span class="co">// Filter the beauty image</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>filter.execute();</span>
-<span id="cb2-28"><a href="#cb2-28"></a></span>
-<span id="cb2-29"><a href="#cb2-29"></a><span class="co">// Check for errors</span></span>
-<span id="cb2-30"><a href="#cb2-30"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
-<span id="cb2-31"><a href="#cb2-31"></a><span class="cf">if</span> (device.getError(errorMessage) != oidn::Error::None)</span>
-<span id="cb2-32"><a href="#cb2-32"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: &quot;</span> &lt;&lt; errorMessage &lt;&lt; <span class="bu">std::</span>endl;</span></code></pre></div>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">// oidn::DeviceRef device = oidn::newDevice(oidn::DeviceType::CPU);</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>device.commit();</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">// Create buffers for input/output images accessible by both host (CPU) and device (CPU/GPU)</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>oidn::BufferRef colorBuf  = device.newBuffer(width * height * <span class="dv">3</span> * <span class="kw">sizeof</span>(<span class="dt">float</span>));</span>
+<span id="cb2-11"><a href="#cb2-11"></a>oidn::BufferRef albedoBuf = ...</span>
+<span id="cb2-12"><a href="#cb2-12"></a></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">// This can be an expensive operation, so try no to create a new filter for every image!</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>filter.setImage(<span class="st">&quot;normal&quot;</span>, normalBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a>filter.setImage(<span class="st">&quot;output&quot;</span>, colorBuf,  oidn::Format::Float3, width, height); <span class="co">// denoised beauty</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a>filter.set(<span class="st">&quot;hdr&quot;</span>, <span class="kw">true</span>); <span class="co">// beauty image is HDR</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a>filter.commit();</span>
+<span id="cb2-22"><a href="#cb2-22"></a></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">// Fill the input image buffers</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="dt">float</span>* colorPtr = (<span class="dt">float</span>*)colorBuf.getData();</span>
+<span id="cb2-25"><a href="#cb2-25"></a>...</span>
+<span id="cb2-26"><a href="#cb2-26"></a></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">// Filter the beauty image</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a>filter.execute();</span>
+<span id="cb2-29"><a href="#cb2-29"></a></span>
+<span id="cb2-30"><a href="#cb2-30"></a><span class="co">// Check for errors</span></span>
+<span id="cb2-31"><a href="#cb2-31"></a><span class="at">const</span> <span class="dt">char</span>* errorMessage;</span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="cf">if</span> (device.getError(errorMessage) != oidn::Error::None)</span>
+<span id="cb2-33"><a href="#cb2-33"></a>  <span class="bu">std::</span>cout &lt;&lt; <span class="st">&quot;Error: &quot;</span> &lt;&lt; errorMessage &lt;&lt; <span class="bu">std::</span>endl;</span></code></pre></div>
 <h3 id="denoising-with-prefiltering-c11-api">Denoising with Prefiltering (C++11 API)</h3>
 <div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// Create a filter for denoising a beauty (color) image using prefiltered auxiliary images too</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
