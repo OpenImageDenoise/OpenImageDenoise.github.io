@@ -163,6 +163,12 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.2.2">Changes in v2.2.2:</h3>
+<ul>
+<li>Fully fixed GPU memory leak when releasing SYCL, CUDA and HIP device objects</li>
+<li>Fixed CUDA context error in some cases when using the CUDA driver API</li>
+<li>Fixed crash on systems with an unsupported AMD Vega integrated GPU and old driver</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.2.1">Changes in v2.2.1:</h3>
 <ul>
 <li>Fixed memory leak when releasing SYCL, CUDA and HIP device objects</li>
