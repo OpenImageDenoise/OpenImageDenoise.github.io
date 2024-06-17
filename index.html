@@ -125,7 +125,7 @@ High-Performance Denoising Library for Ray Tracing
 <ul>
 <li><p>Intel® 64 architecture compatible CPUs (with at least SSE4.1)</p></li>
 <li><p>ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)</p></li>
-<li><p>Intel Xe architecture dedicated and integrated GPUs, including Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-HPG, and Xe-HPC microarchitectures)</p></li>
+<li><p>Intel Xe and Xe2 architecture dedicated and integrated GPUs, including Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, and Xe2-HPG microarchitectures)</p></li>
 <li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper architectures</p></li>
 <li><p>AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures</p></li>
 <li><p>Apple silicon GPUs (M1 and newer)</p></li>
@@ -163,6 +163,31 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.3.0">Changes in v2.3.0:</h3>
+<ul>
+<li>Significantly improved image quality of the <code>RT</code> filter in <em>high</em> quality mode for HDR denoising with prefiltering, i.e., the following combinations of input features and parameters: - HDR color + albedo + normal + <code>cleanAux</code> - albedo - normal In these cases a much more complex filter is used, which results in lower performance than before (about 2x). To revert to the previous performance behavior, please switch to the <em>balanced</em> quality mode.</li>
+<li>Added <em>fast</em> quality mode (<code>OIDN_QUALITY_FAST</code>) for even higher performance (about 1.5-2x) interactive/real-time previews and lower default memory usage at the cost of somewhat lower image quality. Currently this is implemented for the <code>RT</code> filter except prefiltering (albedo, normal). In other cases denoising implicitly falls back to <em>balanced</em> mode.</li>
+<li>Added Intel Arrow Lake, Lunar Lake, and Battlemage GPU support</li>
+<li>Execute <code>Async</code> functions asynchronously on CPU devices as well</li>
+<li>Load/initialize device modules lazily (improves stability)</li>
+<li>Added <code>oidnIsCPUDeviceSupported</code>, <code>oidnIsSYCLDeviceSupported</code>, <code>oidnIsCUDADeviceSupported</code>, <code>oidnIsHIPDeviceSupported</code>, and <code>oidnIsMetalDeviceSupported</code> API functions for checking whether a physical device of a particular type is supported</li>
+<li>Release the CUDA primary context when destroying the device object if using the CUDA driver API</li>
+<li>Added <code>OIDN_LIBRARY_NAME</code> CMake option for setting the base name of the Open Image Denoise library files</li>
+<li>Fixed device creation error with <code>oidnNewDevice</code> when the default device of the specified type (e.g. CUDA) is not supported but there are other supported non-default devices of that type in the system</li>
+<li>Fixed CMake error when building with Metal support using non-Apple Clang</li>
+<li>Fixed iOS build errors</li>
+<li>Added support for building with ROCm 6.x</li>
+<li><code>oidnNewCUDADevice</code> and <code>oidnNewHIPDevice</code> no longer accept negative device IDs. If the goal is to use the current device, its actual ID needs to be passed.</li>
+<li>Upgraded to oneTBB 2021.12.0 in the official binaries</li>
+<li>Training:
+<ul>
+<li>Improved training performance on CUDA and MPS devices, added <code>--compile</code> option</li>
+<li>Added <code>--quality</code> option (<code>high</code>, <code>balanced</code>, <code>fast</code>) for selecting the size of the model to train, changed the default from <code>balanced</code> to <code>high</code></li>
+<li>Added new models to the <code>--model</code> option (<code>unet_small</code>, <code>unet_large</code>, <code>unet_xl</code>)</li>
+<li>Added support for training with prefiltered auxiliary features by passing <code>--aux_results</code> to <code>preprocess.py</code> and <code>train.py</code></li>
+<li>Added experimental support for depth (<code>z</code>)</li>
+</ul></li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.2.2">Changes in v2.2.2:</h3>
 <ul>
 <li>Fully fixed GPU memory leak when releasing SYCL, CUDA and HIP device objects</li>
@@ -224,7 +249,7 @@ High-Performance Denoising Library for Ray Tracing
 <li>Added <code>type</code> device parameter for querying the device type</li>
 <li>Added <code>systemMemorySupported</code> and <code>managedMemorySupported</code> device parameters for querying memory allocations supported by the device</li>
 <li>Added <code>externalMemoryTypes</code> device parameter for querying the supported external memory handle types</li>
-<li>Added <code>quality</code> filter parameter for setting the filtering quality mode (high or balanced quality)</li>
+<li>Added <code>quality</code> filter parameter for setting the filtering quality mode (<em>high</em> or <em>balanced</em> quality)</li>
 <li>Minor API changes with backward compatibility:
 <ul>
 <li>Added <code>oidn(Get|Set)(Device|Filter)(Bool|Int|Float)</code> functions and deprecated <code>oidn(Get|Set)(Device|Filter)(1b|1i|1f)</code> functions</li>
