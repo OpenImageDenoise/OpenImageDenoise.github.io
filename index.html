@@ -147,8 +147,8 @@ High-Performance Denoising Library for Ray Tracing
 </ul>
 <p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
 <ul>
-<li><p>Windows: AMD Software: Adrenalin Edition 23.4.3 Driver Version 22.40.51.05 or newer</p></li>
-<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 22.40.5 or newer</p></li>
+<li><p>Windows: AMD Software: Adrenalin Edition 24.10.1 or newer</p></li>
+<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 24.20.3 or newer</p></li>
 </ul>
 <p>For Apple GPU support, macOS Ventura or newer is required.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
@@ -163,6 +163,18 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.3.1">Changes in v2.3.1:</h3>
+<ul>
+<li>Fixed corrupted output when in-place denoising high-resolution (&gt; 1080p) images where the input and output are stored in different shared buffer objects (created with <code>oidnNewSharedBuffer*</code>) that overlap in memory</li>
+<li>Fixed issues with cancellation through progress monitor callbacks:
+<ul>
+<li>Fixed cancellation requests not being fulfilled on CPU devices since <code>v2.3.0</code></li>
+<li>Fixed not calling the callback anymore after requesting cancellation, while the operation is still being executed</li>
+</ul></li>
+<li>Added support for creating shared buffers on Metal devices</li>
+<li>Enabled accessing system allocated memory for CUDA devices which support this feature (see <code>systemMemorySupported</code> device parameter)</li>
+<li>Added LUID support for HIP devices. Importing DX12 and Vulkan buffers is now functional when using recent AMD GPU drivers on Windows</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.3.0">Changes in v2.3.0:</h3>
 <ul>
 <li>Significantly improved image quality of the <code>RT</code> filter in <em>high</em> quality mode for HDR denoising with prefiltering, i.e., the following combinations of input features and parameters: - HDR color + albedo + normal + <code>cleanAux</code> - albedo - normal In these cases a much more complex filter is used, which results in lower performance than before (about 2x). To revert to the previous performance behavior, please switch to the <em>balanced</em> quality mode.</li>
