@@ -125,7 +125,7 @@ High-Performance Denoising Library for Ray Tracing
 <ul>
 <li><p>Intel® 64 architecture compatible CPUs (with at least SSE4.1)</p></li>
 <li><p>ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)</p></li>
-<li><p>Intel Xe and Xe2 architecture dedicated and integrated GPUs, including Intel® Arc™ A-Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, and Xe2-HPG microarchitectures)</p></li>
+<li><p>Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs, including Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series Graphics, Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, Xe2-HPG, and Xe3-LPG microarchitectures)</p></li>
 <li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper architectures</p></li>
 <li><p>AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures</p></li>
 <li><p>Apple silicon GPUs (M1 and newer)</p></li>
@@ -142,8 +142,8 @@ High-Performance Denoising Library for Ray Tracing
 <p>Using older driver versions is <em>not</em> supported and Intel Open Image Denoise might run with only limited capabilities, have suboptimal performance or might be unstable. Also, Resizable BAR <em>must</em> be enabled in the BIOS for Intel dedicated GPUs if running on Linux, and strongly recommended if running on Windows.</p>
 <p>For NVIDIA GPU support, please also install the latest <a href="https://www.nvidia.com/en-us/geforce/drivers/">NVIDIA graphics drivers</a>:</p>
 <ul>
-<li><p>Windows: Version 452.39 or newer</p></li>
-<li><p>Linux: Version 450.80.02 or newer</p></li>
+<li><p>Windows: Version 527.41 or newer</p></li>
+<li><p>Linux: Version 525.60.13 or newer</p></li>
 </ul>
 <p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
 <ul>
@@ -159,10 +159,16 @@ High-Performance Denoising Library for Ray Tracing
 <div class="sourceCode" id="cb1"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb1-1"><a href="#cb1-1"></a><span class="va">@misc</span>{<span class="ot">OpenImageDenoise</span>,</span>
 <span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">author</span> = {Attila T. {<span class="ch">\&#39;</span>A}fra},</span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">title</span>  = {{Intel<span class="ch">\textsuperscript</span>{<span class="ch">\textregistered</span>} Open Image Denoise}},</span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">year</span>   = {2024},</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">year</span>   = {2025},</span>
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.3.2">Changes in v2.3.2:</h3>
+<ul>
+<li>Improved performance for Intel Lunar Lake and Battlemage GPUs</li>
+<li>Added Intel Panther Lake GPU support</li>
+<li>Fixed compile error when building with OpenImageIO 3.x</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.3.1">Changes in v2.3.1:</h3>
 <ul>
 <li>Fixed corrupted output when in-place denoising high-resolution (&gt; 1080p) images where the input and output are stored in different shared buffer objects (created with <code>oidnNewSharedBuffer*</code>) that overlap in memory</li>
@@ -430,7 +436,7 @@ High-Performance Denoising Library for Ray Tracing
     </div>
 
       <div id="footer">
-        © 2018–2024 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2025 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>
