@@ -126,8 +126,8 @@ High-Performance Denoising Library for Ray Tracing
 <li><p>Intel® 64 architecture compatible CPUs (with at least SSE4.1)</p></li>
 <li><p>ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)</p></li>
 <li><p>Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs, including Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series Graphics, Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, Xe2-HPG, and Xe3-LPG microarchitectures)</p></li>
-<li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, and Hopper architectures</p></li>
-<li><p>AMD GPUs with RDNA2 (Navi 21 only) and RDNA3 (Navi 3x) architectures</p></li>
+<li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, Hopper, and Blackwell architectures</p></li>
+<li><p>AMD GPUs with RDNA2 (Navi 21 only), RDNA3 (Navi 3x), and RDNA4 (Navi 4x) architectures</p></li>
 <li><p>Apple silicon GPUs (M1 and newer)</p></li>
 </ul>
 <p>It runs on most machines ranging from laptops to workstations and compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive or even real-time ray tracing.</p>
@@ -142,13 +142,13 @@ High-Performance Denoising Library for Ray Tracing
 <p>Using older driver versions is <em>not</em> supported and Intel Open Image Denoise might run with only limited capabilities, have suboptimal performance or might be unstable. Also, Resizable BAR <em>must</em> be enabled in the BIOS for Intel dedicated GPUs if running on Linux, and strongly recommended if running on Windows.</p>
 <p>For NVIDIA GPU support, please also install the latest <a href="https://www.nvidia.com/en-us/geforce/drivers/">NVIDIA graphics drivers</a>:</p>
 <ul>
-<li><p>Windows: Version 527.41 or newer</p></li>
+<li><p>Windows: Version 528.33 or newer</p></li>
 <li><p>Linux: Version 525.60.13 or newer</p></li>
 </ul>
 <p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
 <ul>
-<li><p>Windows: AMD Software: Adrenalin Edition 24.10.1 or newer</p></li>
-<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 24.20.3 or newer</p></li>
+<li><p>Windows: AMD Software: Adrenalin Edition 25.3.1 or newer</p></li>
+<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 24.30.4 or newer</p></li>
 </ul>
 <p>For Apple GPU support, macOS Ventura or newer is required.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
@@ -163,6 +163,15 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.3.3">Changes in v2.3.3:</h3>
+<ul>
+<li>Added NVIDIA Blackwell GPU support</li>
+<li>Added AMD RDNA4 GPU support</li>
+<li>Improved performance for AMD RDNA3 GPUs</li>
+<li>Added <code>OIDN_DEPENDENTLOADFLAG</code> CMake option for setting the <code>DEPENDENTLOADFLAG</code> linker flag on Windows</li>
+<li>Added <code>OIDN_LIBRARY_VERSIONED</code> CMake option for toggling versioning in the Open Image Denoise library files</li>
+<li>Known issue: performance regression for AMD RDNA2 GPUs</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.3.2">Changes in v2.3.2:</h3>
 <ul>
 <li>Improved performance for Intel Lunar Lake and Battlemage GPUs</li>
