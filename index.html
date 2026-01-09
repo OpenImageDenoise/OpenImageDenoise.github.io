@@ -125,19 +125,19 @@ High-Performance Denoising Library for Ray Tracing
 <ul>
 <li><p>Intel® 64 architecture compatible CPUs (with at least SSE4.1)</p></li>
 <li><p>ARM64 (AArch64) architecture CPUs (e.g. Apple silicon CPUs)</p></li>
-<li><p>Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs, including Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series Graphics, Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, Xe2-HPG, and Xe3-LPG microarchitectures)</p></li>
-<li><p>NVIDIA GPUs with Volta, Turing, Ampere, Ada Lovelace, Hopper, and Blackwell architectures</p></li>
-<li><p>AMD GPUs with RDNA2 (Navi 21 only), RDNA3 (Navi 3x), and RDNA4 (Navi 4x) architectures</p></li>
+<li><p>Intel Xe, Xe2, and Xe3 architecture dedicated and integrated GPUs, including Intel® Arc™ B-Series Graphics, Intel® Arc™ A-Series Graphics, Intel® Arc™ Pro Series Graphics, Intel® Data Center GPU Flex Series, Intel® Data Center GPU Max Series, Intel® Iris® Xe Graphics, Intel® Core™ Ultra Processors with Intel® Arc™ Graphics, 11th-14th Gen Intel® Core™ processor graphics, and related Intel Pentium® and Celeron® processors (Xe-LP, Xe-LPG, Xe-LPG+, Xe-HPG, Xe-HPC, Xe2-LPG, Xe2-HPG, Xe3-LPG, and Xe3p-XPC microarchitectures)</p></li>
+<li><p>NVIDIA GPUs with Turing, Ampere, Ada Lovelace, Hopper, and Blackwell architectures</p></li>
+<li><p>AMD GPUs with RDNA 2, RDNA 3, RDNA 3.5, and RDNA 4 architectures</p></li>
 <li><p>Apple silicon GPUs (M1 and newer)</p></li>
 </ul>
 <p>It runs on most machines ranging from laptops to workstations and compute nodes in HPC systems. It is efficient enough to be suitable not only for offline rendering, but, depending on the hardware used, also for interactive or even real-time ray tracing.</p>
-<p>Intel Open Image Denoise exploits modern instruction sets like SSE4, AVX2, AVX-512, and NEON on CPUs, Intel® Xe Matrix Extensions (Intel® XMX) on Intel GPUs, and tensor cores on NVIDIA GPUs to achieve high denoising performance.</p>
+<p>Intel Open Image Denoise exploits modern instruction sets like SSE4, AVX2, AVX-512, Intel® Advanced Matrix Extensions (Intel® AMX), and NEON on CPUs, Intel® Xe Matrix Extensions (Intel® XMX) on Intel GPUs, and various other AI acceleration capabilities on NVIDIA, AMD, and Apple GPUs.</p>
 <h2 id="system-requirements">System Requirements</h2>
 <p>You need an Intel® 64 (with SSE4.1) or ARM64 architecture compatible CPU to run Intel Open Image Denoise, and you need a 64-bit Windows, Linux, or macOS operating system as well.</p>
 <p>For Intel GPU support, please also install the latest Intel graphics drivers:</p>
 <ul>
-<li><p>Windows: <a href="https://www.intel.com/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html">Intel® Graphics Driver</a> 31.0.101.4953 or newer</p></li>
-<li><p>Linux: <a href="https://dgpu-docs.intel.com/driver/installation.html">Intel® software for General Purpose GPU capabilities</a> release <a href="https://dgpu-docs.intel.com/releases/stable_602_20230323.html">20230323</a> or newer</p></li>
+<li><p>Windows: <a href="https://www.intel.com/content/www/us/en/download-center/home.html">Intel® Graphics Driver</a> 31.0.101.4953 or newer</p></li>
+<li><p>Linux: <a href="https://dgpu-docs.intel.com/driver/overview/overview.html">Intel® software for General Purpose GPU capabilities</a> release 20230323 or newer</p></li>
 </ul>
 <p>Using older driver versions is <em>not</em> supported and Intel Open Image Denoise might run with only limited capabilities, have suboptimal performance or might be unstable. Also, Resizable BAR <em>must</em> be enabled in the BIOS for Intel dedicated GPUs if running on Linux, and strongly recommended if running on Windows.</p>
 <p>For NVIDIA GPU support, please also install the latest <a href="https://www.nvidia.com/en-us/geforce/drivers/">NVIDIA graphics drivers</a>:</p>
@@ -148,7 +148,7 @@ High-Performance Denoising Library for Ray Tracing
 <p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
 <ul>
 <li><p>Windows: AMD Software: Adrenalin Edition 25.3.1 or newer</p></li>
-<li><p>Linux: <a href="https://www.amd.com/en/support/linux-drivers">Radeon Software for Linux</a> version 24.30.4 or newer</p></li>
+<li><p>Linux: <a href="https://www.amd.com/en/support/download/linux-drivers.html">Radeon Software for Linux</a> version 25.30.1 or newer</p></li>
 </ul>
 <p>For Apple GPU support, macOS Ventura or newer is required.</p>
 <h2 id="support-and-contact">Support and Contact</h2>
@@ -159,10 +159,20 @@ High-Performance Denoising Library for Ray Tracing
 <div class="sourceCode" id="cb1"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb1-1"><a href="#cb1-1"></a><span class="va">@misc</span>{<span class="ot">OpenImageDenoise</span>,</span>
 <span id="cb1-2"><a href="#cb1-2"></a>  <span class="dt">author</span> = {Attila T. {<span class="ch">\&#39;</span>A}fra},</span>
 <span id="cb1-3"><a href="#cb1-3"></a>  <span class="dt">title</span>  = {{Intel<span class="ch">\textsuperscript</span>{<span class="ch">\textregistered</span>} Open Image Denoise}},</span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">year</span>   = {2025},</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">year</span>   = {2026},</span>
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.4.0">Changes in v2.4.0:</h3>
+<ul>
+<li>Added Intel AMX-FP16 support, dramatically improving performance on Intel Granite Rapids CPUs</li>
+<li>Added Intel BMG-G31, Wildcat Lake, Nova Lake, and Crescent Island GPU support</li>
+<li>Added AMD RDNA 3.5 GPU support, extended RDNA 2 support</li>
+<li>Fixed integer overflow and out-of-bounds write issues in image loaders (only affects the <code>oidnDenoise</code> example application)</li>
+<li>Added support for compilation with CUDA 13</li>
+<li>Added support for compilation with ROCm 7</li>
+<li>Removed support for NVIDIA Volta GPUs</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.3.3">Changes in v2.3.3:</h3>
 <ul>
 <li>Added NVIDIA Blackwell GPU support</li>
@@ -445,7 +455,7 @@ High-Performance Denoising Library for Ray Tracing
     </div>
 
       <div id="footer">
-        © 2018–2025 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
+        © 2018–2026 Intel Corporation <a href="legal.html">Disclaimer and Legal Information</a>
         <a href="https://www.intel.com/privacy">Privacy</a>
       </div>
   </body>
