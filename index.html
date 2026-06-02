@@ -147,7 +147,7 @@ High-Performance Denoising Library for Ray Tracing
 </ul>
 <p>For AMD GPU support, please also install the latest <a href="https://www.amd.com/en/support">AMD graphics drivers</a>:</p>
 <ul>
-<li><p>Windows: AMD Software: Adrenalin Edition 25.3.1 or newer</p></li>
+<li><p>Windows: AMD Software: Adrenalin Edition 25.30.02.01 or newer</p></li>
 <li><p>Linux: <a href="https://www.amd.com/en/support/download/linux-drivers.html">Radeon Software for Linux</a> version 25.30.1 or newer</p></li>
 </ul>
 <p>For Apple GPU support, macOS Ventura or newer is required.</p>
@@ -163,6 +163,15 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.5.0">Changes in v2.5.0:</h3>
+<ul>
+<li>Significantly improved performance and reduced memory usage on Intel GPUs with XMX support and CPUs with AMX-FP16 support</li>
+<li>Added API for importing external semaphores from graphics APIs (e.g. Vulkan, Direct3D 12). Currently this is supported only by CUDA (Windows and Linux) and HIP (Windows only) devices. SYCL device support will be added in a future version</li>
+<li>Added the <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DEDICATED</code> flag which must be combined with the handle type flag when importing external memory with dedicated allocation</li>
+<li>Fixed corrupted output on Apple M5 Pro/Max GPUs using Metal</li>
+<li>Fixed a crash caused by over-releasing the MTLDevice, which could occur after creating and destroying multiple devices</li>
+<li>Fixed device detection failure or crash on Windows if some old Intel integrated GPU drivers are installed (fix requires building with oneAPI DPC++ Compiler 6.1.0)</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.4.1">Changes in v2.4.1:</h3>
 <ul>
 <li>Added AMD RDNA 3.5 GFX1152 GPU support</li>

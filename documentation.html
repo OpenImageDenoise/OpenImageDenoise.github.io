@@ -163,7 +163,7 @@ div.sourceCode { overflow-x: initial; }
 <span id="cb2-11"><a href="#cb2-11"></a>oidn::BufferRef albedoBuf = ...</span>
 <span id="cb2-12"><a href="#cb2-12"></a></span>
 <span id="cb2-13"><a href="#cb2-13"></a><span class="co">// Create a filter for denoising a beauty (color) image using optional auxiliary images too</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="co">// This can be an expensive operation, so try no to create a new filter for every image!</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">// This can be an expensive operation, so try not to create a new filter for every image!</span></span>
 <span id="cb2-15"><a href="#cb2-15"></a>oidn::FilterRef filter = device.newFilter(<span class="st">&quot;RT&quot;</span>); <span class="co">// generic ray tracing filter</span></span>
 <span id="cb2-16"><a href="#cb2-16"></a>filter.setImage(<span class="st">&quot;color&quot;</span>,  colorBuf,  oidn::Format::Float3, width, height); <span class="co">// beauty</span></span>
 <span id="cb2-17"><a href="#cb2-17"></a>filter.setImage(<span class="st">&quot;albedo&quot;</span>, albedoBuf, oidn::Format::Float3, width, height); <span class="co">// auxiliary</span></span>
@@ -221,20 +221,21 @@ div.sourceCode { overflow-x: initial; }
 <ul>
 <li><p>Data should be copied to/from buffers only if the data in system memory indeed cannot be accessed by the device. This can be determined by simply querying the <code>systemMemorySupported</code> device parameter. If system allocated memory is accessible by the device, no buffers are necessary and filter image parameters can be set with <code>oidnSetSharedFilterImage</code>.</p></li>
 <li><p>If the image data cannot be accessed by the device, buffers must be created and the data must be copied to/from these buffers. These buffers should be directly passed to filters as image parameters instead of the original pointers using <code>oidnSetFilterImage</code>.</p></li>
-<li><p>Data should be copied asynchronously using using the new <code>oidnReadBufferAsync</code> and <code>oidnWriteBufferAsync</code> functions, which may achieve higher performance than plain <code>memcpy</code>.</p></li>
+<li><p>Data should be copied asynchronously using the new <code>oidnReadBufferAsync</code> and <code>oidnWriteBufferAsync</code> functions, which may achieve higher performance than plain <code>memcpy</code>.</p></li>
 <li><p>If image data must be copied, using the default buffer allocation may not be the most efficient method. If the device memory is not physically shared with the host memory (e.g. for dedicated GPUs), higher performance may be achieved by creating the buffers with device storage (<code>OIDN_STORAGE_DEVICE</code>) using the new <code>oidnNewBufferWithStorage</code> function. This way, the buffer data cannot be directly accessed by the host anymore but this should not matter because the data must be copied from some other memory location anyway. However, this ensures that the data is stored only in high-performance device memory, and the user has full control over when and how the data is transferred between host and device.</p></li>
 </ul>
 <p>The <code>oidnMapBuffer</code> and <code>oidnUnmapBuffer</code> functions have been removed from the API due to these not being supported by any of the device backends. Please use <code>oidnReadBuffer(Async)</code> and <code>oidnWriteBuffer(Async)</code> instead.</p>
 <h3 id="interop-with-compute-sycl-cuda-hip-and-graphics-dx-vulkan-metal-apis">Interop with Compute (SYCL, CUDA, HIP) and Graphics (DX, Vulkan, Metal) APIs</h3>
 <p>If the application is explicitly using a particular device type which supports unified memory allocations, e.g. SYCL or CUDA, it may directly pass pointers allocated using the native allocator of the respective compute API (e.g. <code>sycl::malloc_device</code>, <code>cudaMalloc</code>) instead of using buffers. This way, it is the responsibility of the user to correctly allocate the memory for the device.</p>
-<p>In such cases, it often necessary to have more control over the device creation as well, to ensure that filtering is running on the intended device and command queues or streams from the application can be shared to improve performance. If the application is using the same compute or graphics API as the Open Image Denoise device, this can be achieved by creating devices with <code>oidnNewSYCLDevice</code>, <code>oidnNewCUDADevice</code>, etc. For some APIs there are additional interoperability functions as well, e.g. <code>oidnExecuteSYCLFilterAsync</code>.</p>
+<p>In such cases, it is often necessary to have more control over the device creation as well, to ensure that filtering is running on the intended device and command queues or streams from the application can be shared to improve performance. If the application is using the same compute or graphics API as the Open Image Denoise device, this can be achieved by creating devices with <code>oidnNewSYCLDevice</code>, <code>oidnNewCUDADevice</code>, etc. For some APIs there are additional interoperability functions as well, e.g. <code>oidnExecuteSYCLFilterAsync</code>.</p>
 <p>If the application is using a graphics API which does not support unified memory allocations, e.g. DX12 or Vulkan, it may be still possible to share memory between the application and Open Image Denoise using buffers, avoiding expensive copying through host memory. External buffers can be imported from graphics APIs with the new <code>oidnNewSharedBufferFromFD</code> and <code>oidnNewSharedBufferFromWin32Handle</code> functions. To use this feature, buffers must be exported in the graphics API and must be imported in Open Image Denoise using the same kind of handle. Care must be taken to select an external memory handle type which is supported by both APIs. The external memory types supported by an Open Image Denoise device can be queried using the <code>externalMemoryTypes</code> device parameter. Note that some devices do not support importing external memory at all (e.g. CPUs, and on GPUs it primarily depends on the installed drivers), so the application should always implement a fallback too, which copies the data through the host if there is no other supported way. Metal buffers can be used directly with the <code>oidnNewSharedBufferFromMetal</code> function.</p>
 <p>Sharing textures is currently not supported natively but it is still possible avoid copying texture data by using a linear texture layout (e.g. <code>VK_IMAGE_TILING_LINEAR</code> in Vulkan) and sharing the buffer that backs this data. In this case, you should ensure that the row stride of the linear texture data is correctly set.</p>
-<p>Importing external synchronization primitives (e.g. semaphores) from graphics APIs is not yet supported either but it is planned for a future release. Meanwhile, synchronizing access to shared memory should be done on the host using <code>oidnSyncDevice</code> and the used graphics API.</p>
+<p>For efficiently synchronizing access to shared memory, external semaphores should be also imported from the graphics API using the <code>oidnNewSharedSemaphoreFromFD</code> and <code>oidnNewSharedSemaphoreFromWin32Handle</code> functions. The external memory types supported by Open Image Denoise can be queried using the <code>externalSemaphoreTypes</code> device parameter. Signaling and waiting on semaphores are executed asynchronously with the <code>oidnSignalSemaphoresAsync</code> and <code>oidnWaitSemaphoresAsync</code> functions.</p>
+<p>If importing external semaphores is not possible, synchronizing access to shared memory should be done on the host using <code>oidnSyncDevice</code> and the graphics API but this typically introduces a performance overhead. Since external semaphore support is not guaranteed on all device types, driver versions and OSs, it is strongly recommended to implement host-blocking synchronization as well in the application, as a fallback.</p>
 <p>When importing external memory, the application also needs to make sure that the Open Image Denoise device is running on the same <em>physical</em> device as the graphics API. This can be easily achieved by using the new physical device feature, described in the next section.</p>
 <h3 id="physical-devices">Physical Devices</h3>
 <p>Although it is possible to explicitly create devices of a particular type (with, e.g., <code>OIDN_DEVICE_TYPE_SYCL</code>), this is often insufficient, especially if the system has multiple devices of the same type, and with GPU support it is very common that there are multiple different types of supported devices in the system (e.g. a CPU and one or more GPUs).</p>
-<p>Open Image Denoise 2 introduces a simple <em>physical device</em> API, which enables the application to query the list of supported physical devices in the system, including their name, type, UUID, LUID, PCI address, etc. (see <code>oidnGetNumPhysicalDevices</code>, <code>oidnGetPhysicalDeviceString</code>, etc.). New logical device (i.e. <code>OIDNDevice</code>) creation functions for have been also introduced, which enable creating a logical device on a specific physical device: <code>oidnNewDeviceByID</code>, <code>oidnNewDeviceByUUID</code>, etc.</p>
+<p>Open Image Denoise 2 introduces a simple <em>physical device</em> API, which enables the application to query the list of supported physical devices in the system, including their name, type, UUID, LUID, PCI address, etc. (see <code>oidnGetNumPhysicalDevices</code>, <code>oidnGetPhysicalDeviceString</code>, etc.). New logical device (i.e. <code>OIDNDevice</code>) creation functions have also been introduced, which enable creating a logical device on a specific physical device: <code>oidnNewDeviceByID</code>, <code>oidnNewDeviceByUUID</code>, etc.</p>
 <p>Creating a logical device on a physical device having a particular UUID, LUID or PCI address is particularly important when importing external memory from graphics APIs. However, not all device types support all types of IDs, and some graphics drivers may even report mismatching UUIDs or LUIDs for the same physical device, so applications should try to implement multiple identification methods, or at least assume that identification might fail.</p>
 <h3 id="asynchronous-execution">Asynchronous Execution</h3>
 <p>It is now possible to execute some operations asynchronously, most importantly filtering (<code>oidnExecuteFilterAsync</code>, <code>oidnExecuteSYCLFilterAsync</code>) and copying data (the already mentioned <code>oidnReadBufferAsync</code> and <code>oidnWriteBufferAsync</code>).</p>
@@ -246,7 +247,7 @@ div.sourceCode { overflow-x: initial; }
 <p>Some filter parameters have been also renamed (<code>alignment</code> to <code>tileAlignment</code>, <code>overlap</code> to <code>tileOverlap</code>). When using the old names, warnings will be emitted at runtime.</p>
 <h3 id="building-as-a-static-library">Building as a Static Library</h3>
 <p>The support to build Open Image Denoise as a static library (<code>OIDN_STATIC_LIB</code> CMake option) has been limited to CPU-only builds due to switching to a modular library design that was necessary for adding multi-vendor GPU support. If the library is built with GPU support as well, the <code>OIDN_STATIC_LIB</code> option is still available but enabling it results in a hybrid static/shared library.</p>
-<p>If the main reason for building as a static library would be is the ability to use multiple versions of Open Image Denoise in the same process, please use the existing <code>OIDN_API_NAMESPACE</code> CMake option instead. With this feature all symbols of the library will be put into a custom namespace, which can prevent symbol clashes.</p>
+<p>If the main reason for building as a static library is the ability to use multiple versions of Open Image Denoise in the same process, please use the existing <code>OIDN_API_NAMESPACE</code> CMake option instead. With this feature all symbols of the library will be put into a custom namespace, which can prevent symbol clashes.</p>
 <h2 id="physical-devices-1">Physical Devices</h2>
 <p>Systems often have multiple different types of devices supported by Open Image Denoise (CPUs and GPUs). The application can get the list of supported <em>physical devices</em> and select which of these to use for denoising.</p>
 <p>The number of supported physical devices can be queried with</p>
@@ -407,12 +408,12 @@ div.sourceCode { overflow-x: initial; }
 <p>For CUDA and HIP, pairs of CUDA/HIP device IDs and corresponding streams can be specified but the current implementation supports only one pair. A <code>NULL</code> stream corresponds to the default stream on the corresponding device. Open Image Denoise automatically sets and restores the current CUDA/HIP device/context on the calling thread when necessary, thus the current device does not have to be changed manually by the application.</p>
 <p>For Metal, a single command queue is supported.</p>
 <p>Once a device is created, you can call</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="dt">bool</span> oidnGetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="dt">void</span> oidnSetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="dt">int</span>  oidnGetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="dt">void</span> oidnSetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</span>
-<span id="cb11-5"><a href="#cb11-5"></a><span class="dt">int</span>  oidnGetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb11-6"><a href="#cb11-6"></a><span class="dt">void</span> oidnSetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">unsigned</span> <span class="dt">int</span> value);</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="dt">bool</span>         oidnGetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="dt">void</span>         oidnSetDeviceBool(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span> value);</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="dt">int</span>          oidnGetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="dt">void</span>         oidnSetDeviceInt (OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>  value);</span>
+<span id="cb11-5"><a href="#cb11-5"></a><span class="dt">unsigned</span> <span class="dt">int</span> oidnGetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb11-6"><a href="#cb11-6"></a><span class="dt">void</span>         oidnSetDeviceUInt(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">unsigned</span> <span class="dt">int</span> value);</span></code></pre></div>
 <p>to set and get parameter values on the device. Note that some parameters are constants, thus trying to set them is an error. See the tables below for the parameters supported by devices.</p>
 <table style="width:98%;">
 <caption>Parameters supported by all devices.</caption>
@@ -474,12 +475,18 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;">device supports buffers created with managed storage (<code>OIDN_STORAGE_MANAGED</code>)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>Int</code></td>
+<td style="text-align: left;"><code>UInt</code></td>
 <td style="text-align: left;"><code>externalMemoryTypes</code></td>
 <td style="text-align: right;"><em>constant</em></td>
 <td style="text-align: left;">bitfield of <code>OIDNExternalMemoryTypeFlag</code> values representing the external memory types supported by the device</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;"><code>UInt</code></td>
+<td style="text-align: left;"><code>externalSemaphoreTypes</code></td>
+<td style="text-align: right;"><em>constant</em></td>
+<td style="text-align: left;">bitfield of <code>OIDNExternalSemaphoreTypeFlag</code> values representing the external semaphore types supported by the device</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;"><code>Int</code></td>
 <td style="text-align: left;"><code>verbose</code></td>
 <td style="text-align: right;">0</td>
@@ -681,13 +688,13 @@ div.sourceCode { overflow-x: initial; }
 <p>where <code>devPtr</code> points to user-managed device-accessible memory and <code>byteSize</code> is its size in bytes. At buffer construction time no buffer data is allocated, but the buffer data provided by the user is used. The buffer data must remain valid for as long as the buffer may be used, and the user is responsible to free the buffer data when no longer required. The user must also ensure that the memory is accessible to the device by using a supported allocation function (e.g., <code>sycl::malloc_device</code>, <code>cudaMalloc</code>, <code>hipMalloc</code>) and alignment (e.g., Metal requires the allocation to be page-aligned).</p>
 <p>Buffers can be also imported from graphics APIs as external memory, to avoid expensive copying of data through host memory. Different types of external memory can be imported from either POSIX file descriptors or Win32 handles using</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1"></a>OIDNBuffer oidnNewSharedBufferFromFD(OIDNDevice device,</span>
-<span id="cb22-2"><a href="#cb22-2"></a>                                     OIDNExternalMemoryTypeFlag fdType,</span>
+<span id="cb22-2"><a href="#cb22-2"></a>                                     OIDNExternalMemoryTypeFlags fdType,</span>
 <span id="cb22-3"><a href="#cb22-3"></a>                                     <span class="dt">int</span> fd, <span class="dt">size_t</span> byteSize);</span>
 <span id="cb22-4"><a href="#cb22-4"></a></span>
 <span id="cb22-5"><a href="#cb22-5"></a>OIDNBuffer oidnNewSharedBufferFromWin32Handle(OIDNDevice device,</span>
-<span id="cb22-6"><a href="#cb22-6"></a>                                              OIDNExternalMemoryTypeFlag handleType,</span>
+<span id="cb22-6"><a href="#cb22-6"></a>                                              OIDNExternalMemoryTypeFlags handleType,</span>
 <span id="cb22-7"><a href="#cb22-7"></a>                                              <span class="dt">void</span>* handle, <span class="at">const</span> <span class="dt">void</span>* name, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
-<p>Before exporting memory from the graphics API, the application should find a handle type which is supported by both the Open Image Denoise device (see <code>externalMemoryTypes</code> device parameter) and the graphics API. Note that different GPU vendors may support different handle types. To ensure compatibility with all device types, applications should support at least <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32</code> on Windows and both <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD</code> and <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF</code> on Linux. All possible external memory types are listed in the table below.</p>
+<p>Before exporting memory from the graphics API, the application should find a handle type which is supported by both the Open Image Denoise device (see the <code>externalMemoryTypes</code> device parameter) and the graphics API. Note that different GPU vendors may support different handle types. To ensure compatibility with all device types, applications should support at least <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32</code> on Windows and both <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_FD</code> and <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DMA_BUF</code> on Linux. All possible external memory types are listed in the table below.</p>
 <table style="width:98%;">
 <caption>Supported external memory type flags, i.e., valid constants of type <code>OIDNExternalMemoryTypeFlag</code>.</caption>
 <colgroup>
@@ -745,8 +752,13 @@ div.sourceCode { overflow-x: initial; }
 <td style="text-align: left;"><code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_D3D12_RESOURCE</code></td>
 <td style="text-align: left;">NT handle returned by <code>ID3D12Device::CreateSharedHandle</code> referring to a Direct3D 12 committed resource</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DEDICATED</code></td>
+<td style="text-align: left;">modifier flag indicating that the external memory has dedicated allocation (used only in combination with one of the handle type flags above)</td>
+</tr>
 </tbody>
 </table>
+<p>Please note that if the external memory uses dedicated allocation, the <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DEDICATED</code> flag must be combined with the handle type flag (e.g., <code>OIDN_EXTERNAL_MEMORY_TYPE_FLAG_OPAQUE_WIN32 | OIDN_EXTERNAL_MEMORY_TYPE_FLAG_DEDICATED</code> as <code>handleType</code>). To maximize compatibility, we recommend to always use dedicated allocations if possible because some backends support only dedicated allocations for certain external memory types.</p>
 <p>Metal buffers can be imported directly with</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1"></a>OIDNBuffer oidnNewSharedBufferFromMetal(OIDNDevice device, MTLBuffer_id buffer);</span></code></pre></div>
 <p>Note that if a buffer with an <code>MTLStorageModeManaged</code> storage mode is imported, it is the responsibility of the user to synchronize the contents of the buffer between the host and the device.</p>
@@ -805,68 +817,149 @@ div.sourceCode { overflow-x: initial; }
 </tr>
 </tbody>
 </table>
+<h2 id="semaphores">Semaphores</h2>
+<p>Access to external buffers imported from graphics APIs needs to be explicitly synchronized between Open Image Denoise and graphics operations to avoid race conditions. The most efficient way is by using external semaphores also imported from the graphics API, which enable synchronization on the GPU device instead of the host (but this depends on the implementation).</p>
+<p>External semaphores can be imported similarly to buffers:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a>OIDNSemaphore oidnNewSharedSemaphoreFromFD(OIDNDevice device,</span>
+<span id="cb29-2"><a href="#cb29-2"></a>                                           OIDNExternalSemaphoreTypeFlags fdType,</span>
+<span id="cb29-3"><a href="#cb29-3"></a>                                           <span class="dt">int</span> fd);</span>
+<span id="cb29-4"><a href="#cb29-4"></a></span>
+<span id="cb29-5"><a href="#cb29-5"></a>OIDNSemaphore oidnNewSharedSemaphoreFromWin32Handle(OIDNDevice device,</span>
+<span id="cb29-6"><a href="#cb29-6"></a>                                                    OIDNExternalSemaphoreTypeFlags handleType,</span>
+<span id="cb29-7"><a href="#cb29-7"></a>                                                    <span class="dt">void</span>* handle, <span class="at">const</span> <span class="dt">void</span>* name);</span></code></pre></div>
+<p>The semaphore handle types supported by Open Image Denoise can be queried using the <code>externalSemaphoreTypes</code> device parameter. The possible semaphore type flags are listed in the following table.</p>
+<table style="width:98%;">
+<caption>Supported external semaphore type flags, i.e., valid constants of type <code>OIDNExternalSemaphoreTypeFlag</code>.</caption>
+<colgroup>
+<col style="width: 67%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_NONE</code></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_FD</code></td>
+<td style="text-align: left;">opaque POSIX file descriptor handle</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_WIN32</code></td>
+<td style="text-align: left;">opaque NT handle</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_OPAQUE_WIN32_KMT</code></td>
+<td style="text-align: left;">opaque global share (KMT) handle</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_D3D11_FENCE</code></td>
+<td style="text-align: left;">NT handle referencing a Direct3D 11 fence object</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_D3D12_FENCE</code></td>
+<td style="text-align: left;">NT handle referencing a Direct3D 12 fence object</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_KEYED_MUTEX</code></td>
+<td style="text-align: left;">NT handle referencing a Direct3D 11 keyed mutex object</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_KEYED_MUTEX_KMT</code></td>
+<td style="text-align: left;">global share (KMT) handle referencing a Direct3D 11 keyed mutex object</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_TIMELINE_SEMAPHORE_FD</code></td>
+<td style="text-align: left;">POSIX file descriptor referencing a timeline semaphore</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>OIDN_EXTERNAL_SEMAPHORE_TYPE_FLAG_TIMELINE_SEMAPHORE_WIN32</code></td>
+<td style="text-align: left;">NT handle referencing a timeline semaphore</td>
+</tr>
+</tbody>
+</table>
+<p>The reference counted semaphore objects can be retained and released with</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnRetainSemaphore(OIDNSemaphore semaphore);</span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="dt">void</span> oidnReleaseSemaphore(OIDNSemaphore semaphore);</span></code></pre></div>
+<p>One or more semaphores can be signaled or waited on asynchronously by calling the following functions:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="dt">void</span> oidnSignalSemaphoresAsync(OIDNDevice device,</span>
+<span id="cb31-2"><a href="#cb31-2"></a>                               <span class="at">const</span> OIDNSemaphore* semaphores,</span>
+<span id="cb31-3"><a href="#cb31-3"></a>                               <span class="at">const</span> <span class="dt">uint64_t</span>* values,</span>
+<span id="cb31-4"><a href="#cb31-4"></a>                               <span class="dt">int</span> numSemaphores);</span>
+<span id="cb31-5"><a href="#cb31-5"></a></span>
+<span id="cb31-6"><a href="#cb31-6"></a><span class="dt">void</span> oidnWaitSemaphoresAsync(OIDNDevice device,</span>
+<span id="cb31-7"><a href="#cb31-7"></a>                             <span class="at">const</span> OIDNSemaphore* semaphores,</span>
+<span id="cb31-8"><a href="#cb31-8"></a>                             <span class="at">const</span> <span class="dt">uint64_t</span>* values,</span>
+<span id="cb31-9"><a href="#cb31-9"></a>                             <span class="at">const</span> <span class="dt">uint32_t</span>* timeoutsMs,</span>
+<span id="cb31-10"><a href="#cb31-10"></a>                             <span class="dt">int</span> numSemaphores);</span></code></pre></div>
+<p>The <code>values</code> and <code>timeoutMs</code> parameters are needed only for certain kinds of semaphores (e.g. fences, keyed mutexes), for other semaphores these values are ignored and the pointers may be <code>NULL</code>. The meaning of the <code>values</code> parameter depends on the respective semaphore types (e.g. for fences it is the value to set/wait for, for keyed mutexes it is the key).</p>
 <h2 id="filters">Filters</h2>
 <p>Filters are the main objects in Open Image Denoise that are responsible for the actual denoising. The library ships with a collection of filters which are optimized for different types of images and use cases. To create a filter object, call</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a>OIDNFilter oidnNewFilter(OIDNDevice device, <span class="at">const</span> <span class="dt">char</span>* type);</span></code></pre></div>
 <p>where <code>type</code> is the name of the filter type to create. The supported filter types are documented later in this section.</p>
-<p>Creating filter objects can be very expensive, therefore it is <em>strongly</em> recommended to reuse the same filter for denoising as many images as possible, as long as the these images have the same same size, format, and features (i.e., only the memory locations and pixel values may be different). Otherwise (e.g. for images with different resolutions), reusing the same filter would not have any benefits.</p>
+<p>Creating filter objects can be very expensive, therefore it is <em>strongly</em> recommended to reuse the same filter for denoising as many images as possible, as long as these images have the same size, format, and features (i.e., only the memory locations and pixel values may be different). Otherwise (e.g. for images with different resolutions), reusing the same filter would not have any benefits.</p>
 <p>Once created, filter objects can be retained and released with</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a><span class="dt">void</span> oidnRetainFilter (OIDNFilter filter);</span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="dt">void</span> oidnReleaseFilter(OIDNFilter filter);</span></code></pre></div>
 <p>After creating a filter, it needs to be set up by specifying the input and output images, and potentially setting other parameter values as well.</p>
 <p>To set image parameters of a filter, you can use one of the following functions:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb31-2"><a href="#cb31-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
-<span id="cb31-3"><a href="#cb31-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb31-4"><a href="#cb31-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb31-5"><a href="#cb31-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
-<span id="cb31-6"><a href="#cb31-6"></a></span>
-<span id="cb31-7"><a href="#cb31-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb31-8"><a href="#cb31-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
-<span id="cb31-9"><a href="#cb31-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
-<span id="cb31-10"><a href="#cb31-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
-<span id="cb31-11"><a href="#cb31-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a><span class="dt">void</span> oidnSetFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb34-2"><a href="#cb34-2"></a>                        OIDNBuffer buffer, OIDNFormat format,</span>
+<span id="cb34-3"><a href="#cb34-3"></a>                        <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb34-4"><a href="#cb34-4"></a>                        <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb34-5"><a href="#cb34-5"></a>                        <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span>
+<span id="cb34-6"><a href="#cb34-6"></a></span>
+<span id="cb34-7"><a href="#cb34-7"></a><span class="dt">void</span> oidnSetSharedFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb34-8"><a href="#cb34-8"></a>                              <span class="dt">void</span>* devPtr, OIDNFormat format,</span>
+<span id="cb34-9"><a href="#cb34-9"></a>                              <span class="dt">size_t</span> width, <span class="dt">size_t</span> height,</span>
+<span id="cb34-10"><a href="#cb34-10"></a>                              <span class="dt">size_t</span> byteOffset,</span>
+<span id="cb34-11"><a href="#cb34-11"></a>                              <span class="dt">size_t</span> pixelByteStride, <span class="dt">size_t</span> rowByteStride);</span></code></pre></div>
 <p>It is possible to specify either a data buffer object (<code>buffer</code> argument) with the <code>oidnSetFilterImage</code> function, or directly a pointer to user-managed device-accessible data (<code>devPtr</code> argument) with the <code>oidnSetSharedFilterImage</code> function. Regardless of whether a buffer or a pointer is specified, the data <em>must</em> be accessible to the device. The easiest way to guarantee this regardless of the device type (CPU or GPU) is using buffer objects.</p>
 <p>In both cases, you must also specify the name of the image parameter to set (<code>name</code> argument, e.g. <code>"color"</code>, <code>"output"</code>), the pixel format (<code>format</code> argument), the width and height of the image in number of pixels (<code>width</code> and <code>height</code> arguments), the starting offset of the image data (<code>byteOffset</code> argument), the pixel stride (<code>pixelByteStride</code> argument) and the row stride (<code>rowByteStride</code> argument), in number of bytes.</p>
 <p>If the pixels and/or rows are stored contiguously (tightly packed without any gaps), you can set <code>pixelByteStride</code> and/or <code>rowByteStride</code> to 0 to let the library compute the actual strides automatically, as a convenience.</p>
 <p>Images support only <code>FLOAT</code> and <code>HALF</code> pixel formats with up to 3 channels. Custom image layouts with extra channels (e.g. alpha channel) or other data are supported as well by specifying a non-zero pixel stride. This way, expensive image layout conversion and copying can be avoided but the extra channels will be ignored by the filter. If these channels also need to be denoised, separate filters can be used.</p>
 <p>To unset a previously set image parameter, returning it to a state as if it had not been set, call</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="dt">void</span> oidnRemoveFilterImage(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Some special data used by filters are opaque/untyped (e.g. trained model weights blobs), which can be specified with the <code>oidnSetSharedFilterData</code> function:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
-<span id="cb33-2"><a href="#cb33-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="dt">void</span> oidnSetSharedFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name,</span>
+<span id="cb36-2"><a href="#cb36-2"></a>                             <span class="dt">void</span>* hostPtr, <span class="dt">size_t</span> byteSize);</span></code></pre></div>
 <p>This data (<code>hostPtr</code>) must be accessible to the <em>host</em>, therefore system memory allocation is suitable (i.e., there is no reason to use buffer objects for allocation).</p>
 <p>Modifying the contents of an opaque data parameter after setting it as a filter parameter is allowed but the filter needs to be notified that the data has been updated by calling</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="dt">void</span> oidnUpdateFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Unsetting an opaque data parameter can be performed with</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnRemoveFilterData(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span></code></pre></div>
 <p>Filters may have parameters other than buffers as well, which you can set and get using the following functions:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb36-2"><a href="#cb36-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
-<span id="cb36-3"><a href="#cb36-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb36-4"><a href="#cb36-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
-<span id="cb36-5"><a href="#cb36-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
-<span id="cb36-6"><a href="#cb36-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">bool</span>  oidnGetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="dt">void</span>  oidnSetFilterBool (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">bool</span>  value);</span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="dt">int</span>   oidnGetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb39-4"><a href="#cb39-4"></a><span class="dt">void</span>  oidnSetFilterInt  (OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">int</span>   value);</span>
+<span id="cb39-5"><a href="#cb39-5"></a><span class="dt">float</span> oidnGetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name);</span>
+<span id="cb39-6"><a href="#cb39-6"></a><span class="dt">void</span>  oidnSetFilterFloat(OIDNFilter filter, <span class="at">const</span> <span class="dt">char</span>* name, <span class="dt">float</span> value);</span></code></pre></div>
 <p>Filters support a progress monitor callback mechanism that can be used to report progress of filter operations and to cancel them as well. Calling <code>oidnSetFilterProgressMonitorFunction</code> registers a progress monitor callback function (<code>func</code> argument) with payload (<code>userPtr</code> argument) for the specified filter (<code>filter</code> argument):</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
-<span id="cb37-2"><a href="#cb37-2"></a></span>
-<span id="cb37-3"><a href="#cb37-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
-<span id="cb37-4"><a href="#cb37-4"></a>                                          OIDNProgressMonitorFunction func,</span>
-<span id="cb37-5"><a href="#cb37-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1"></a><span class="kw">typedef</span> <span class="dt">bool</span> (*OIDNProgressMonitorFunction)(<span class="dt">void</span>* userPtr, <span class="dt">double</span> n);</span>
+<span id="cb40-2"><a href="#cb40-2"></a></span>
+<span id="cb40-3"><a href="#cb40-3"></a><span class="dt">void</span> oidnSetFilterProgressMonitorFunction(OIDNFilter filter,</span>
+<span id="cb40-4"><a href="#cb40-4"></a>                                          OIDNProgressMonitorFunction func,</span>
+<span id="cb40-5"><a href="#cb40-5"></a>                                          <span class="dt">void</span>* userPtr);</span></code></pre></div>
 <p>Only a single callback function can be registered per filter, and further invocations overwrite the previously set callback function. Passing <code>NULL</code> as function pointer disables the registered callback function. Once registered, Open Image Denoise will invoke the callback function multiple times during filter operations, by passing the payload as set at registration time (<code>userPtr</code> argument), and a <code>double</code> in the range [0, 1] which estimates the progress of the operation (<code>n</code> argument). When returning <code>true</code> from the callback function, Open Image Denoise will continue the filter operation normally. When returning <code>false</code>, the library will attempt to cancel the filter operation as soon as possible, and if that is fulfilled, it will raise an <code>OIDN_ERROR_CANCELLED</code> error. Note that cancellation is not guaranteed.</p>
 <p>Using a progress monitor callback function introduces some overhead, which may be significant on GPU devices, hurting performance. Therefore we strongly recommend progress monitoring only for offline denoising, when denoising an image is expected to take several seconds.</p>
 <p>After setting all necessary parameters for the filter, the changes must be committed by calling</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1"></a><span class="dt">void</span> oidnCommitFilter(OIDNFilter filter);</span></code></pre></div>
 <p>The parameters can be updated after committing the filter, but it must be re-committed for any new changes to take effect. Committing major changes to the filter (e.g. setting new image parameters, changing the image resolution) can be expensive, and thus should not be done frequently (e.g. per frame).</p>
 <p>Finally, an image can be filtered by executing the filter with</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1"></a><span class="dt">void</span> oidnExecuteFilter(OIDNFilter filter);</span></code></pre></div>
 <p>which will read the input image data from the specified buffers and produce the denoised output image.</p>
 <p>This function will always block until the filtering operation has been completed. The following function executes the operation asynchronously:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1"></a><span class="dt">void</span> oidnExecuteFilterAsync(OIDNFilter filter);</span></code></pre></div>
 <p>For filters created on a SYCL device it is also possible to specify dependent SYCL events (<code>depEvents</code> and <code>numDepEvents</code> arguments, may be <code>NULL</code>/0) and get a completion event as well (<code>doneEvent</code> argument, may be <code>NULL</code>):</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1"></a><span class="dt">void</span> oidnExecuteSYCLFilterAsync(OIDNFilter filter,</span>
-<span id="cb41-2"><a href="#cb41-2"></a>                                <span class="at">const</span> sycl::event* depEvents, <span class="dt">int</span> numDepEvents,</span>
-<span id="cb41-3"><a href="#cb41-3"></a>                                sycl::event* doneEvent);</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb44-1"><a href="#cb44-1"></a><span class="dt">void</span> oidnExecuteSYCLFilterAsync(OIDNFilter filter,</span>
+<span id="cb44-2"><a href="#cb44-2"></a>                                <span class="at">const</span> sycl::event* depEvents, <span class="dt">int</span> numDepEvents,</span>
+<span id="cb44-3"><a href="#cb44-3"></a>                                sycl::event* doneEvent);</span></code></pre></div>
 <p>When filtering asynchronously, the user must ensure correct synchronization with the device by calling <code>oidnSyncDevice</code> before accessing the output image data or releasing the filter. Failure to do so will result in undefined behavior.</p>
 <p>In the following we describe the different filters that are currently implemented in Open Image Denoise.</p>
 <h3 id="rt">RT</h3>
@@ -1224,7 +1317,7 @@ div.sourceCode { overflow-x: initial; }
 <h2 id="preprocessing-preprocess.py">Preprocessing (preprocess.py)</h2>
 <p>Training and validation datasets can be used only after preprocessing them using the <code>preprocess.py</code> script. This will convert the specified training (<code>--train_data</code> or <code>-t</code> option) and validation datasets (<code>--valid_data</code> or <code>-v</code> option) located in the root dataset directory (<code>--data_dir</code> or <code>-D</code> option) to a format that can be loaded more efficiently during training. All preprocessed datasets will be stored in a root preprocessed dataset directory (<code>--preproc_dir</code> or <code>-P</code> option).</p>
 <p>The preprocessing script requires the set of image features to include in the preprocessed dataset as command-line arguments. Only these specified features will be available for training but it is not required to use all of them at the same time. Thus, a single preprocessed dataset can be reused for training multiple models with different combinations of the preprocessed features.</p>
-<p>By default, all input features are assumed to be noisy, including the auxiliary features (e.g. albedo, normal), each having versions at different samples per pixel. It is also possible to train with noise-free auxiliary features, in which case the reference auxiliary features are used instead of the various noisy ones (<code>--clean_aux</code> option). This improves quality significantly if the auxiliary features used for inference will be either originally noise-free or prefiltered with separately trained auxiliary feature denoising models. If inference will be done only with prefiltered features, even higher quality can be achieved by training with prefiltered features instead of the reference onces. This can be achieved by first training the auxiliary feature models and then specifying the list of these results when preprocessing the dataset for the main feature (<code>--aux_results</code> or <code>-a</code> option).</p>
+<p>By default, all input features are assumed to be noisy, including the auxiliary features (e.g. albedo, normal), each having versions at different samples per pixel. It is also possible to train with noise-free auxiliary features, in which case the reference auxiliary features are used instead of the various noisy ones (<code>--clean_aux</code> option). This improves quality significantly if the auxiliary features used for inference will be either originally noise-free or prefiltered with separately trained auxiliary feature denoising models. If inference will be done only with prefiltered features, even higher quality can be achieved by training with prefiltered features instead of the reference ones. This can be achieved by first training the auxiliary feature models and then specifying the list of these results when preprocessing the dataset for the main feature (<code>--aux_results</code> or <code>-a</code> option).</p>
 <p>Preprocessing also depends on the filter that will be trained (e.g. determines which HDR/LDR transfer function has to be used), which should be also specified (<code>--filter</code> or <code>-f</code> option). The alternative is to manually specify the transfer function (<code>--transfer</code> or <code>-x</code> option) and other filter-specific parameters, which could be useful for training custom filters.</p>
 <p>For example, to preprocess the training and validation datasets (<code>rt_train</code> and <code>rt_valid</code>) with HDR color, albedo, and normal image features, for training the <code>RT</code> filter, the following command can be used:</p>
 <pre><code>./preprocess.py hdr alb nrm --filter RT --train_data rt_train --valid_data rt_valid</code></pre>
@@ -1242,7 +1335,7 @@ div.sourceCode { overflow-x: initial; }
 <p>For finding the optimal learning rate range, we recommend using the included <code>find_lr.py</code> script, which trains one epoch using an increasing learning rate and logs the resulting losses in a comma-separated values (CSV) file. Plotting the loss curve can show when the model starts to learn (the base learning rate) and when it starts to diverge (the maximum learning rate).</p>
 <p>The model is evaluated with the validation dataset at regular intervals (<code>--num_valid_epochs</code> option), and checkpoints are also regularly created (<code>--num_save_epochs</code> option) to save training progress. Also, some statistics are logged (e.g. training and validation losses, learning rate) per epoch, which can be later visualized with TensorBoard by running the <code>visualize.py</code> script, e.g.:</p>
 <pre><code>./visualize.py --result rt_hdr_alb</code></pre>
-<p>Training is performed with mixed precision (FP16 and FP32) by default, if it supported by the hardware, which makes training faster and use less memory. However, in some rare cases this might cause some convergence issues. The training precision can be manually set to FP32 if necessary (<code>--precision</code> or <code>-p</code> option).</p>
+<p>Training is performed with mixed precision (FP16 and FP32) by default, if it is supported by the hardware, which makes training faster and use less memory. However, in some rare cases this might cause some convergence issues. The training precision can be manually set to FP32 if necessary (<code>--precision</code> or <code>-p</code> option).</p>
 <h2 id="inference-infer.py">Inference (infer.py)</h2>
 <p>A training result can be tested by performing inference on an image dataset (<code>--input_data</code> or <code>-i</code> option) using the <code>infer.py</code> script. The dataset does <em>not</em> have to be preprocessed. In addition to the result to use, it is possible to specify which checkpoint to load as well (<code>-e</code> or <code>--num_epochs</code> option). By default the latest checkpoint is loaded.</p>
 <p>The tool saves the output images in a separate directory (<code>--output_dir</code> or <code>-O</code> option) in the requested formats (<code>--format</code> or <code>-F</code> option). It also evaluates a set of image quality metrics (<code>--metric</code> or <code>-M</code> option), e.g. PSNR, SSIM, for images that have reference images available. All metrics are computed in tonemapped non-linear sRGB space. Thus, HDR images are first tonemapped (with Naughty Dog’s Filmic Tonemapper from John Hable’s <em>Uncharted 2: HDR Lighting</em> presentation) and converted to sRGB before evaluating the metrics.</p>
