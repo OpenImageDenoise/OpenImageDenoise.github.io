@@ -163,6 +163,20 @@ High-Performance Denoising Library for Ray Tracing
 <span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">note</span>   = {<span class="ch">\url</span>{https://www.openimagedenoise.org}}</span>
 <span id="cb1-6"><a href="#cb1-6"></a>}</span></code></pre></div>
 <h2 id="version-history">Version History</h2>
+<h3 class="unnumbered" id="changes-in-v2.5.1">Changes in v2.5.1:</h3>
+<ul>
+<li>Fixed integer overflows which could cause out-of-bounds reads or writes instead of an error if a very large byte offset was passed to <code>oidnReadBuffer</code>, <code>oidnWriteBuffer</code> or <code>oidnSetFilterImage</code>, or a very large pixel or row stride was passed to <code>oidnSetFilterImage</code> or <code>oidnSetSharedFilterImage</code></li>
+<li>Fixed <code>oidnSetSharedFilterImage</code> accepting a byte offset large enough to make the address of the image overflow instead of returning an error</li>
+<li>Fixed <code>oidnSetFilterImage</code> and <code>oidnSetSharedFilterImage</code> truncating the width and height of the image to 32 bits, which could silently denoise a much smaller image instead of returning an error</li>
+<li>Fixed a crash if a null array of command queues was passed to <code>oidnNewMetalDevice</code>, which now returns an error instead</li>
+<li>Fixed leaking the imported memory object on CUDA and HIP devices if <code>oidnNewSharedBufferFromFD</code> or <code>oidnNewSharedBufferFromWin32Handle</code> failed after the handle had already been imported</li>
+<li>Fixed <code>oidnReadBuffer</code> and <code>oidnWriteBuffer</code> failing with an out-of-memory error on Metal devices if the specified byte size was 0</li>
+<li>Fixed a signed integer overflow when denoising very large single-channel images, close to the maximum supported number of pixels</li>
+<li>Fixed out-of-bounds reads and crashes caused by insufficient validation of the weights blob set with <code>oidnSetSharedFilterData</code>, which could occur if the blob was corrupted or malicious</li>
+<li>Fixed a crash (division by zero) if the weights blob set with <code>oidnSetSharedFilterData</code> contained a tensor with a zero dimension</li>
+<li>Fixed changes to other filter parameters being discarded when setting an empty data parameter with <code>oidnSetSharedFilterData</code>, which could cause the filter to be executed with an outdated model, corrupting the output image or crashing</li>
+<li>Fixed crashes and incorrect output if committing a filter failed due to running out of memory, which could also break the other filters of the device. Executing such a filter now returns an error instead, and the filter can be recovered by committing it again</li>
+</ul>
 <h3 class="unnumbered" id="changes-in-v2.5.0">Changes in v2.5.0:</h3>
 <ul>
 <li>Significantly improved performance and reduced memory usage on Intel GPUs with XMX support and CPUs with AMX-FP16 support</li>
